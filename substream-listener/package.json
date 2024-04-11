@@ -1,0 +1,19 @@
+{
+  "name": "substream-listener",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "tsx ./index.mts"
+  },
+  "dependencies": {
+    "@substreams/core": "^0.16.0",
+    "@substreams/manifest": "^0.15.0",
+    "@substreams/node": "^0.6.2",
+    "svix": "^1.21.0"
+  },
+  "devDependencies": {
+    "@tsconfig/node20": "^20.1.4",
+    "@types/node": "^20.12.7",
+    "tsx": "^4.7.2",
+    "typescript": "^5.2.2"
+  }
+}
