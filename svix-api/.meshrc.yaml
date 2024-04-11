@@ -2,7 +2,7 @@ sources:
   - name: SVIXAPI
     handler:
       openapi:
-        source: https://backend.webhooksss.orb.local/api/v1/openapi.json
-        endpoint: https://backend.webhooksss.orb.local
+        source: http://localhost:8071/api/v1/openapi.json
+        endpoint: http://localhost:8071
         operationHeaders:
           Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTI3NjcxODYsImV4cCI6MjAyODEyNzE4NiwibmJmIjoxNzEyNzY3MTg2LCJpc3MiOiJzdml4LXNlcnZlciIsInN1YiI6Im9yZ18yM3JiOFlkR3FNVDBxSXpwZ0d3ZFhmSGlyTXUifQ.Gnj4vMl0qls2Q6ks690ZEUAW7h6VsgUHc6iwFWNPa1I
