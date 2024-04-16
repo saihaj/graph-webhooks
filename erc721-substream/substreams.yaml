@@ -21,8 +21,13 @@ modules:
   - name: map_transfers
     kind: map
     inputs:
+      - params: string
       - source: sf.ethereum.type.v2.Block
     output:
-      type: proto:contract.v1.Events
+      type: proto:contract.v1.Transfers
+
+params:
+  # Getting transfers on BoredApeYachtClub
+  map_transfers: "0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d"
 
 network: mainnet

@@ -1,6 +1,6 @@
 mod abi;
 mod pb;
-use hex_literal::hex;
+use anyhow::{anyhow, Error};
 use pb::contract::v1 as contract;
 use substreams::Hex;
 use substreams_ethereum::pb::eth::v2 as eth;
@@ -11,9 +11,28 @@ use num_traits::cast::ToPrimitive;
 
 substreams_ethereum::init!();
 
-const ERC721_TRACKED_CONTRACT: [u8; 20] = hex!("bc4ca0eda7647a8ab7c2061c2e118a18a936f13d");
+fn is_address_valid(address: &String) -> bool {
+    // An address is always 40 hexadecimal characters (or 2 more character with 0x prefix)
+    if address.len() != 40 && address.len() != 42 {
+        return false;
+    }
 
-fn map_erc721_transfers(blk: &eth::Block, events: &mut contract::Transfers) {
+    return true;
+}
+
+fn verify_parameter(address: &String) -> Result<(), Error> {
+    if !is_address_valid(&address) {
+        return Err(anyhow!("Contract address ({}) is not valid", address));
+    }
+
+    Ok(())
+}
+
+fn map_erc721_transfers(
+    blk: &eth::Block,
+    contract_address: Vec<u8>,
+    events: &mut contract::Transfers,
+) {
     events.transfers.append(
         &mut blk
             .receipts()
@@ -21,7 +40,7 @@ fn map_erc721_transfers(blk: &eth::Block, events: &mut contract::Transfers) {
                 view.receipt
                     .logs
                     .iter()
-                    .filter(|log| log.address == ERC721_TRACKED_CONTRACT)
+                    .filter(|log| log.address.to_vec() == contract_address)
                     .filter_map(|log| {
                         if let Some(event) = abi::erc721::events::Transfer::match_and_decode(log) {
                             return Some(contract::Transfer {
@@ -42,8 +61,15 @@ fn map_erc721_transfers(blk: &eth::Block, events: &mut contract::Transfers) {
 }
 
 #[substreams::handlers::map]
-fn map_transfers(blk: eth::Block) -> Result<contract::Transfers, substreams::errors::Error> {
+fn map_transfers(
+    contract_address: String,
+    blk: eth::Block,
+) -> Result<contract::Transfers, substreams::errors::Error> {
+    verify_parameter(&contract_address)?;
+
+    let decoded_contract_address = Hex::decode(&contract_address).expect("already validated");
+
     let mut events: contract::Transfers = contract::Transfers::default();
-    map_erc721_transfers(&blk, &mut events);
+    map_erc721_transfers(&blk, decoded_contract_address, &mut events);
     Ok(events)
 }
