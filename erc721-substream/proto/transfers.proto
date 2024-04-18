@@ -13,7 +13,7 @@ message Transfer {
     uint32 index = 2;
     google.protobuf.Timestamp block_time = 3;
     uint64 block_number = 4;
-    bytes from = 5;
-    bytes to = 6;
+    string from = 5;
+    string to = 6;
     string token_id = 7;
 }

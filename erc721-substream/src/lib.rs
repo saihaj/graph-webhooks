@@ -44,12 +44,12 @@ fn map_erc721_transfers(
                     .filter_map(|log| {
                         if let Some(event) = abi::erc721::events::Transfer::match_and_decode(log) {
                             return Some(contract::Transfer {
-                                tx_hash: Hex(&view.transaction.hash).to_string(),
+                                tx_hash: format!("0x{}", Hex(&view.transaction.hash).to_string()),
                                 index: log.block_index,
                                 block_time: Some(blk.timestamp().to_owned()),
                                 block_number: blk.number,
-                                from: event.from,
-                                to: event.to,
+                                from: format!("0x{}", Hex(&event.from).to_string()),
+                                to: format!("0x{}", Hex(&event.to).to_string()),
                                 token_id: event.token_id.to_string(),
                             });
                         }
