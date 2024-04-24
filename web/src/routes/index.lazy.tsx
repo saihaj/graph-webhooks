@@ -15,6 +15,15 @@ import {
   CardContent,
   Card,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { CreateProject } from "@/components/create";
 
 function BookOpenIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -149,9 +158,7 @@ function Index() {
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
       <div className="flex items-center">
         <h1 className="font-semibold text-lg md:text-2xl">Projects</h1>
-        <Button className="ml-auto" size="sm">
-          Add project
-        </Button>
+        <CreateProject />
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card>
