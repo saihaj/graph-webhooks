@@ -12,7 +12,7 @@ import {
   DropdownMenu,
 } from "@/components/ui/dropdown-menu";
 
-function BellIcon(props) {
+function BellIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -32,7 +32,7 @@ function BellIcon(props) {
   );
 }
 
-function CloudIcon(props) {
+function CloudIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -51,7 +51,7 @@ function CloudIcon(props) {
   );
 }
 
-function HomeIcon(props) {
+function HomeIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -71,7 +71,7 @@ function HomeIcon(props) {
   );
 }
 
-function LogInIcon(props) {
+function LogInIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -92,7 +92,7 @@ function LogInIcon(props) {
   );
 }
 
-function Package2Icon(props) {
+function Package2Icon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -113,7 +113,7 @@ function Package2Icon(props) {
   );
 }
 
-function PackageIcon(props) {
+function PackageIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -135,7 +135,7 @@ function PackageIcon(props) {
   );
 }
 
-function PieChartIcon(props) {
+function PieChartIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -155,7 +155,7 @@ function PieChartIcon(props) {
   );
 }
 
-function SettingsIcon(props) {
+function SettingsIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -175,7 +175,7 @@ function SettingsIcon(props) {
   );
 }
 
-function SearchIcon(props) {
+function SearchIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}

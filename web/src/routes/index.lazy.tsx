@@ -16,7 +16,7 @@ import {
   Card,
 } from "@/components/ui/card";
 
-function BookOpenIcon(props) {
+function BookOpenIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -36,7 +36,7 @@ function BookOpenIcon(props) {
   );
 }
 
-function GitBranchIcon(props) {
+function GitBranchIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -58,7 +58,7 @@ function GitBranchIcon(props) {
   );
 }
 
-function GithubIcon(props) {
+function GithubIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -78,7 +78,7 @@ function GithubIcon(props) {
   );
 }
 
-function HomeIcon(props) {
+function HomeIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -98,7 +98,7 @@ function HomeIcon(props) {
   );
 }
 
-function LayoutPanelLeftIcon(props) {
+function LayoutPanelLeftIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -119,7 +119,7 @@ function LayoutPanelLeftIcon(props) {
   );
 }
 
-function MoreHorizontalIcon(props) {
+function MoreHorizontalIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
