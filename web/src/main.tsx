@@ -6,6 +6,7 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
+import { ThemeProvider } from "./components/theme-provider";
 
 // Create a new router instance
 const router = createRouter({ routeTree });
@@ -26,7 +27,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         serverUrl: "http://localhost:8071",
       }}
     >
-      <RouterProvider router={router} />
+      <ThemeProvider defaultTheme="dark" storageKey="graph-webhooks">
+        <RouterProvider router={router} />
+      </ThemeProvider>
     </SvixProvider>
   </React.StrictMode>
 );

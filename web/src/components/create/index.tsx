@@ -1,3 +1,4 @@
+import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import {
@@ -43,7 +44,13 @@ function ChevronDownIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-export function CreateProject() {
+export function CreateProject({
+  setProjects,
+}: {
+  setProjects: React.Dispatch<
+    React.SetStateAction<{ name: string; chainName: string }[]>
+  >;
+}) {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -114,7 +121,21 @@ export function CreateProject() {
             <DialogClose asChild>
               <Button variant="ghost">Cancel</Button>
             </DialogClose>
-            <Button>Add Project</Button>
+            <DialogClose asChild>
+              <Button
+                onClick={() => {
+                  setProjects((projects) => [
+                    ...projects,
+                    {
+                      name: `Project ${projects.length + 1}`,
+                      chainName: `Chain ${projects.length + 1}`,
+                    },
+                  ]);
+                }}
+              >
+                Add Project
+              </Button>
+            </DialogClose>
           </DialogFooter>
         </DialogHeader>
       </DialogContent>
