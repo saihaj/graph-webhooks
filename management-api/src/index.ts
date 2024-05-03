@@ -1,18 +1,8 @@
-import { createSchema, createYoga } from "graphql-yoga";
+import { createYoga } from "graphql-yoga";
+import { schema } from "./schema";
 
 const yoga = createYoga({
-  schema: createSchema({
-    typeDefs: /* GraphQL */ `
-      type Query {
-        hello: String!
-      }
-    `,
-    resolvers: {
-      Query: {
-        hello: () => "Hello World!",
-      },
-    },
-  }),
+  schema,
 });
 
 self.addEventListener("fetch", yoga);
