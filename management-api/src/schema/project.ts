@@ -1,4 +1,4 @@
-import { project } from "../db/schema";
+import { project } from "../db-schema";
 import { builder } from "./utils";
 import { z } from "zod";
 import { isAddress } from "viem/utils";
