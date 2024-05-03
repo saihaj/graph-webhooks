@@ -13,6 +13,8 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240423.0",
+    "@types/node": "^20.12.7",
+    "@types/service-worker-mock": "^2.0.4",
     "drizzle-kit": "^0.20.17",
     "tsx": "^4.7.2",
     "typescript": "^5.2.2",

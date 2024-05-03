@@ -2,8 +2,8 @@ CREATE TABLE `organization` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,
 	`svix_org_id` text NOT NULL,
-	`created_at` integer NOT NULL,
-	`updated_at` integer NOT NULL
+	`created_at` integer DEFAULT (CURRENT_TIMESTAMP),
+	`updated_at` integer DEFAULT (CURRENT_TIMESTAMP)
 );
 --> statement-breakpoint
 CREATE TABLE `project` (
@@ -12,8 +12,8 @@ CREATE TABLE `project` (
 	`configuration` text NOT NULL,
 	`creator_id` integer NOT NULL,
 	`organization_id` integer NOT NULL,
-	`created_at` integer NOT NULL,
-	`updated_at` integer NOT NULL,
+	`created_at` integer DEFAULT (CURRENT_TIMESTAMP),
+	`updated_at` integer DEFAULT (CURRENT_TIMESTAMP),
 	FOREIGN KEY (`creator_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`organization_id`) REFERENCES `organization`(`id`) ON UPDATE no action ON DELETE no action
 );
@@ -21,8 +21,8 @@ CREATE TABLE `project` (
 CREATE TABLE `user` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,
-	`created_at` integer NOT NULL,
-	`updated_at` integer NOT NULL
+	`created_at` integer DEFAULT (CURRENT_TIMESTAMP),
+	`updated_at` integer DEFAULT (CURRENT_TIMESTAMP)
 );
 --> statement-breakpoint
 CREATE TABLE `users_to_organizations` (

@@ -2,9 +2,13 @@ import SchemaBuilder from "@pothos/core";
 import WithInputPlugin from "@pothos/plugin-with-input";
 import { ValidationError } from "../errors";
 import { EthAddressScalar } from "./scalar";
+import { drizzle } from "drizzle-orm/d1";
 import { URLResolver } from "graphql-scalars";
 
 export const builder = new SchemaBuilder<{
+  Context: {
+    db: ReturnType<typeof drizzle>;
+  };
   Scalars: {
     EthAddress: {
       Input: string;

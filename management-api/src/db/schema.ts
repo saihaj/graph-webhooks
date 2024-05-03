@@ -4,13 +4,17 @@ import {
   text,
   primaryKey,
 } from "drizzle-orm/sqlite-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 export const user = sqliteTable("user", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).default(
+    sql`(CURRENT_TIMESTAMP)`
+  ),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).default(
+    sql`(CURRENT_TIMESTAMP)`
+  ),
 });
 
 export const usersRelations = relations(user, ({ many }) => ({
@@ -21,8 +25,12 @@ export const organization = sqliteTable("organization", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   svixOrgId: text("svix_org_id").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).default(
+    sql`(CURRENT_TIMESTAMP)`
+  ),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).default(
+    sql`(CURRENT_TIMESTAMP)`
+  ),
 });
 
 export const organizationRelations = relations(organization, ({ many }) => ({
@@ -73,6 +81,10 @@ export const project = sqliteTable("project", {
   organization: integer("organization_id")
     .references(() => organization.id)
     .notNull(),
-  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).default(
+    sql`(CURRENT_TIMESTAMP)`
+  ),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).default(
+    sql`(CURRENT_TIMESTAMP)`
+  ),
 });
