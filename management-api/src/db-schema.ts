@@ -3,6 +3,7 @@ import {
   sqliteTable,
   text,
   primaryKey,
+  index,
 } from "drizzle-orm/sqlite-core";
 import { v4 } from "uuid";
 import { relations, sql } from "drizzle-orm";
@@ -11,10 +12,10 @@ export const user = sqliteTable("user", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" }).default(
-    sql`(CURRENT_TIMESTAMP)`
+    sql`(strftime('%s', 'now'))`
   ),
   updatedAt: integer("updated_at", { mode: "timestamp" }).default(
-    sql`(CURRENT_TIMESTAMP)`
+    sql`(strftime('%s', 'now'))`
   ),
 });
 
@@ -26,10 +27,10 @@ export const organization = sqliteTable("organization", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" }).default(
-    sql`(CURRENT_TIMESTAMP)`
+    sql`(strftime('%s', 'now'))`
   ),
   updatedAt: integer("updated_at", { mode: "timestamp" }).default(
-    sql`(CURRENT_TIMESTAMP)`
+    sql`(strftime('%s', 'now'))`
   ),
 });
 
@@ -60,7 +61,7 @@ export const usersToOrganizationRelations = relations(
   usersToOrgs,
   ({ one }) => ({
     organization: one(organization, {
-      fields: [usersToOrgs.groupId],
+      fields: [usersToOrgs.orgId],
       references: [organization.id],
     }),
     user: one(user, {
@@ -70,21 +71,30 @@ export const usersToOrganizationRelations = relations(
   })
 );
 
-export const project = sqliteTable("project", {
-  id: text("id").primaryKey().$defaultFn(v4),
-  name: text("name").notNull(),
-  // we store a zod processed objects. Allowing us more flexibility in the future
-  configuration: text("configuration", { mode: "json" }).notNull(),
-  creator: integer("creator_id")
-    .references(() => user.id)
-    .notNull(),
-  organization: integer("organization_id")
-    .references(() => organization.id)
-    .notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" }).default(
-    sql`(CURRENT_TIMESTAMP)`
-  ),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).default(
-    sql`(CURRENT_TIMESTAMP)`
-  ),
-});
+export const project = sqliteTable(
+  "project",
+  {
+    id: text("id").primaryKey().$defaultFn(v4),
+    name: text("name").notNull(),
+    // we store a zod processed objects. Allowing us more flexibility in the future
+    configuration: text("configuration", { mode: "json" }).notNull(),
+    creator: integer("creator_id")
+      .references(() => user.id)
+      .notNull(),
+    organization: integer("organization_id")
+      .references(() => organization.id)
+      .notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" }).default(
+      sql`(strftime('%s', 'now'))`
+    ),
+    updatedAt: integer("updated_at", { mode: "timestamp" }).default(
+      sql`(strftime('%s', 'now'))`
+    ),
+  },
+  (table) => {
+    return {
+      // needed for optimizing cursor based pagination
+      created_idx: index("created_idx").on(table.createdAt, table.id),
+    };
+  }
+);

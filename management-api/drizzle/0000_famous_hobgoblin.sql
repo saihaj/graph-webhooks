@@ -1,8 +1,8 @@
 CREATE TABLE `organization` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,
-	`created_at` integer DEFAULT (CURRENT_TIMESTAMP),
-	`updated_at` integer DEFAULT (CURRENT_TIMESTAMP)
+	`created_at` integer DEFAULT (strftime('%s', 'now')),
+	`updated_at` integer DEFAULT (strftime('%s', 'now'))
 );
 --> statement-breakpoint
 CREATE TABLE `project` (
@@ -11,8 +11,8 @@ CREATE TABLE `project` (
 	`configuration` text NOT NULL,
 	`creator_id` integer NOT NULL,
 	`organization_id` integer NOT NULL,
-	`created_at` integer DEFAULT (CURRENT_TIMESTAMP),
-	`updated_at` integer DEFAULT (CURRENT_TIMESTAMP),
+	`created_at` integer DEFAULT (strftime('%s', 'now')),
+	`updated_at` integer DEFAULT (strftime('%s', 'now')),
 	FOREIGN KEY (`creator_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`organization_id`) REFERENCES `organization`(`id`) ON UPDATE no action ON DELETE no action
 );
@@ -20,8 +20,8 @@ CREATE TABLE `project` (
 CREATE TABLE `user` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,
-	`created_at` integer DEFAULT (CURRENT_TIMESTAMP),
-	`updated_at` integer DEFAULT (CURRENT_TIMESTAMP)
+	`created_at` integer DEFAULT (strftime('%s', 'now')),
+	`updated_at` integer DEFAULT (strftime('%s', 'now'))
 );
 --> statement-breakpoint
 CREATE TABLE `users_to_organizations` (
@@ -31,3 +31,5 @@ CREATE TABLE `users_to_organizations` (
 	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`organization_id`) REFERENCES `organization`(`id`) ON UPDATE no action ON DELETE no action
 );
+--> statement-breakpoint
+CREATE INDEX `created_idx` ON `project` (`created_at`,`id`);

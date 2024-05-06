@@ -1,8 +1,9 @@
 import { project } from "../db-schema";
-import { builder } from "./utils";
+import { builder, notEmpty } from "./utils";
 import { z } from "zod";
 import { isAddress } from "viem/utils";
 import { v4 as uuidv4 } from "uuid";
+import { and, asc, eq, gt, or, sql } from "drizzle-orm";
 
 const SUPPORTED_CHAINS = ["ETH_MAINNET"] as const;
 
@@ -14,12 +15,28 @@ const Project =
   builder.objectRef<Pick<typeof project.$inferSelect, "id" | "name">>(
     "Project"
   );
-builder.objectType(Project, {
+
+builder.node(Project, {
+  id: {
+    resolve: (obj) => obj.id,
+  },
+  name: "Project",
   description: "A project that tracks a contract on a chain",
   fields: (t) => ({
-    id: t.exposeID("id"),
     name: t.exposeString("name"),
   }),
+  loadOne: (id, { db }) =>
+    db
+      .select()
+      .from(project)
+      .where(eq(project.id, id))
+      .limit(1)
+      .then((res) => res[0]),
+  loadMany: (ids, { db }) =>
+    db
+      .select()
+      .from(project)
+      .where(sql`${project.id} IN (${ids})`),
 });
 
 const ConfigurationSchema = z.object({
@@ -30,6 +47,61 @@ const ConfigurationSchema = z.object({
     .string()
     .transform((v) => v.toLowerCase())
     .refine(isAddress),
+});
+
+builder.queryField("projects", (t) => {
+  return t.connection({
+    type: Project,
+    description: "List of projects",
+    resolve: async (_parent, { first, after }, { db }) => {
+      const limit = first ?? 10;
+
+      const cursor = after
+        ? {
+            createdAt: new Date(after.split("__")[0]),
+            id: after.split("__")[1],
+          }
+        : null;
+
+      const projects = await db
+        .select()
+        .from(project)
+        .where(
+          // make sure to add indices for the columns that you use for cursor
+          cursor
+            ? or(
+                gt(project.createdAt, cursor.createdAt),
+                and(
+                  eq(project.createdAt, cursor.createdAt),
+                  gt(project.id, cursor.id)
+                )
+              )
+            : undefined
+        )
+        .limit(limit + 1)
+        .orderBy(asc(project.createdAt), asc(project.id));
+
+      const mapped = projects
+        .slice(0, limit)
+        .map((project) => {
+          return {
+            cursor: `${project.createdAt}__${project.id}`,
+            node: project,
+          };
+        })
+        .filter(notEmpty);
+
+      return {
+        pageInfo: {
+          hasNextPage: projects.length > mapped.length,
+          hasPreviousPage: false, // TODO: adjust
+          startCursor: mapped[0].cursor,
+          endCursor: mapped[mapped.length - 1].cursor,
+        },
+        edges: mapped,
+      };
+    },
+  });
 });
 
 builder.relayMutationField(
