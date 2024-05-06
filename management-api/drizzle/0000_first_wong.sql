@@ -1,7 +1,6 @@
 CREATE TABLE `organization` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,
-	`svix_org_id` text NOT NULL,
 	`created_at` integer DEFAULT (CURRENT_TIMESTAMP),
 	`updated_at` integer DEFAULT (CURRENT_TIMESTAMP)
 );
@@ -10,6 +9,7 @@ CREATE TABLE `project` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,
 	`configuration` text NOT NULL,
+	`svix_app_id` text NOT NULL,
 	`creator_id` integer NOT NULL,
 	`organization_id` integer NOT NULL,
 	`created_at` integer DEFAULT (CURRENT_TIMESTAMP),

@@ -24,7 +24,6 @@ export const usersRelations = relations(user, ({ many }) => ({
 export const organization = sqliteTable("organization", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
-  svixOrgId: text("svix_org_id").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" }).default(
     sql`(CURRENT_TIMESTAMP)`
   ),
@@ -75,6 +74,7 @@ export const project = sqliteTable("project", {
   name: text("name").notNull(),
   // we store a zod processed objects. Allowing us more flexibility in the future
   configuration: text("configuration", { mode: "json" }).notNull(),
+  svixAppId: text("svix_app_id").notNull(),
   creator: integer("creator_id")
     .references(() => user.id)
     .notNull(),

@@ -60,7 +60,7 @@ builder.mutationType({
           required: true,
         }),
       },
-      resolve: async (parent, { input }, { db }) => {
+      resolve: async (parent, { input }, { db, svix, SVIX_TOKEN }) => {
         const configuration = await ConfigurationSchema.safeParseAsync({
           ...input,
           webhookUrl: input.webhookUrl?.toString(),
@@ -69,12 +69,32 @@ builder.mutationType({
           throw new Error("Invalid configuration");
         }
 
+        const svixApp = await svix["/api/v1/app/"].post({
+          query: {
+            get_if_exists: true,
+          },
+          headers: {
+            Authorization: `Bearer ${SVIX_TOKEN}`,
+          },
+          json: {
+            name: `${input.name}-${input.chain}-1`,
+            rateLimit: 100,
+          },
+        });
+
+        if (!svixApp.ok) {
+          throw new Error("Failed to create svix app");
+        }
+
+        const svixAppJson = await svixApp.json();
+
         const createProject = await db
           .insert(project)
           .values({
             name: input.name,
             configuration: configuration.data,
             creator: 1,
+            svixAppId: svixAppJson.id,
             organization: 1,
           })
           .returning();

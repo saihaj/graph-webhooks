@@ -8,3 +8,6 @@ send_metrics = true
 binding = "DB" # i.e. available in your Worker on env.DB
 database_name = "graph_webhooks"
 database_id = "25831c23-c6e8-4e1b-bbde-40c29c097061"
+
+[vars]
+SVIX_HOST = "http://localhost:8071"

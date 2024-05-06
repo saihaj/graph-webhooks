@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "disableSizeLimit": true, // https://the-guild.dev/openapi/fets/client/quick-start#usage-with-existing-rest-api
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "baseUrl": "src",
