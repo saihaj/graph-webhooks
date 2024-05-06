@@ -2,21 +2,7 @@ enum Chain {
   ETH_MAINNET
 }
 
-"""Base Error"""
-interface Error {
-  """Descriptive message of error"""
-  message: String!
-}
-
-"""Ethereum address"""
-scalar EthAddress
-
-type Mutation {
-  createProject(input: MutationCreateProjectInput!): Project!
-  createUser(input: MutationCreateUserInput!): User!
-}
-
-input MutationCreateProjectInput {
+input CreateProjectInput {
   """The chain to track the contract on"""
   chain: Chain!
 
@@ -31,6 +17,25 @@ input MutationCreateProjectInput {
 
   """The URL to send webhook events to"""
   webhookUrl: URL
+}
+
+type CreateProjectPayload {
+  """The created project"""
+  project: Project!
+}
+
+"""Base Error"""
+interface Error {
+  """Descriptive message of error"""
+  message: String!
+}
+
+"""Ethereum address"""
+scalar EthAddress
+
+type Mutation {
+  createProject(input: CreateProjectInput!): CreateProjectPayload!
+  createUser(input: MutationCreateUserInput!): User!
 }
 
 input MutationCreateUserInput {

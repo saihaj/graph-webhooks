@@ -32,76 +32,85 @@ const ConfigurationSchema = z.object({
     .refine(isAddress),
 });
 
-builder.mutationType({
-  fields: (t) => ({
-    createProject: t.fieldWithInput({
-      type: Project,
-      input: {
-        name: t.input.string({
-          required: true,
-          description: "The name of the project to create",
-        }),
-        contractAddress: t.input.field({
-          type: "EthAddress",
-          description: "The address of the contract to track",
-          required: true,
-        }),
-        webhookUrl: t.input.field({
-          type: "URL",
-          description: "The URL to send webhook events to",
-          required: false,
-        }),
-        startBlock: t.input.int({
-          description: "The block number to start tracking from",
-          required: false,
-        }),
-        chain: t.input.field({
-          type: Chain,
-          description: "The chain to track the contract on",
-          required: true,
-        }),
-      },
-      resolve: async (_parent, { input }, { db, svix, SVIX_TOKEN }) => {
-        const configuration = await ConfigurationSchema.safeParseAsync({
-          ...input,
-          webhookUrl: input.webhookUrl?.toString(),
-        });
-
-        if (!configuration.success) {
-          throw new Error("Invalid configuration");
-        }
-        const id = uuidv4();
-
-        const svixApp = await svix["/api/v1/app/"].post({
-          headers: {
-            Authorization: `Bearer ${SVIX_TOKEN}`,
-          },
-          json: {
-            // TODO: use the user and org id part of the name
-            // format is: <name>-<chain>-<org>-<user>
-            name: `${input.name}-${input.chain}-1`,
-            rateLimit: 100,
-            uid: id,
-          },
-        });
-
-        if (!svixApp.ok) {
-          throw new Error("Failed to create svix app");
-        }
-
-        const createProject = await db
-          .insert(project)
-          .values({
-            name: input.name,
-            configuration: configuration.data,
-            creator: 1, // TODO: get from the context user
-            id,
-            organization: 1, // TODO: get from the context user
-          })
-          .returning();
-
-        return createProject[0]!;
-      },
+builder.relayMutationField(
+  "createProject",
+  {
+    inputFields: (t) => ({
+      name: t.string({
+        required: true,
+        description: "The name of the project to create",
+      }),
+      contractAddress: t.field({
+        type: "EthAddress",
+        description: "The address of the contract to track",
+        required: true,
+      }),
+      webhookUrl: t.field({
+        type: "URL",
+        description: "The URL to send webhook events to",
+        required: false,
+      }),
+      startBlock: t.int({
+        description: "The block number to start tracking from",
+        required: false,
+      }),
+      chain: t.field({
+        type: Chain,
+        description: "The chain to track the contract on",
+        required: true,
+      }),
     }),
-  }),
-});
+  },
+  {
+    resolve: async (_parent, { input }, { db, svix, SVIX_TOKEN }) => {
+      const configuration = await ConfigurationSchema.safeParseAsync({
+        ...input,
+        webhookUrl: input.webhookUrl?.toString(),
+      });
+
+      if (!configuration.success) {
+        throw new Error("Invalid configuration");
+      }
+      const id = uuidv4();
+
+      const svixApp = await svix["/api/v1/app/"].post({
+        headers: {
+          Authorization: `Bearer ${SVIX_TOKEN}`,
+        },
+        json: {
+          // TODO: use the user and org id part of the name
+          // format is: <name>-<chain>-<org>-<user>
+          name: `${input.name}-${input.chain}-1`,
+          rateLimit: 100,
+          uid: id,
+        },
+      });
+
+      if (!svixApp.ok) {
+        throw new Error("Failed to create SVIX app");
+      }
+
+      const createdProj = await db
+        .insert(project)
+        .values({
+          name: input.name,
+          configuration: configuration.data,
+          creator: 1, // TODO: get from the context user
+          id,
+          organization: 1, // TODO: get from the context user
+        })
+        .returning();
+
+      return createdProj[0];
+    },
+  },
+  {
+    outputFields: (t) => ({
+      project: t.field({
+        type: Project,
+        description: "The created project",
+        resolve: (res) => res,
+      }),
+    }),
+  }
+);

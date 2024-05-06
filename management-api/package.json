@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@pothos/core": "^3.41.1",
+    "@pothos/plugin-relay": "^3.46.0",
     "@pothos/plugin-with-input": "^3.10.1",
     "drizzle-orm": "^0.30.10",
     "fets": "^0.8.0",

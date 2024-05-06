@@ -3,6 +3,7 @@ import WithInputPlugin from "@pothos/plugin-with-input";
 import { ValidationError } from "../errors";
 import { EthAddressScalar } from "./scalar";
 import { URLResolver } from "graphql-scalars";
+import RelayPlugin from "@pothos/plugin-relay";
 import { Context } from "../context";
 
 export const builder = new SchemaBuilder<{
@@ -18,7 +19,18 @@ export const builder = new SchemaBuilder<{
     };
   };
 }>({
-  plugins: [WithInputPlugin],
+  plugins: [WithInputPlugin, RelayPlugin],
+  relayOptions: {
+    clientMutationId: "omit",
+    cursorType: "String",
+    edgesFieldOptions: {
+      nullable: {
+        list: false,
+        // @ts-expect-error We don't want nullability here
+        items: false,
+      },
+    },
+  },
 });
 
 builder.addScalarType("EthAddress", EthAddressScalar, {});

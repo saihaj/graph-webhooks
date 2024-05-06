@@ -17,6 +17,9 @@ importers:
       '@pothos/core':
         specifier: ^3.41.1
         version: 3.41.1(graphql@16.8.1)
+      '@pothos/plugin-relay':
+        specifier: ^3.46.0
+        version: 3.46.0(@pothos/core@3.41.1(graphql@16.8.1))(graphql@16.8.1)
       '@pothos/plugin-with-input':
         specifier: ^3.10.1
         version: 3.10.1(@pothos/core@3.41.1(graphql@16.8.1))(graphql@16.8.1)
@@ -1776,6 +1779,12 @@ packages:
   '@pothos/core@3.41.1':
     resolution: {integrity: sha512-K+TGTK2Q7rmLU9WaC1cSDiGZaU9M+gHNbCYBom2W1vHuEYDUAiihVHz9tXYsrYjFMJSK+wLJ7Xp2374bQa9x/w==}
     peerDependencies:
+      graphql: '>=15.1.0'
+
+  '@pothos/plugin-relay@3.46.0':
+    resolution: {integrity: sha512-EOmyqAsMy/vWgitPWcQRDUvLBcZF5M/RrFxoFeI/VWnRpUJPr8XmHh28jb70G8Wzfg56btPpTY440doSKb60og==}
+    peerDependencies:
+      '@pothos/core': '*'
       graphql: '>=15.1.0'
 
   '@pothos/plugin-with-input@3.10.1':
@@ -6433,6 +6442,11 @@ snapshots:
 
   '@pothos/core@3.41.1(graphql@16.8.1)':
     dependencies:
+      graphql: 16.8.1
+
+  '@pothos/plugin-relay@3.46.0(@pothos/core@3.41.1(graphql@16.8.1))(graphql@16.8.1)':
+    dependencies:
+      '@pothos/core': 3.41.1(graphql@16.8.1)
       graphql: 16.8.1
 
   '@pothos/plugin-with-input@3.10.1(@pothos/core@3.41.1(graphql@16.8.1))(graphql@16.8.1)':
