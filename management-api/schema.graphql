@@ -13,6 +13,7 @@ scalar EthAddress
 
 type Mutation {
   createProject(input: MutationCreateProjectInput!): Project!
+  createUser(input: MutationCreateUserInput!): User!
 }
 
 input MutationCreateProjectInput {
@@ -32,6 +33,11 @@ input MutationCreateProjectInput {
   webhookUrl: URL
 }
 
+input MutationCreateUserInput {
+  """Name of the user"""
+  name: String!
+}
+
 """A project that tracks a contract on a chain"""
 type Project {
   id: ID!
@@ -46,6 +52,12 @@ type Query {
 A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
 """
 scalar URL
+
+"""User of the system"""
+type User {
+  id: ID!
+  name: String!
+}
 
 """Returned when a validation error occurs."""
 type ValidationError implements Error {

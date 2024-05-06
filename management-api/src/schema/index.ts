@@ -1,5 +1,6 @@
 import { builder } from "./utils";
 import "./project";
+import "./user";
 
 builder.queryType({
   fields: (t) => ({

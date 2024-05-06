@@ -4,6 +4,7 @@ import {
   text,
   primaryKey,
 } from "drizzle-orm/sqlite-core";
+import { v4 } from "uuid";
 import { relations, sql } from "drizzle-orm";
 
 export const user = sqliteTable("user", {
@@ -46,12 +47,12 @@ export const usersToOrgs = sqliteTable(
     userId: integer("user_id")
       .notNull()
       .references(() => user.id),
-    groupId: integer("organization_id")
+    orgId: integer("organization_id")
       .notNull()
       .references(() => organization.id),
   },
   (t) => ({
-    pk: primaryKey({ columns: [t.userId, t.groupId] }),
+    pk: primaryKey({ columns: [t.userId, t.orgId] }),
   })
 );
 
@@ -70,11 +71,10 @@ export const usersToOrganizationRelations = relations(
 );
 
 export const project = sqliteTable("project", {
-  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  id: text("id").primaryKey().$defaultFn(v4),
   name: text("name").notNull(),
   // we store a zod processed objects. Allowing us more flexibility in the future
   configuration: text("configuration", { mode: "json" }).notNull(),
-  svixAppId: text("svix_app_id").notNull(),
   creator: integer("creator_id")
     .references(() => user.id)
     .notNull(),

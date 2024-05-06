@@ -6,10 +6,9 @@ CREATE TABLE `organization` (
 );
 --> statement-breakpoint
 CREATE TABLE `project` (
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
 	`configuration` text NOT NULL,
-	`svix_app_id` text NOT NULL,
 	`creator_id` integer NOT NULL,
 	`organization_id` integer NOT NULL,
 	`created_at` integer DEFAULT (CURRENT_TIMESTAMP),

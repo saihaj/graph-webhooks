@@ -2,6 +2,7 @@ import { project } from "../db-schema";
 import { builder } from "./utils";
 import { z } from "zod";
 import { isAddress } from "viem/utils";
+import { v4 as uuidv4 } from "uuid";
 
 const SUPPORTED_CHAINS = ["ETH_MAINNET"] as const;
 
@@ -60,25 +61,27 @@ builder.mutationType({
           required: true,
         }),
       },
-      resolve: async (parent, { input }, { db, svix, SVIX_TOKEN }) => {
+      resolve: async (_parent, { input }, { db, svix, SVIX_TOKEN }) => {
         const configuration = await ConfigurationSchema.safeParseAsync({
           ...input,
           webhookUrl: input.webhookUrl?.toString(),
         });
+
         if (!configuration.success) {
           throw new Error("Invalid configuration");
         }
+        const id = uuidv4();
 
         const svixApp = await svix["/api/v1/app/"].post({
-          query: {
-            get_if_exists: true,
-          },
           headers: {
             Authorization: `Bearer ${SVIX_TOKEN}`,
           },
           json: {
+            // TODO: use the user and org id part of the name
+            // format is: <name>-<chain>-<org>-<user>
             name: `${input.name}-${input.chain}-1`,
             rateLimit: 100,
+            uid: id,
           },
         });
 
@@ -86,16 +89,14 @@ builder.mutationType({
           throw new Error("Failed to create svix app");
         }
 
-        const svixAppJson = await svixApp.json();
-
         const createProject = await db
           .insert(project)
           .values({
             name: input.name,
             configuration: configuration.data,
-            creator: 1,
-            svixAppId: svixAppJson.id,
-            organization: 1,
+            creator: 1, // TODO: get from the context user
+            id,
+            organization: 1, // TODO: get from the context user
           })
           .returning();
 
