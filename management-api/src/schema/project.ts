@@ -151,6 +151,24 @@ builder.relayMutationField(
         throw new Error("Failed to create SVIX app");
       }
 
+      const registerEndpoint = await svix[
+        "/api/v1/app/{app_id}/endpoint/"
+      ].post({
+        headers: {
+          Authorization: `Bearer ${SVIX_TOKEN}`,
+        },
+        params: {
+          app_id: id,
+        },
+        json: {
+          url: input.webhookUrl,
+        },
+      });
+
+      if (!registerEndpoint.ok) {
+        throw new Error("Failed to register webhook");
+      }
+
       const createdProj = await db
         .insert(project)
         .values({
@@ -161,6 +179,20 @@ builder.relayMutationField(
           organization: 1, // TODO: get from the context user
         })
         .returning();
+
+      const registerSubstream = await fetch(
+        "http://localhost:4040/register-webhook",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            appId: id,
+            startBlock: input.startBlock,
+          }),
+        }
+      );
+
+      const j = await registerSubstream.json();
+      console.log(j);
 
       return createdProj[0];
     },

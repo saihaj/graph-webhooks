@@ -84,9 +84,15 @@ importers:
       '@substreams/node':
         specifier: ^0.6.2
         version: 0.6.2
+      fets:
+        specifier: ^0.8.0
+        version: 0.8.0
       svix:
         specifier: ^1.21.0
         version: 1.21.0(encoding@0.1.13)
+      uWebSockets.js:
+        specifier: github:uNetworking/uWebSockets.js#semver:^20
+        version: https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/1977b5039938ad863d42fc4958d48c17e5a1fa06
     devDependencies:
       '@tsconfig/node20':
         specifier: ^20.1.4

@@ -8,7 +8,9 @@
     "@substreams/core": "^0.16.0",
     "@substreams/manifest": "^0.15.0",
     "@substreams/node": "^0.6.2",
-    "svix": "^1.21.0"
+    "fets": "^0.8.0",
+    "svix": "^1.21.0",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#semver:^20"
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.4",
