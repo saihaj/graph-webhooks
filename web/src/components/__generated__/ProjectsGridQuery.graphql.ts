@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<972d9afce838f0b2ae1933044c36aadf>>
+ * @generated SignedSource<<c2d2e3292ff76718c9e5be2cc17a9230>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,32 +10,60 @@
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type routesIndexProjectQuery$variables = Record<PropertyKey, never>;
-export type routesIndexProjectQuery$data = {
+export type ProjectsGridQuery$variables = {
+  cursor?: string | null | undefined;
+  first?: number | null | undefined;
+};
+export type ProjectsGridQuery$data = {
   readonly " $fragmentSpreads": FragmentRefs<"projects_ProjectsGrid">;
 };
-export type routesIndexProjectQuery = {
-  response: routesIndexProjectQuery$data;
-  variables: routesIndexProjectQuery$variables;
+export type ProjectsGridQuery = {
+  response: ProjectsGridQuery$data;
+  variables: ProjectsGridQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
 var v0 = [
   {
-    "kind": "Literal",
-    "name": "first",
-    "value": 9
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "cursor"
+  },
+  {
+    "defaultValue": 9,
+    "kind": "LocalArgument",
+    "name": "first"
   }
+],
+v1 = {
+  "kind": "Variable",
+  "name": "first",
+  "variableName": "first"
+},
+v2 = [
+  {
+    "kind": "Variable",
+    "name": "after",
+    "variableName": "cursor"
+  },
+  (v1/*: any*/)
 ];
 return {
   "fragment": {
-    "argumentDefinitions": [],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "routesIndexProjectQuery",
+    "name": "ProjectsGridQuery",
     "selections": [
       {
-        "args": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "cursor",
+            "variableName": "cursor"
+          },
+          (v1/*: any*/)
+        ],
         "kind": "FragmentSpread",
         "name": "projects_ProjectsGrid"
       }
@@ -45,13 +73,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": [],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "routesIndexProjectQuery",
+    "name": "ProjectsGridQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v2/*: any*/),
         "concreteType": "QueryProjectsConnection",
         "kind": "LinkedField",
         "name": "projects",
@@ -133,11 +161,11 @@ return {
             "storageKey": null
           }
         ],
-        "storageKey": "projects(first:9)"
+        "storageKey": null
       },
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v2/*: any*/),
         "filters": null,
         "handle": "connection",
         "key": "ProjectsGrid_projects",
@@ -147,16 +175,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "ef758d02618f32b9c9e10cd80c868b03",
+    "cacheID": "05796102c6661ac74d6096500a89d442",
     "id": null,
     "metadata": {},
-    "name": "routesIndexProjectQuery",
+    "name": "ProjectsGridQuery",
     "operationKind": "query",
-    "text": "query routesIndexProjectQuery {\n  ...projects_ProjectsGrid\n}\n\nfragment projects_ProjectCard on Project {\n  name\n}\n\nfragment projects_ProjectsGrid on Query {\n  projects(first: 9) {\n    edges {\n      node {\n        id\n        ...projects_ProjectCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
+    "text": "query ProjectsGridQuery(\n  $cursor: String\n  $first: Int = 9\n) {\n  ...projects_ProjectsGrid_19XkED\n}\n\nfragment projects_ProjectCard on Project {\n  name\n}\n\nfragment projects_ProjectsGrid_19XkED on Query {\n  projects(after: $cursor, first: $first) {\n    edges {\n      node {\n        id\n        ...projects_ProjectCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "5f3c429ac29cdc048bc4c90402bb209d";
+(node as any).hash = "4112654fbbafaf0dbd30c88721a51a79";
 
 export default node;

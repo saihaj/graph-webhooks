@@ -239,6 +239,9 @@ importers:
       relay-compiler:
         specifier: ^16.2.0
         version: 16.2.0
+      rimraf:
+        specifier: ^5.0.5
+        version: 5.0.5
       tailwindcss:
         specifier: ^3.4.3
         version: 3.4.3(ts-node@10.9.2(@types/node@20.12.7)(typescript@5.4.4))
