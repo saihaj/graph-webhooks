@@ -3,3 +3,4 @@ packages:
   - svix-api
   - substream-listener
   - management-api
+  - utils

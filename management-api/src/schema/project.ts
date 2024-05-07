@@ -1,11 +1,8 @@
 import { project } from "../db-schema";
 import { builder, notEmpty } from "./utils";
-import { z } from "zod";
-import { isAddress } from "viem/utils";
 import { v4 as uuidv4 } from "uuid";
+import { ProjectConfigurationSchema, SUPPORTED_CHAINS } from "utils";
 import { and, asc, eq, gt, or, sql } from "drizzle-orm";
-
-const SUPPORTED_CHAINS = ["ETH_MAINNET"] as const;
 
 const Chain = builder.enumType("Chain", {
   values: SUPPORTED_CHAINS,
@@ -37,16 +34,6 @@ builder.node(Project, {
       .select()
       .from(project)
       .where(sql`${project.id} IN (${ids})`),
-});
-
-const ConfigurationSchema = z.object({
-  webhookUrl: z.string().url(),
-  startBlock: z.number().default(0),
-  chain: z.enum(SUPPORTED_CHAINS),
-  contractAddress: z
-    .string()
-    .transform((v) => v.toLowerCase())
-    .refine(isAddress),
 });
 
 builder.queryField("projects", (t) => {
@@ -135,7 +122,7 @@ builder.relayMutationField(
   },
   {
     resolve: async (_parent, { input }, { db, svix, SVIX_TOKEN }) => {
-      const configuration = await ConfigurationSchema.safeParseAsync({
+      const configuration = await ProjectConfigurationSchema.safeParseAsync({
         ...input,
         webhookUrl: input.webhookUrl?.toString(),
       });
