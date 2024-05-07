@@ -8,10 +8,7 @@ const Chain = builder.enumType("Chain", {
   values: SUPPORTED_CHAINS,
 });
 
-const Project =
-  builder.objectRef<Pick<typeof project.$inferSelect, "id" | "name">>(
-    "Project"
-  );
+const Project = builder.objectRef<typeof project.$inferSelect>("Project");
 
 builder.node(Project, {
   id: {
@@ -21,6 +18,11 @@ builder.node(Project, {
   description: "A project that tracks a contract on a chain",
   fields: (t) => ({
     name: t.exposeString("name"),
+    chain: t.field({
+      type: Chain,
+      resolve: (obj) =>
+        ProjectConfigurationSchema.parse(obj.configuration).chain,
+    }),
   }),
   loadOne: (id, { db }) =>
     db

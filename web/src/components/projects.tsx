@@ -15,6 +15,7 @@ function ProjectCard({ card }: { card: projects_ProjectCard$key }) {
     graphql`
       fragment projects_ProjectCard on Project {
         name
+        chain
       }
     `,
     card
@@ -31,7 +32,7 @@ function ProjectCard({ card }: { card: projects_ProjectCard$key }) {
               size="sm"
               className="p-0 text-muted-foreground"
             >
-              chain
+              {data.chain}
             </Button>
           </CardDescription>
         </div>

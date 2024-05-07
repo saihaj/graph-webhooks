@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<972d9afce838f0b2ae1933044c36aadf>>
+ * @generated SignedSource<<395dcf455e1d905f64f4215fb21f51ce>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -91,6 +91,13 @@ return {
                     "alias": null,
                     "args": null,
                     "kind": "ScalarField",
+                    "name": "chain",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
                     "name": "__typename",
                     "storageKey": null
                   }
@@ -147,12 +154,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "ef758d02618f32b9c9e10cd80c868b03",
+    "cacheID": "848993ebfcfab5c162ef1aa7b0ac82c0",
     "id": null,
     "metadata": {},
     "name": "routesIndexProjectQuery",
     "operationKind": "query",
-    "text": "query routesIndexProjectQuery {\n  ...projects_ProjectsGrid\n}\n\nfragment projects_ProjectCard on Project {\n  name\n}\n\nfragment projects_ProjectsGrid on Query {\n  projects(first: 9) {\n    edges {\n      node {\n        id\n        ...projects_ProjectCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
+    "text": "query routesIndexProjectQuery {\n  ...projects_ProjectsGrid\n}\n\nfragment projects_ProjectCard on Project {\n  name\n  chain\n}\n\nfragment projects_ProjectsGrid on Query {\n  projects(first: 9) {\n    edges {\n      node {\n        id\n        ...projects_ProjectCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
   }
 };
 })();

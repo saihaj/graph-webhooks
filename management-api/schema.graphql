@@ -56,6 +56,7 @@ type PageInfo {
 
 """A project that tracks a contract on a chain"""
 type Project implements Node {
+  chain: Chain!
   id: ID!
   name: String!
 }
