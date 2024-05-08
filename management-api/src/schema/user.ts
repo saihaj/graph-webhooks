@@ -55,5 +55,5 @@ builder.mutationField("createUser", (t) =>
 
       return createdUser;
     },
-  })
+  }),
 );

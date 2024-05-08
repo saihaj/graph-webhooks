@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ReaderFragment, RefetchableFragment } from 'relay-runtime';
+import { ReaderFragment, RefetchableFragment } from "relay-runtime";
 import { FragmentRefs } from "relay-runtime";
 export type projects_ProjectsGrid$data = {
   readonly projects: {
@@ -26,138 +26,136 @@ export type projects_ProjectsGrid$key = {
   readonly " $fragmentSpreads": FragmentRefs<"projects_ProjectsGrid">;
 };
 
-import ProjectsGridQuery_graphql from './ProjectsGridQuery.graphql';
+import ProjectsGridQuery_graphql from "./ProjectsGridQuery.graphql";
 
-const node: ReaderFragment = (function(){
-var v0 = [
-  "projects"
-];
-return {
-  "argumentDefinitions": [
-    {
-      "defaultValue": null,
-      "kind": "LocalArgument",
-      "name": "cursor"
-    },
-    {
-      "defaultValue": 9,
-      "kind": "LocalArgument",
-      "name": "first"
-    }
-  ],
-  "kind": "Fragment",
-  "metadata": {
-    "connection": [
+const node: ReaderFragment = (function () {
+  var v0 = ["projects"];
+  return {
+    argumentDefinitions: [
       {
-        "count": "first",
-        "cursor": "cursor",
-        "direction": "forward",
-        "path": (v0/*: any*/)
-      }
-    ],
-    "refetch": {
-      "connection": {
-        "forward": {
-          "count": "first",
-          "cursor": "cursor"
-        },
-        "backward": null,
-        "path": (v0/*: any*/)
+        defaultValue: null,
+        kind: "LocalArgument",
+        name: "cursor",
       },
-      "fragmentPathInResult": [],
-      "operation": ProjectsGridQuery_graphql
-    }
-  },
-  "name": "projects_ProjectsGrid",
-  "selections": [
-    {
-      "alias": "projects",
-      "args": null,
-      "concreteType": "QueryProjectsConnection",
-      "kind": "LinkedField",
-      "name": "__ProjectsGrid_projects_connection",
-      "plural": false,
-      "selections": [
+      {
+        defaultValue: 9,
+        kind: "LocalArgument",
+        name: "first",
+      },
+    ],
+    kind: "Fragment",
+    metadata: {
+      connection: [
         {
-          "alias": null,
-          "args": null,
-          "concreteType": "QueryProjectsConnectionEdge",
-          "kind": "LinkedField",
-          "name": "edges",
-          "plural": true,
-          "selections": [
-            {
-              "alias": null,
-              "args": null,
-              "concreteType": "Project",
-              "kind": "LinkedField",
-              "name": "node",
-              "plural": false,
-              "selections": [
-                {
-                  "alias": null,
-                  "args": null,
-                  "kind": "ScalarField",
-                  "name": "id",
-                  "storageKey": null
-                },
-                {
-                  "args": null,
-                  "kind": "FragmentSpread",
-                  "name": "projects_ProjectCard"
-                },
-                {
-                  "alias": null,
-                  "args": null,
-                  "kind": "ScalarField",
-                  "name": "__typename",
-                  "storageKey": null
-                }
-              ],
-              "storageKey": null
-            },
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "cursor",
-              "storageKey": null
-            }
-          ],
-          "storageKey": null
+          count: "first",
+          cursor: "cursor",
+          direction: "forward",
+          path: v0 /*: any*/,
         },
-        {
-          "alias": null,
-          "args": null,
-          "concreteType": "PageInfo",
-          "kind": "LinkedField",
-          "name": "pageInfo",
-          "plural": false,
-          "selections": [
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "endCursor",
-              "storageKey": null
-            },
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "hasNextPage",
-              "storageKey": null
-            }
-          ],
-          "storageKey": null
-        }
       ],
-      "storageKey": null
-    }
-  ],
-  "type": "Query",
-  "abstractKey": null
-};
+      refetch: {
+        connection: {
+          forward: {
+            count: "first",
+            cursor: "cursor",
+          },
+          backward: null,
+          path: v0 /*: any*/,
+        },
+        fragmentPathInResult: [],
+        operation: ProjectsGridQuery_graphql,
+      },
+    },
+    name: "projects_ProjectsGrid",
+    selections: [
+      {
+        alias: "projects",
+        args: null,
+        concreteType: "QueryProjectsConnection",
+        kind: "LinkedField",
+        name: "__ProjectsGrid_projects_connection",
+        plural: false,
+        selections: [
+          {
+            alias: null,
+            args: null,
+            concreteType: "QueryProjectsConnectionEdge",
+            kind: "LinkedField",
+            name: "edges",
+            plural: true,
+            selections: [
+              {
+                alias: null,
+                args: null,
+                concreteType: "Project",
+                kind: "LinkedField",
+                name: "node",
+                plural: false,
+                selections: [
+                  {
+                    alias: null,
+                    args: null,
+                    kind: "ScalarField",
+                    name: "id",
+                    storageKey: null,
+                  },
+                  {
+                    args: null,
+                    kind: "FragmentSpread",
+                    name: "projects_ProjectCard",
+                  },
+                  {
+                    alias: null,
+                    args: null,
+                    kind: "ScalarField",
+                    name: "__typename",
+                    storageKey: null,
+                  },
+                ],
+                storageKey: null,
+              },
+              {
+                alias: null,
+                args: null,
+                kind: "ScalarField",
+                name: "cursor",
+                storageKey: null,
+              },
+            ],
+            storageKey: null,
+          },
+          {
+            alias: null,
+            args: null,
+            concreteType: "PageInfo",
+            kind: "LinkedField",
+            name: "pageInfo",
+            plural: false,
+            selections: [
+              {
+                alias: null,
+                args: null,
+                kind: "ScalarField",
+                name: "endCursor",
+                storageKey: null,
+              },
+              {
+                alias: null,
+                args: null,
+                kind: "ScalarField",
+                name: "hasNextPage",
+                storageKey: null,
+              },
+            ],
+            storageKey: null,
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+    type: "Query",
+    abstractKey: null,
+  };
 })();
 
 (node as any).hash = "4112654fbbafaf0dbd30c88721a51a79";

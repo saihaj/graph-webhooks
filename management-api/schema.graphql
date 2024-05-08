@@ -3,34 +3,52 @@ enum Chain {
 }
 
 input CreateProjectInput {
-  """The chain to track the contract on"""
+  """
+  The chain to track the contract on
+  """
   chain: Chain!
 
-  """The address of the contract to track"""
+  """
+  The address of the contract to track
+  """
   contractAddress: EthAddress!
 
-  """The name of the project to create"""
+  """
+  The name of the project to create
+  """
   name: String!
 
-  """The block number to start tracking from"""
+  """
+  The block number to start tracking from
+  """
   startBlock: Int
 
-  """The URL to send webhook events to"""
+  """
+  The URL to send webhook events to
+  """
   webhookUrl: URL
 }
 
 type CreateProjectPayload {
-  """The created project"""
+  """
+  The created project
+  """
   project: Project!
 }
 
-"""Base Error"""
+"""
+Base Error
+"""
 interface Error {
-  """Descriptive message of error"""
+  """
+  Descriptive message of error
+  """
   message: String!
 }
 
-"""Ethereum address"""
+"""
+Ethereum address
+"""
 scalar EthAddress
 
 type Mutation {
@@ -39,7 +57,9 @@ type Mutation {
 }
 
 input MutationCreateUserInput {
-  """Name of the user"""
+  """
+  Name of the user
+  """
   name: String!
 }
 
@@ -54,7 +74,9 @@ type PageInfo {
   startCursor: String
 }
 
-"""A project that tracks a contract on a chain"""
+"""
+A project that tracks a contract on a chain
+"""
 type Project implements Node {
   chain: Chain!
   id: ID!
@@ -66,8 +88,15 @@ type Query {
   node(id: ID!): Node
   nodes(ids: [ID!]!): [Node]!
 
-  """List of projects"""
-  projects(after: String, before: String, first: Int, last: Int): QueryProjectsConnection!
+  """
+  List of projects
+  """
+  projects(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): QueryProjectsConnection!
 }
 
 type QueryProjectsConnection {
@@ -85,14 +114,20 @@ A field whose value conforms to the standard URL format as specified in RFC3986:
 """
 scalar URL
 
-"""User of the system"""
+"""
+User of the system
+"""
 type User {
   id: ID!
   name: String!
 }
 
-"""Returned when a validation error occurs."""
+"""
+Returned when a validation error occurs.
+"""
 type ValidationError implements Error {
-  """Descriptive message of error"""
+  """
+  Descriptive message of error
+  """
   message: String!
 }

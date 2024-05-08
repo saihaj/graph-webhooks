@@ -12,10 +12,10 @@ export const user = sqliteTable("user", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" }).default(
-    sql`(strftime('%s', 'now'))`
+    sql`(strftime('%s', 'now'))`,
   ),
   updatedAt: integer("updated_at", { mode: "timestamp" }).default(
-    sql`(strftime('%s', 'now'))`
+    sql`(strftime('%s', 'now'))`,
   ),
 });
 
@@ -27,10 +27,10 @@ export const organization = sqliteTable("organization", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" }).default(
-    sql`(strftime('%s', 'now'))`
+    sql`(strftime('%s', 'now'))`,
   ),
   updatedAt: integer("updated_at", { mode: "timestamp" }).default(
-    sql`(strftime('%s', 'now'))`
+    sql`(strftime('%s', 'now'))`,
   ),
 });
 
@@ -54,7 +54,7 @@ export const usersToOrgs = sqliteTable(
   },
   (t) => ({
     pk: primaryKey({ columns: [t.userId, t.orgId] }),
-  })
+  }),
 );
 
 export const usersToOrganizationRelations = relations(
@@ -68,7 +68,7 @@ export const usersToOrganizationRelations = relations(
       fields: [usersToOrgs.userId],
       references: [user.id],
     }),
-  })
+  }),
 );
 
 export const project = sqliteTable(
@@ -85,10 +85,10 @@ export const project = sqliteTable(
       .references(() => organization.id)
       .notNull(),
     createdAt: integer("created_at", { mode: "timestamp" }).default(
-      sql`(strftime('%s', 'now'))`
+      sql`(strftime('%s', 'now'))`,
     ),
     updatedAt: integer("updated_at", { mode: "timestamp" }).default(
-      sql`(strftime('%s', 'now'))`
+      sql`(strftime('%s', 'now'))`,
     ),
   },
   (table) => {
@@ -96,5 +96,5 @@ export const project = sqliteTable(
       // needed for optimizing cursor based pagination
       created_idx: index("created_idx").on(table.createdAt, table.id),
     };
-  }
+  },
 );

@@ -62,10 +62,10 @@ builder.queryField("projects", (t) => {
                 gt(project.createdAt, cursor.createdAt),
                 and(
                   eq(project.createdAt, cursor.createdAt),
-                  gt(project.id, cursor.id)
-                )
+                  gt(project.id, cursor.id),
+                ),
               )
-            : undefined
+            : undefined,
         )
         .limit(limit + 1)
         .orderBy(asc(project.createdAt), asc(project.id));
@@ -192,7 +192,7 @@ builder.relayMutationField(
             startBlock: input.startBlock,
             contractAddress: input.contractAddress,
           }),
-        }
+        },
       );
 
       const j = await registerSubstream.json();
@@ -209,5 +209,5 @@ builder.relayMutationField(
         resolve: (res) => res,
       }),
     }),
-  }
+  },
 );

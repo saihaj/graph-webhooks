@@ -101,10 +101,7 @@
       "indexes": {
         "created_idx": {
           "name": "created_idx",
-          "columns": [
-            "created_at",
-            "id"
-          ],
+          "columns": ["created_at", "id"],
           "isUnique": false
         }
       },
@@ -113,12 +110,8 @@
           "name": "project_creator_id_user_id_fk",
           "tableFrom": "project",
           "tableTo": "user",
-          "columnsFrom": [
-            "creator_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["creator_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -126,12 +119,8 @@
           "name": "project_organization_id_organization_id_fk",
           "tableFrom": "project",
           "tableTo": "organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -202,12 +191,8 @@
           "name": "users_to_organizations_user_id_user_id_fk",
           "tableFrom": "users_to_organizations",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -215,22 +200,15 @@
           "name": "users_to_organizations_organization_id_organization_id_fk",
           "tableFrom": "users_to_organizations",
           "tableTo": "organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "users_to_organizations_user_id_organization_id_pk": {
-          "columns": [
-            "organization_id",
-            "user_id"
-          ],
+          "columns": ["organization_id", "user_id"],
           "name": "users_to_organizations_user_id_organization_id_pk"
         }
       },

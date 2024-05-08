@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { Fragment, ReaderFragment } from 'relay-runtime';
+import { Fragment, ReaderFragment } from "relay-runtime";
 export type Chain = "ETH_MAINNET" | "%future added value";
 import { FragmentRefs } from "relay-runtime";
 export type projects_ProjectCard$data = {
@@ -22,28 +22,28 @@ export type projects_ProjectCard$key = {
 };
 
 const node: ReaderFragment = {
-  "argumentDefinitions": [],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "projects_ProjectCard",
-  "selections": [
+  argumentDefinitions: [],
+  kind: "Fragment",
+  metadata: null,
+  name: "projects_ProjectCard",
+  selections: [
     {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "name",
-      "storageKey": null
+      alias: null,
+      args: null,
+      kind: "ScalarField",
+      name: "name",
+      storageKey: null,
     },
     {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "chain",
-      "storageKey": null
-    }
+      alias: null,
+      args: null,
+      kind: "ScalarField",
+      name: "chain",
+      storageKey: null,
+    },
   ],
-  "type": "Project",
-  "abstractKey": null
+  type: "Project",
+  abstractKey: null,
 };
 
 (node as any).hash = "00aa3900aa1691c7e321496f60a5e255";

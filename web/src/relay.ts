@@ -33,7 +33,7 @@ export const environment = new Environment({
               query: operation.text || "",
               variables,
             }),
-          }
+          },
         );
 
         if (!res.ok) {
@@ -51,7 +51,7 @@ export const environment = new Environment({
               ...opts
             }: GraphQLErrorOptions & { message: string }) => {
               return new GraphQLError(message, opts);
-            }
+            },
           );
           if (errs.length === 1) {
             throw errs[0];

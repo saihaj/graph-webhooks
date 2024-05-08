@@ -18,7 +18,7 @@ function ProjectCard({ card }: { card: projects_ProjectCard$key }) {
         chain
       }
     `,
-    card
+    card,
   );
 
   return (
@@ -75,7 +75,7 @@ export function Projects({
         }
       }
     `,
-    projects
+    projects,
   );
 
   return (

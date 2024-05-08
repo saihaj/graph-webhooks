@@ -15,7 +15,7 @@ function Index() {
         ...projects_ProjectsGrid
       }
     `,
-    {}
+    {},
   );
 
   return (

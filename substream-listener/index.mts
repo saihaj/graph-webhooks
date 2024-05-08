@@ -16,7 +16,7 @@ const svix = new Svix(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTI3NjcxODYsImV4cCI6MjAyODEyNzE4NiwibmJmIjoxNzEyNzY3MTg2LCJpc3MiOiJzdml4LXNlcnZlciIsInN1YiI6Im9yZ18yM3JiOFlkR3FNVDBxSXpwZ0d3ZFhmSGlyTXUifQ.Gnj4vMl0qls2Q6ks690ZEUAW7h6VsgUHc6iwFWNPa1I",
   {
     serverUrl: "http://localhost:8071",
-  }
+  },
 );
 
 const TOKEN = (() => {
@@ -33,7 +33,7 @@ const spkgPath = path.join(
   __dirname,
   "..",
   "erc721-substream",
-  "erc-721-v0.1.0.spkg"
+  "erc-721-v0.1.0.spkg",
 );
 
 async function sendWebhook({
@@ -53,7 +53,7 @@ async function sendWebhook({
 
   applyParams(
     [`map_transfers=${contractAddress}`],
-    substreamPackage.modules.modules
+    substreamPackage.modules.modules,
   );
 
   const registry = createRegistry(substreamPackage);
@@ -179,21 +179,21 @@ const router = createRouter({
       if (!startBlock) {
         return Response.json(
           { message: "startBlock is required" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       if (!contractAddress) {
         return Response.json(
           { message: "contractAddress is required" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       if (!isAddress(contractAddress)) {
         return Response.json(
           { message: "contractAddress is invalid" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 

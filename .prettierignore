@@ -1,0 +1,6 @@
+*.spkg
+erc721-substream/target/*
+node_modules/*
+.wrangler/*
+pnpm-lock.yaml
+routeTree.gen.ts
