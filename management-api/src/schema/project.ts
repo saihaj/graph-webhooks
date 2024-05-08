@@ -134,15 +134,14 @@ builder.relayMutationField(
       }
       const id = uuidv4();
 
+      const projectName = `${id}-${input.chain}`;
+
       const svixApp = await svix["/api/v1/app/"].post({
         headers: {
           Authorization: `Bearer ${SVIX_TOKEN}`,
         },
         json: {
-          // TODO: use the user and org id part of the name
-          // format is: <name>-<chain>-<org>-<user>
-          name: `${input.name}-${input.chain}-1`,
-          rateLimit: 100,
+          name: projectName,
           uid: id,
         },
       });
@@ -161,7 +160,11 @@ builder.relayMutationField(
           app_id: id,
         },
         json: {
-          url: input.webhookUrl,
+          url: configuration.data.webhookUrl,
+          version: 1,
+          description: `Webhook for project ${projectName}`,
+          disabled: false,
+          rateLimit: 10,
         },
       });
 
@@ -181,12 +184,13 @@ builder.relayMutationField(
         .returning();
 
       const registerSubstream = await fetch(
-        "http://localhost:4040/register-webhook",
+        "http://localhost:4040/v1/register-webhook",
         {
           method: "POST",
           body: JSON.stringify({
             appId: id,
             startBlock: input.startBlock,
+            contractAddress: input.contractAddress,
           }),
         }
       );

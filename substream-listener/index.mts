@@ -1,9 +1,4 @@
-import {
-  applyParams,
-  createModuleHashHex,
-  createRegistry,
-  createRequest,
-} from "@substreams/core";
+import { applyParams, createRegistry, createRequest } from "@substreams/core";
 import { readPackage } from "@substreams/manifest";
 import { BlockEmitter } from "@substreams/node";
 import { createNodeTransport } from "@substreams/node/createNodeTransport";
@@ -12,6 +7,7 @@ import { Svix } from "svix";
 import { createRouter, Response } from "fets";
 import { App } from "uWebSockets.js";
 import { fileURLToPath } from "node:url";
+import { Address, isAddress } from "viem";
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename);
@@ -43,9 +39,11 @@ const spkgPath = path.join(
 async function sendWebhook({
   startBlock,
   appId,
+  contractAddress,
 }: {
   startBlock: number;
   appId: string;
+  contractAddress: Address;
 }) {
   const substreamPackage = await readPackage(spkgPath);
 
@@ -54,7 +52,7 @@ async function sendWebhook({
   }
 
   applyParams(
-    ["map_transfers=0xA1D4657e0E6507D5a94d06DA93E94dC7C8c44b51"],
+    [`map_transfers=${contractAddress}`],
     substreamPackage.modules.modules
   );
 
@@ -64,7 +62,6 @@ async function sendWebhook({
     substreamPackage,
     outputModule: OUTPUT_MODULE,
     startBlockNum: startBlock,
-    stopBlockNum: startBlock + 1000,
   });
 
   // NodeJS Events
@@ -121,7 +118,9 @@ async function sendWebhook({
 }
 
 // Creating a new router
-const router = createRouter()
+const router = createRouter({
+  base: "/v1",
+})
   // Use `.route` method to create a new /greetings route
   .route({
     path: "/register-webhook",
@@ -139,6 +138,9 @@ const router = createRouter()
             startBlock: {
               type: "integer",
             },
+            contractAddress: {
+              type: "string",
+            },
           },
         },
       },
@@ -154,14 +156,49 @@ const router = createRouter()
           required: ["message"],
           additionalProperties: false,
         },
+        400: {
+          type: "object",
+          properties: {
+            message: {
+              type: "string",
+            },
+          },
+          required: ["message"],
+          additionalProperties: false,
+        },
       },
     },
     async handler(req) {
       // Extracting the appId and startBlock from the request
-      const { appId, startBlock } = await req.json();
+      const { appId, startBlock, contractAddress } = await req.json();
+
+      if (!appId) {
+        return Response.json({ message: "appId is required" }, { status: 400 });
+      }
+
+      if (!startBlock) {
+        return Response.json(
+          { message: "startBlock is required" },
+          { status: 400 }
+        );
+      }
+
+      if (!contractAddress) {
+        return Response.json(
+          { message: "contractAddress is required" },
+          { status: 400 }
+        );
+      }
+
+      if (!isAddress(contractAddress)) {
+        return Response.json(
+          { message: "contractAddress is invalid" },
+          { status: 400 }
+        );
+      }
 
       // Sending the webhook
-      sendWebhook({ appId, startBlock });
+      sendWebhook({ appId, startBlock, contractAddress });
 
       // If the status code is not specified, it defaults to 200
       return Response.json({
@@ -173,7 +210,7 @@ const router = createRouter()
 App()
   .any("/*", router)
   .listen(4040, () => {
-    console.info(`Server is listening on http://localhost:4040`);
+    console.info(`Server is listening on http://localhost:4040/v1`);
   });
 
 // sendWebhook({

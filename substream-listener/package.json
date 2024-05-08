@@ -10,7 +10,8 @@
     "@substreams/node": "^0.6.2",
     "fets": "^0.8.0",
     "svix": "^1.21.0",
-    "uWebSockets.js": "github:uNetworking/uWebSockets.js#semver:^20"
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#semver:^20",
+    "viem": "^2.9.31"
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.4",
