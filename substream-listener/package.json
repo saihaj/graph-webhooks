@@ -2,7 +2,8 @@
   "name": "substream-listener",
   "version": "0.0.1",
   "scripts": {
-    "start": "tsx ./index.mts"
+    "start": "tsx ./src/index.mts",
+    "dev": "tsx --watch ./src/index.mts"
   },
   "dependencies": {
     "@substreams/core": "^0.16.0",

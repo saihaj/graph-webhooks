@@ -2,12 +2,10 @@ import { applyParams, createRegistry, createRequest } from "@substreams/core";
 import { readPackage } from "@substreams/manifest";
 import { BlockEmitter } from "@substreams/node";
 import { createNodeTransport } from "@substreams/node/createNodeTransport";
+import { Address } from "viem";
+import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { Svix } from "svix";
-import { createRouter, Response } from "fets";
-import { App } from "uWebSockets.js";
-import { fileURLToPath } from "node:url";
-import { Address, isAddress } from "viem";
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename);
@@ -16,7 +14,7 @@ const svix = new Svix(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTI3NjcxODYsImV4cCI6MjAyODEyNzE4NiwibmJmIjoxNzEyNzY3MTg2LCJpc3MiOiJzdml4LXNlcnZlciIsInN1YiI6Im9yZ18yM3JiOFlkR3FNVDBxSXpwZ0d3ZFhmSGlyTXUifQ.Gnj4vMl0qls2Q6ks690ZEUAW7h6VsgUHc6iwFWNPa1I",
   {
     serverUrl: "http://localhost:8071",
-  },
+  }
 );
 
 const TOKEN = (() => {
@@ -33,10 +31,10 @@ const spkgPath = path.join(
   __dirname,
   "..",
   "erc721-substream",
-  "erc-721-v0.1.0.spkg",
+  "erc-721-v0.1.0.spkg"
 );
 
-async function sendWebhook({
+export async function sendWebhook({
   startBlock,
   appId,
   contractAddress,
@@ -53,7 +51,7 @@ async function sendWebhook({
 
   applyParams(
     [`map_transfers=${contractAddress}`],
-    substreamPackage.modules.modules,
+    substreamPackage.modules.modules
   );
 
   const registry = createRegistry(substreamPackage);
@@ -116,104 +114,3 @@ async function sendWebhook({
     emitter.cancelFn?.();
   }, 3000);
 }
-
-// Creating a new router
-const router = createRouter({
-  base: "/v1",
-})
-  // Use `.route` method to create a new /greetings route
-  .route({
-    path: "/register-webhook",
-    method: "POST",
-    // Defining the response schema
-    schemas: {
-      request: {
-        json: {
-          type: "object",
-          properties: {
-            appId: {
-              type: "string",
-              format: "uuid",
-            },
-            startBlock: {
-              type: "integer",
-            },
-            contractAddress: {
-              type: "string",
-            },
-          },
-        },
-      },
-      responses: {
-        // The status code
-        200: {
-          type: "object",
-          properties: {
-            message: {
-              type: "string",
-            },
-          },
-          required: ["message"],
-          additionalProperties: false,
-        },
-        400: {
-          type: "object",
-          properties: {
-            message: {
-              type: "string",
-            },
-          },
-          required: ["message"],
-          additionalProperties: false,
-        },
-      },
-    },
-    async handler(req) {
-      // Extracting the appId and startBlock from the request
-      const { appId, startBlock, contractAddress } = await req.json();
-
-      if (!appId) {
-        return Response.json({ message: "appId is required" }, { status: 400 });
-      }
-
-      if (!startBlock) {
-        return Response.json(
-          { message: "startBlock is required" },
-          { status: 400 },
-        );
-      }
-
-      if (!contractAddress) {
-        return Response.json(
-          { message: "contractAddress is required" },
-          { status: 400 },
-        );
-      }
-
-      if (!isAddress(contractAddress)) {
-        return Response.json(
-          { message: "contractAddress is invalid" },
-          { status: 400 },
-        );
-      }
-
-      // Sending the webhook
-      sendWebhook({ appId, startBlock, contractAddress });
-
-      // If the status code is not specified, it defaults to 200
-      return Response.json({
-        message: "Webhook registered",
-      });
-    },
-  });
-
-App()
-  .any("/*", router)
-  .listen(4040, () => {
-    console.info(`Server is listening on http://localhost:4040/v1`);
-  });
-
-// sendWebhook({
-//   appId: "72d9f03b-62b0-4b02-9136-039d0aa20d30",
-//   startBlock: 13707413,
-// });
