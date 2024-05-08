@@ -3,15 +3,15 @@ services:
   backend:
     image: "docker.io/svix/svix-server"
     environment:
-      WAIT_FOR: "true"  # We want to wait for the default services
+      WAIT_FOR: "true" # We want to wait for the default services
       SVIX_REDIS_DSN: "redis://redis:6379"
       SVIX_DB_DSN: "postgresql://postgres:postgres@pgbouncer/postgres"
       SVIX_JWT_SECRET: "helphelphelp"
     ports:
       - "8071:8071"
     depends_on:
-    - pgbouncer
-    - redis
+      - pgbouncer
+      - redis
 
   postgres:
     image: "docker.io/postgres:13.4"
@@ -33,7 +33,7 @@ services:
       DB_PASSWORD: "postgres"
       MAX_CLIENT_CONN: 500
     depends_on:
-    - postgres
+      - postgres
 
   redis:
     image: "docker.io/redis:7-alpine"

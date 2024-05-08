@@ -1,0 +1,133 @@
+enum Chain {
+  ETH_MAINNET
+}
+
+input CreateProjectInput {
+  """
+  The chain to track the contract on
+  """
+  chain: Chain!
+
+  """
+  The address of the contract to track
+  """
+  contractAddress: EthAddress!
+
+  """
+  The name of the project to create
+  """
+  name: String!
+
+  """
+  The block number to start tracking from
+  """
+  startBlock: Int
+
+  """
+  The URL to send webhook events to
+  """
+  webhookUrl: URL
+}
+
+type CreateProjectPayload {
+  """
+  The created project
+  """
+  project: Project!
+}
+
+"""
+Base Error
+"""
+interface Error {
+  """
+  Descriptive message of error
+  """
+  message: String!
+}
+
+"""
+Ethereum address
+"""
+scalar EthAddress
+
+type Mutation {
+  createProject(input: CreateProjectInput!): CreateProjectPayload!
+  createUser(input: MutationCreateUserInput!): User!
+}
+
+input MutationCreateUserInput {
+  """
+  Name of the user
+  """
+  name: String!
+}
+
+interface Node {
+  id: ID!
+}
+
+type PageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+"""
+A project that tracks a contract on a chain
+"""
+type Project implements Node {
+  chain: Chain!
+  id: ID!
+  name: String!
+}
+
+type Query {
+  hello(name: String): String!
+  node(id: ID!): Node
+  nodes(ids: [ID!]!): [Node]!
+
+  """
+  List of projects
+  """
+  projects(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): QueryProjectsConnection!
+}
+
+type QueryProjectsConnection {
+  edges: [QueryProjectsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryProjectsConnectionEdge {
+  cursor: String!
+  node: Project!
+}
+
+"""
+A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
+"""
+scalar URL
+
+"""
+User of the system
+"""
+type User {
+  id: ID!
+  name: String!
+}
+
+"""
+Returned when a validation error occurs.
+"""
+type ValidationError implements Error {
+  """
+  Descriptive message of error
+  """
+  message: String!
+}

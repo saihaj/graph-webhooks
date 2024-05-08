@@ -1,0 +1,13 @@
+name = "managment-api"
+main = "src/index.ts"
+account_id = "6d5bc18cd8d13babe7ed321adba3d8ae"
+compatibility_date = "2024-04-29"
+send_metrics = true
+
+[[d1_databases]]
+binding = "DB" # i.e. available in your Worker on env.DB
+database_name = "graph_webhooks"
+database_id = "25831c23-c6e8-4e1b-bbde-40c29c097061"
+
+[vars]
+SVIX_HOST = "http://localhost:8071"

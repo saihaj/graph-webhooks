@@ -1,0 +1,11 @@
+{
+  "name": "utils",
+  "version": "0.0.1",
+  "description": "Shared utilities for Graph Webhooks",
+  "type": "module",
+  "main": "src/index.ts",
+  "dependencies": {
+    "viem": "^2.9.31",
+    "zod": "^3.23.6"
+  }
+}

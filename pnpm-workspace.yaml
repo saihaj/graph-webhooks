@@ -2,3 +2,5 @@ packages:
   - web
   - svix-api
   - substream-listener
+  - management-api
+  - utils
