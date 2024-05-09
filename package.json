@@ -6,7 +6,8 @@
     "pnpm": ">=9"
   },
   "scripts": {
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "dev": "pnpm --filter substream-listener --filter management-api --filter web dev"
   },
   "author": "Saihajpreet Singh <chat@saihaj.dev> (https://saihaj.dev)",
   "devDependencies": {
