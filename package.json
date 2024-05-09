@@ -1,7 +1,10 @@
 {
   "name": "graph-webhook",
-  "version": "0.0.0",
-  "packageManager": "pnpm@9.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
   "scripts": {
     "format": "prettier --write ."
   },
