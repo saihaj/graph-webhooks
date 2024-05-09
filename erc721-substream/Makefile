@@ -1,7 +1,7 @@
 CARGO_VERSION := $(shell cargo version 2>/dev/null)
 
 .PHONY: build
-build:
+build: protogen
 ifdef CARGO_VERSION
 	cargo build --target wasm32-unknown-unknown --release
 else
