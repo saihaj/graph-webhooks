@@ -3,3 +3,4 @@ packages:
   - substream-listener
   - management-api
   - utils
+  - deployments
