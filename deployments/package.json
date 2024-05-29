@@ -7,8 +7,10 @@
   },
   "author": "",
   "dependencies": {
-    "@pulumi/pulumi": "*",
     "@pulumi/azure-native": "2.11.0",
-    "@pulumi/kubernetes": "4.4.0"
+    "@pulumi/azuread": "^5.50.0",
+    "@pulumi/kubernetes": "4.4.0",
+    "@pulumi/kubernetesx": "^0.1.6",
+    "@pulumi/pulumi": "*"
   }
 }

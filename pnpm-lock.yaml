@@ -17,9 +17,15 @@ importers:
       '@pulumi/azure-native':
         specifier: 2.11.0
         version: 2.11.0(ts-node@10.9.2(typescript@5.4.4))(typescript@5.4.4)
+      '@pulumi/azuread':
+        specifier: ^5.50.0
+        version: 5.50.0(ts-node@10.9.2(typescript@5.4.4))(typescript@5.4.4)
       '@pulumi/kubernetes':
         specifier: 4.4.0
         version: 4.4.0(encoding@0.1.13)(ts-node@10.9.2(typescript@5.4.4))(typescript@5.4.4)
+      '@pulumi/kubernetesx':
+        specifier: ^0.1.6
+        version: 0.1.6(@pulumi/kubernetes@4.4.0(encoding@0.1.13)(ts-node@10.9.2(typescript@5.4.4))(typescript@5.4.4))(@pulumi/pulumi@3.117.0(ts-node@10.9.2(typescript@5.4.4))(typescript@5.4.4))
       '@pulumi/pulumi':
         specifier: '*'
         version: 3.117.0(ts-node@10.9.2(typescript@5.4.4))(typescript@5.4.4)
@@ -1494,8 +1500,17 @@ packages:
   '@pulumi/azure-native@2.11.0':
     resolution: {integrity: sha512-fev5tjKIpe3jEUwS611dnHj8A1ngigCGWSu89UraKy+Setd9Yr8qUsZHxFaYGPY1Wo3AmwDpwZ3QKJeI0fP3vA==}
 
+  '@pulumi/azuread@5.50.0':
+    resolution: {integrity: sha512-oYQF29I1Pn1HcR1OKxTvXgLdBgo1zVHJzz+UwfxgMrGeL1v8L0SN5Lc+0IPiccUTx+fsQpDIpOkOjQCLFxWlTA==}
+
   '@pulumi/kubernetes@4.4.0':
     resolution: {integrity: sha512-JBcIny+aAGCsaWT8ih+Je2EYCU5E+927RvgNEiZqHoB1wQTAAoOb3PGfWEkIiZstZorRFkY3tjpA/lctmk+6SA==}
+
+  '@pulumi/kubernetesx@0.1.6':
+    resolution: {integrity: sha512-9VL4Yi4b4aLC/obBarJuNkm86kABByUZICYPSTdV396MGZtOc066o2brsB+kWVQcVfkYVXTPrpjIkAwBXXnzGw==}
+    peerDependencies:
+      '@pulumi/kubernetes': ^3.0.0
+      '@pulumi/pulumi': ^3.0.0
 
   '@pulumi/pulumi@3.117.0':
     resolution: {integrity: sha512-pF4KF5FpSwckB/Xy0ZlCH6FGHiNUkmC9c4ATW2pjfp2oa0uyEQ+5nQjj/6osX5wWI2Wn+Qsf+9c9ZaZwrwyhnw==}
@@ -5577,6 +5592,15 @@ snapshots:
       - ts-node
       - typescript
 
+  '@pulumi/azuread@5.50.0(ts-node@10.9.2(typescript@5.4.4))(typescript@5.4.4)':
+    dependencies:
+      '@pulumi/pulumi': 3.117.0(ts-node@10.9.2(typescript@5.4.4))(typescript@5.4.4)
+    transitivePeerDependencies:
+      - bluebird
+      - supports-color
+      - ts-node
+      - typescript
+
   '@pulumi/kubernetes@4.4.0(encoding@0.1.13)(ts-node@10.9.2(typescript@5.4.4))(typescript@5.4.4)':
     dependencies:
       '@pulumi/pulumi': 3.117.0(ts-node@10.9.2(typescript@5.4.4))(typescript@5.4.4)
@@ -5593,6 +5617,11 @@ snapshots:
       - supports-color
       - ts-node
       - typescript
+
+  '@pulumi/kubernetesx@0.1.6(@pulumi/kubernetes@4.4.0(encoding@0.1.13)(ts-node@10.9.2(typescript@5.4.4))(typescript@5.4.4))(@pulumi/pulumi@3.117.0(ts-node@10.9.2(typescript@5.4.4))(typescript@5.4.4))':
+    dependencies:
+      '@pulumi/kubernetes': 4.4.0(encoding@0.1.13)(ts-node@10.9.2(typescript@5.4.4))(typescript@5.4.4)
+      '@pulumi/pulumi': 3.117.0(ts-node@10.9.2(typescript@5.4.4))(typescript@5.4.4)
 
   '@pulumi/pulumi@3.117.0(ts-node@10.9.2(typescript@5.4.4))(typescript@5.4.4)':
     dependencies:
