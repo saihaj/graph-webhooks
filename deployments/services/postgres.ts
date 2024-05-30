@@ -10,7 +10,7 @@ export function createPostgres({
   envName: string;
   resourceGroup: azure.resources.ResourceGroup;
 }) {
-  const name = `thegraphwebhooks${envName}`;
+  const name = `graphwebhooks${envName}`;
   const username = "guilduser";
   const password = new random.RandomPassword("guild-database-password", {
     length: 32,
@@ -34,17 +34,8 @@ export function createPostgres({
     },
   });
 
-  const database = new az.postgresql.Database("example", {
-    name: "postgres",
-    resourceGroupName: resourceGroup.name,
-    serverName: server.name,
-    charset: "UTF8",
-    collation: "English_United States.1252",
-  });
-
   return {
     server,
-    database,
     username,
     password,
   };

@@ -26,7 +26,7 @@ const adApp = new azuread.Application("graph-webhooks", {
 });
 
 const servicePrincipal = new azuread.ServicePrincipal("graph-webhooks-sp", {
-  applicationId: adApp.clientId,
+  clientId: adApp.clientId,
 });
 
 const servicePrincipalPassword = new azuread.ServicePrincipalPassword(
