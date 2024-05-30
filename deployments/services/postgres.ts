@@ -1,6 +1,7 @@
 import * as azure from "@pulumi/azure-native";
 import * as az from "@pulumi/azure";
 import * as random from "@pulumi/random";
+import { PROVISIONER_TAG } from "../utils/helpers";
 
 export function createPostgres({
   envName,
@@ -9,25 +10,28 @@ export function createPostgres({
   envName: string;
   resourceGroup: azure.resources.ResourceGroup;
 }) {
-  const name = `thegraph-webhooks-${envName}`;
-  const username = "guild-user";
+  const name = `thegraphwebhooks${envName}`;
+  const username = "guilduser";
   const password = new random.RandomPassword("guild-database-password", {
-    length: 16,
+    length: 32,
     special: false,
   });
 
   const server = new az.postgresql.Server(name, {
     name,
     resourceGroupName: resourceGroup.name,
-    skuName: "B_Gen5_2",
-    storageMb: 5120,
+    skuName: "GP_Gen5_2",
+    storageMb: 262144, // 256 GB (1024 * 256)
     backupRetentionDays: 7,
     geoRedundantBackupEnabled: false,
     autoGrowEnabled: true,
     administratorLogin: username,
     administratorLoginPassword: password.result,
-    version: "9.5",
+    version: "11",
     sslEnforcementEnabled: true,
+    tags: {
+      provisionedBy: PROVISIONER_TAG,
+    },
   });
 
   const database = new az.postgresql.Database("example", {

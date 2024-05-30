@@ -70,16 +70,19 @@ export function createAksCluster({
     }
   );
 
-  const kubeCredentials = pulumi
+  const kubeConfig = pulumi
     .output([resourceGroup.name, cluster.name])
-    .apply(([resourceGroupName, resourceName]) => {
-      return azure.containerservice.listManagedClusterUserCredentials({
-        resourceGroupName,
-        resourceName,
-      });
-    });
+    .apply(async ([resourceGroupName, resourceName]) => {
+      const creds =
+        await azure.containerservice.listManagedClusterUserCredentials({
+          resourceGroupName,
+          resourceName,
+        });
 
-  const kubeConfig = kubeCredentials.kubeconfigs[0].value;
+      const encoded = creds.kubeconfigs[0].value;
+
+      return Buffer.from(encoded, "base64").toString("utf-8");
+    });
 
   const provider = new k8s.Provider(`graphwebhooks-${envName}-provider`, {
     kubeconfig: kubeConfig,

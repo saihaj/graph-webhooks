@@ -4,6 +4,7 @@ import * as azuread from "@pulumi/azuread";
 import { createAksCluster } from "./services/aks-cluster";
 import { PROVISIONER_TAG } from "./utils/helpers";
 import { CertManager } from "./services/cert-manager";
+import { createPostgres } from "./services/postgres";
 
 // Reduce noise in logs for `pulumi up`
 process.env.PULUMI_K8S_SUPPRESS_HELM_HOOK_WARNINGS = "1";
@@ -56,5 +57,13 @@ export const { tlsIssueName } = new CertManager(
   provider
 ).deployCertManagerAndIssuer();
 
+const { server, username, password } = createPostgres({
+  envName,
+  resourceGroup,
+});
+
 export const kubeconfig = kubeConfig;
 export const clusterName = cluster.name;
+export const databaseUsername = username;
+export const databasePassword = password.result;
+export const databaseServerUrl = server.fqdn;
