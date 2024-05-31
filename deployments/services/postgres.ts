@@ -6,9 +6,11 @@ import { PROVISIONER_TAG } from "../utils/helpers";
 export function createPostgres({
   envName,
   resourceGroup,
+  subnet,
 }: {
   envName: string;
   resourceGroup: azure.resources.ResourceGroup;
+  subnet: azure.network.Subnet;
 }) {
   const name = `graphwebhooks${envName}`;
   const username = "guilduser";
@@ -34,9 +36,18 @@ export function createPostgres({
     },
   });
 
+  const network = new az.postgresql.VirtualNetworkRule("aks-pg-vnet-rule", {
+    name: "aks-pg-vnet-rule",
+    resourceGroupName: resourceGroup.name,
+    serverName: server.name,
+    subnetId: subnet.id,
+    ignoreMissingVnetServiceEndpoint: true,
+  });
+
   return {
     server,
     username,
     password,
+    network,
   };
 }

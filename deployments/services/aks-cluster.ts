@@ -10,13 +10,11 @@ export function createAksCluster({
   nodeCount,
   servicePrincipal,
   servicePrincipalPassword,
-  subscriptionId,
 }: {
   envName: string;
   resourceGroup: azure.resources.ResourceGroup;
   servicePrincipal: azuread.ServicePrincipal;
   servicePrincipalPassword: azuread.ServicePrincipalPassword;
-  subscriptionId: string;
   nodeCount: number;
 }) {
   const virtualNetwork = new azure.network.VirtualNetwork(
@@ -88,5 +86,16 @@ export function createAksCluster({
     kubeconfig: kubeConfig,
   });
 
-  return { cluster, provider, kubeConfig };
+  const publicIp = new azure.network.PublicIPAddress(
+    "aks-public-ip",
+    {
+      resourceGroupName: resourceGroup.name,
+      tags: {
+        provisionedBy: PROVISIONER_TAG,
+      },
+    },
+    { dependsOn: [cluster] }
+  );
+
+  return { cluster, provider, kubeConfig, publicIp, subnet };
 }

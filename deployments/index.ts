@@ -5,6 +5,9 @@ import { createAksCluster } from "./services/aks-cluster";
 import { PROVISIONER_TAG } from "./utils/helpers";
 import { CertManager } from "./services/cert-manager";
 import { createPostgres } from "./services/postgres";
+import { ServiceDeployment } from "./utils/service-deployment";
+import { Proxy } from "./services/reverse-proxy";
+import { createRedis } from "./services/redis";
 
 // Reduce noise in logs for `pulumi up`
 process.env.PULUMI_K8S_SUPPRESS_HELM_HOOK_WARNINGS = "1";
@@ -44,13 +47,12 @@ const resourceGroup = new azure.resources.ResourceGroup("the-graph-webhooks", {
 });
 
 // Create an AKS cluster
-const { cluster, provider, kubeConfig } = createAksCluster({
+const { cluster, provider, kubeConfig, publicIp, subnet } = createAksCluster({
   envName,
   resourceGroup,
   nodeCount,
   servicePrincipal,
   servicePrincipalPassword,
-  subscriptionId,
 });
 
 export const { tlsIssueName } = new CertManager(
@@ -60,10 +62,58 @@ export const { tlsIssueName } = new CertManager(
 const { server, username, password } = createPostgres({
   envName,
   resourceGroup,
+  subnet,
 });
 
-export const kubeconfig = kubeConfig;
+const { server: redisServer } = createRedis({
+  envName,
+  resourceGroup,
+  subnet,
+});
+
+const reverseProxy = new Proxy(tlsIssueName, provider, publicIp);
+
+const databaseConnectionString = pulumi.interpolate`postgresql://${username}:${password.result}@${server.fqdn}:5432/postgres`;
+const redisConnectionString = pulumi.interpolate`redis://${redisServer.hostName}:6379`;
+
+const svixServer = new ServiceDeployment(
+  "svix-server",
+  {
+    image: "docker.io/svix/svix-server",
+    readinessProbe: "/health", // TODO: figure out correct path
+    livenessProbe: "/health", // TODO: figure out correct path
+    replicas: 1,
+    port: 8071,
+    env: [
+      { name: "SVIX_JWT_SECRET", value: "helphelphelp" },
+      {
+        name: "SVIX_DB_DSN",
+        value: databaseConnectionString,
+      },
+      {
+        name: "SVIX_REDIS_DSN",
+        value: redisConnectionString,
+      },
+    ],
+  },
+  provider
+);
+
+const deploySvix = svixServer.deploy();
+
+reverseProxy
+  .registerService({ record: appHostname }, [
+    {
+      name: "svix-server",
+      path: "/",
+      service: deploySvix.service,
+    },
+  ])
+  .deployProxy({
+    replicas: 1,
+  })
+  .get();
+
+export const kubeconfig = pulumi.secret(kubeConfig);
 export const clusterName = cluster.name;
-export const databaseUsername = username;
-export const databasePassword = password.result;
-export const databaseServerUrl = server.fqdn;
+export const redisHost = redisServer.hostName;
