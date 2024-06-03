@@ -1,4 +1,6 @@
 import { DeploymentEnvironment } from "./types";
+import * as k8s from "@pulumi/kubernetes";
+import * as pulumi from "@pulumi/pulumi";
 
 export function isProduction(
   deploymentEnv: DeploymentEnvironment | string
@@ -32,3 +34,9 @@ export function isDefined<T>(value: T | null | undefined): value is T {
 }
 
 export const PROVISIONER_TAG = "Saihaj (via Pulumi)";
+
+export function serviceLocalHost(service: k8s.types.input.core.v1.Service) {
+  return pulumi.all([service.metadata]).apply(([metadata]) => {
+    return `${metadata?.name}.${metadata?.namespace || "default"}.svc.cluster.local`;
+  });
+}

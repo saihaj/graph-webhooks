@@ -65,49 +65,52 @@ const { server, username, password } = createPostgres({
   subnet,
 });
 
-const { server: redisServer } = createRedis({
-  envName,
-  resourceGroup,
-  subnet,
+const {
+  deployment: redisDeployment,
+  service: redisService,
+  config: redisConfig,
+} = createRedis({
+  provider,
 });
 
 const reverseProxy = new Proxy(tlsIssueName, provider, publicIp);
 
-const databaseConnectionString = pulumi.interpolate`postgresql://${username}:${password.result}@${server.fqdn}:5432/postgres`;
-const redisConnectionString = pulumi.interpolate`redis://${redisServer.hostName}:6379`;
+const databaseConnectionString = pulumi.interpolate`postgresql://${username}%40${server.name}:${password}@${server.fqdn}:5432/postgres`;
+const redisConnectionString = pulumi.interpolate`redis://:${redisConfig.password}@${redisConfig.host}:${redisConfig.port}`;
 
-const svixServer = new ServiceDeployment(
-  "svix-server",
-  {
-    image: "docker.io/svix/svix-server",
-    readinessProbe: "/health", // TODO: figure out correct path
-    livenessProbe: "/health", // TODO: figure out correct path
-    replicas: 1,
-    port: 8071,
-    env: [
-      { name: "SVIX_JWT_SECRET", value: "helphelphelp" },
-      {
-        name: "SVIX_DB_DSN",
-        value: databaseConnectionString,
-      },
-      {
-        name: "SVIX_REDIS_DSN",
-        value: redisConnectionString,
-      },
-    ],
-  },
-  provider
-);
+// const svixServer = new ServiceDeployment(
+//   "svix-server",
+//   {
+//     image: "docker.io/svix/svix-server",
+//     readinessProbe: "/health", // TODO: figure out correct path
+//     livenessProbe: "/health", // TODO: figure out correct path
+//     replicas: 1,
+//     port: 8071,
+//     env: [
+//       { name: "SVIX_JWT_SECRET", value: "helphelphelp" },
+//       {
+//         name: "SVIX_DB_DSN",
+//         value: databaseConnectionString,
+//       },
+//       {
+//         name: "SVIX_REDIS_DSN",
+//         value: redisConnectionString,
+//       },
+//     ],
+//   },
+//   provider,
+//   [redisDeployment, redisService]
+// );
 
-const deploySvix = svixServer.deploy();
+// const deploySvix = svixServer.deploy();
 
 reverseProxy
   .registerService({ record: appHostname }, [
-    {
-      name: "svix-server",
-      path: "/",
-      service: deploySvix.service,
-    },
+    // {
+    //   name: "svix-server",
+    //   path: "/",
+    //   service: deploySvix.service,
+    // },
   ])
   .deployProxy({
     replicas: 1,
@@ -116,4 +119,3 @@ reverseProxy
 
 export const kubeconfig = pulumi.secret(kubeConfig);
 export const clusterName = cluster.name;
-export const redisHost = redisServer.hostName;

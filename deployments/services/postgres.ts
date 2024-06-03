@@ -44,10 +44,18 @@ export function createPostgres({
     ignoreMissingVnetServiceEndpoint: true,
   });
 
+  new az.postgresql.FirewallRule("allowAzure", {
+    name: "allowAzure",
+    resourceGroupName: resourceGroup.name,
+    serverName: server.name,
+    startIpAddress: "0.0.0.0",
+    endIpAddress: "0.0.0.0",
+  });
+
   return {
     server,
-    username,
-    password,
+    username: server.administratorLogin,
+    password: server.administratorLoginPassword,
     network,
   };
 }
