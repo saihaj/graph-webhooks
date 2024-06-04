@@ -68,6 +68,24 @@ export function createAksCluster({
     }
   );
 
+  const clusterResourceGroupName = pulumi.interpolate`${cluster.nodeResourceGroup}`;
+
+  const publicIp = new azure.network.PublicIPAddress(
+    "aks-public-ip",
+    {
+      resourceGroupName: clusterResourceGroupName,
+      sku: {
+        name: azure.network.PublicIPAddressSkuName.Standard,
+        tier: azure.network.PublicIPAddressSkuTier.Regional,
+      },
+      publicIPAllocationMethod: azure.network.IPAllocationMethod.Static,
+      tags: {
+        provisionedBy: PROVISIONER_TAG,
+      },
+    },
+    { parent: cluster }
+  );
+
   const kubeConfig = pulumi
     .output([resourceGroup.name, cluster.name])
     .apply(async ([resourceGroupName, resourceName]) => {
@@ -85,17 +103,6 @@ export function createAksCluster({
   const provider = new k8s.Provider(`graphwebhooks-${envName}-provider`, {
     kubeconfig: kubeConfig,
   });
-
-  const publicIp = new azure.network.PublicIPAddress(
-    "aks-public-ip",
-    {
-      resourceGroupName: resourceGroup.name,
-      tags: {
-        provisionedBy: PROVISIONER_TAG,
-      },
-    },
-    { dependsOn: [cluster] }
-  );
 
   return { cluster, provider, kubeConfig, publicIp, subnet };
 }
