@@ -13,7 +13,7 @@ class Redis {
       env?: kx.types.Container["env"];
       password: pulumi.Output<string>;
     },
-    protected provider: k8s.Provider
+    protected provider: k8s.Provider,
   ) {}
 
   deploy({
@@ -60,7 +60,7 @@ fi
       },
       {
         provider: this.provider,
-      }
+      },
     );
 
     const volumeMounts = [cm.mount("/scripts")];
@@ -119,12 +119,12 @@ fi
           },
           {
             annotations: metadata.annotations,
-          }
+          },
         ),
       },
       {
         provider: this.provider,
-      }
+      },
     );
 
     new k8s.policy.v1.PodDisruptionBudget(
@@ -137,7 +137,7 @@ fi
       },
       {
         provider: this.provider,
-      }
+      },
     );
 
     const service = deployment.createService({});
@@ -156,7 +156,7 @@ export function createRedis({ provider }: { provider: k8s.Provider }) {
     {
       password: password.result,
     },
-    provider
+    provider,
   ).deploy({
     limits: {
       memory: "512Mi",

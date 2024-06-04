@@ -17,13 +17,6 @@ const svix = new Svix(
   }
 );
 
-const TOKEN = (() => {
-  if (!process.env.STREAMINGFAST_KEY) {
-    throw new Error("STREAMINGFAST_KEY is require");
-  }
-
-  return process.env.STREAMINGFAST_KEY;
-})();
 const BASE_URL = "https://mainnet.eth.streamingfast.io:443";
 const OUTPUT_MODULE = "map_transfers";
 
@@ -38,10 +31,12 @@ export async function sendWebhook({
   startBlock,
   appId,
   contractAddress,
+  token,
 }: {
   startBlock: number;
   appId: string;
   contractAddress: Address;
+  token: string;
 }) {
   const substreamPackage = await readPackage(spkgPath);
 
@@ -55,7 +50,7 @@ export async function sendWebhook({
   );
 
   const registry = createRegistry(substreamPackage);
-  const transport = createNodeTransport(BASE_URL, TOKEN, registry);
+  const transport = createNodeTransport(BASE_URL, token, registry);
   const request = createRequest({
     substreamPackage,
     outputModule: OUTPUT_MODULE,

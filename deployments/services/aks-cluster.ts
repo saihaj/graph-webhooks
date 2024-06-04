@@ -27,7 +27,7 @@ export function createAksCluster({
       tags: {
         provisionedBy: PROVISIONER_TAG,
       },
-    }
+    },
   );
 
   const subnet = new azure.network.Subnet(`graphwebhooks-${envName}-subnet`, {
@@ -65,7 +65,7 @@ export function createAksCluster({
       tags: {
         provisionedBy: PROVISIONER_TAG,
       },
-    }
+    },
   );
 
   const clusterResourceGroupName = pulumi.interpolate`${cluster.nodeResourceGroup}`;
@@ -83,7 +83,7 @@ export function createAksCluster({
         provisionedBy: PROVISIONER_TAG,
       },
     },
-    { parent: cluster }
+    { parent: cluster },
   );
 
   const kubeConfig = pulumi

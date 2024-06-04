@@ -8,7 +8,8 @@
   "scripts": {
     "postinstall": "cd erc721-substream && make pack",
     "format": "prettier --write .",
-    "dev": "pnpm --filter substream-listener --filter management-api --filter web dev"
+    "dev": "pnpm --filter substream-listener --filter management-api --filter web dev",
+    "docker:build": "docker build -t graphwebhooks-base:local . && docker buildx bake -f docker/docker.hcl --load build --set service-base.args.BASE_IMAGE=graphwebhooks-base:local"
   },
   "author": "Saihajpreet Singh <chat@saihaj.dev> (https://saihaj.dev)",
   "devDependencies": {

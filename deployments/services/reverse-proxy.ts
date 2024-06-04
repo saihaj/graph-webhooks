@@ -9,7 +9,7 @@ export class Proxy {
   constructor(
     private tlsSecretName: string,
     private provider: k8s.Provider,
-    private address: azure.network.PublicIPAddress
+    private address: azure.network.PublicIPAddress,
   ) {}
 
   registerService(
@@ -24,7 +24,7 @@ export class Proxy {
       virtualHost?: Output<string>;
       httpsUpstream?: boolean;
       withWwwDomain?: boolean;
-    }[]
+    }[],
   ) {
     const cert = new k8s.apiextensions.CustomResource(
       `cert-${dns.record}`,
@@ -44,7 +44,7 @@ export class Proxy {
           secretName: dns.record,
         },
       },
-      { provider: this.provider }
+      { provider: this.provider },
     );
 
     new k8s.apiextensions.CustomResource(
@@ -121,7 +121,7 @@ export class Proxy {
       {
         dependsOn: [cert, this.lbService!],
         provider: this.provider,
-      }
+      },
     );
 
     return this;
@@ -135,7 +135,7 @@ export class Proxy {
           name: "contour",
         },
       },
-      { provider: this.provider }
+      { provider: this.provider },
     );
 
     const proxyController = new k8s.helm.v3.Chart(
@@ -203,17 +203,17 @@ export class Proxy {
       {
         dependsOn: [this.address],
         provider: this.provider,
-      }
+      },
     );
 
     this.lbService = proxyController.getResource(
       "v1/Service",
-      "contour/contour-proxy-envoy"
+      "contour/contour-proxy-envoy",
     );
 
     const contourDeployment = proxyController.getResource(
       "apps/v1/Deployment",
-      "contour/contour-proxy-contour"
+      "contour/contour-proxy-contour",
     );
     new k8s.policy.v1.PodDisruptionBudget(
       "contour-pdb",
@@ -223,12 +223,12 @@ export class Proxy {
           selector: contourDeployment.spec.selector,
         },
       },
-      { provider: this.provider }
+      { provider: this.provider },
     );
 
     const envoyDaemonset = proxyController.getResource(
       "apps/v1/ReplicaSet",
-      "contour/contour-proxy-envoy"
+      "contour/contour-proxy-envoy",
     );
     new k8s.policy.v1.PodDisruptionBudget(
       "envoy-pdb",
@@ -240,7 +240,7 @@ export class Proxy {
       },
       {
         provider: this.provider,
-      }
+      },
     );
 
     new k8s.apiextensions.CustomResource(
@@ -264,7 +264,7 @@ export class Proxy {
       {
         dependsOn: [this.lbService],
         provider: this.provider,
-      }
+      },
     );
 
     return this;

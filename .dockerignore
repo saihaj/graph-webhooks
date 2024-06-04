@@ -1,0 +1,14 @@
+**/node_modules/**
+.vscode/**
+.github/**
+**/dist/**
+
+.env*
+.flaskenv*
+!.env.project
+!.env.vault
+
+web/**
+erc721-substream/**
+management-api/**
+deployments/**

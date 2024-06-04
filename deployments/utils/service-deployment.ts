@@ -37,7 +37,7 @@ export class ServiceDeployment {
     },
     protected provider: pulumi.ProviderResource,
     protected dependencies?: Array<pulumi.Resource | undefined | null>,
-    protected parent?: pulumi.Resource | null
+    protected parent?: pulumi.Resource | null,
   ) {}
 
   deployAsJob() {
@@ -51,7 +51,7 @@ export class ServiceDeployment {
       {
         dependsOn: this.dependencies?.filter(isDefined),
         provider: this.provider,
-      }
+      },
     );
 
     return { job };
@@ -175,14 +175,14 @@ export class ServiceDeployment {
           },
           {
             annotations: metadata.annotations,
-          }
+          },
         ),
       },
       {
         dependsOn: this.dependencies?.filter(isDefined),
         parent: this.parent ?? undefined,
         provider: this.provider,
-      }
+      },
     );
 
     if (this.options.pdb) {
@@ -194,7 +194,7 @@ export class ServiceDeployment {
             selector: deployment.spec.selector,
           },
         },
-        { provider: this.provider }
+        { provider: this.provider },
       );
     }
 
@@ -236,7 +236,7 @@ export class ServiceDeployment {
         {
           dependsOn: [deployment, service],
           provider: this.provider,
-        }
+        },
       );
     }
 
