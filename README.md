@@ -13,6 +13,7 @@ Here is a high-level overview of what different directories in this repository d
 - [**`erc721-substream`**](./erc721-substream/): A [parametrized substream](https://substreams.streamingfast.io/documentation/develop/parameterized-modules) that tracks ERC721 token transfers for a given contract. Inspired from [this example](https://github.com/streamingfast/substreams-eth-token-transfers).
 - [**`substream-listener`**](./substream-listener/): A Node.js service that subscribes an Event Stream from a Substream for a webhook user project and pushes the data to SVIX project configured for the User.
 - [**`utils`**](./substream-listener/): Shared utilities and types between the different services.
+- [**`deployments`**](./deployments/): Pulumi code to deploy infrastructure and services to various providers.
 
 ## Running the project
 
