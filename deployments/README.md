@@ -9,7 +9,7 @@ deploy the infrastructure.
 2. Install [`az` CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
 3. `pulumi login` to your Pulumi account and make sure you are part of
    [theguild](https://app.pulumi.com/theguild).
-4. To deploy to `dev`: `pulumi up --stack graph-webhooks/dev`
+4. To deploy to `dev`: `pulumi up --stack theguild/dev`
 
 **NOTE: If you are an ADMIN DO NOT RUN `pulumi destroy`**
 
