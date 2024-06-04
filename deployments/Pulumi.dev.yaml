@@ -1,0 +1,7 @@
+config:
+  azure-native:location: East US
+  docker:registryUrl: ghcr.io
+  graph-webhooks:appDns: dev-cluster
+  graph-webhooks:clusterNodeCount: "2"
+  graph-webhooks:dnsZone: cachethegraph.com
+  graph-webhooks:subscriptionId: 24231f4d-54e0-49bf-8593-6e117ac0d13c

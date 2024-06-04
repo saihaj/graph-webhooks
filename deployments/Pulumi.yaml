@@ -1,0 +1,7 @@
+name: graph-webhooks
+runtime: nodejs
+description: The Graph Webhooks service
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: https://www.pulumi.com/ai/api/project/cb23ad2d-f15c-41d4-ac96-81bf9fea7d54.zip

@@ -36,7 +36,7 @@ services:
       - postgres
 
   redis:
-    image: "docker.io/redis:7-alpine"
+    image: "docker.io/redis:7.0.15-alpine3.20"
     # Enable persistence
     command: "--save 60 500 --appendonly yes --appendfsync everysec"
     volumes:
