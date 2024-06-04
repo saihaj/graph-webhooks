@@ -119,3 +119,4 @@ reverseProxy
 
 export const kubeconfig = pulumi.secret(kubeConfig);
 export const clusterName = cluster.name;
+export const databaseConnection = pulumi.secret(databaseConnectionString);
