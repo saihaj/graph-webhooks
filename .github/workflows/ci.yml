@@ -33,7 +33,7 @@ jobs:
           cache: pnpm
 
       - name: Install
-        run: pnpm install
+        run: pnpm install --ignore-scripts
 
       - name: Check
         run: pnpm check:${{ matrix.check }}
