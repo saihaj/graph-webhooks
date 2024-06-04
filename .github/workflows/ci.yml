@@ -33,7 +33,7 @@ jobs:
   # Build all packages and applications, and creates Docker images
   build-latest:
     name: build
-    needs: [check, test]
+    needs: [check]
     uses: ./.github/workflows/build-and-dockerize.yaml
     # Only run for `main` branch
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
