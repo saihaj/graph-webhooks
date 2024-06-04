@@ -3,7 +3,7 @@ import * as k8s from "@pulumi/kubernetes";
 import * as pulumi from "@pulumi/pulumi";
 
 export function isProduction(
-  deploymentEnv: DeploymentEnvironment | string
+  deploymentEnv: DeploymentEnvironment | string,
 ): boolean {
   return isDeploymentEnvironment(deploymentEnv)
     ? deploymentEnv.ENVIRONMENT === "production" ||
@@ -12,7 +12,7 @@ export function isProduction(
 }
 
 export function isStaging(
-  deploymentEnv: DeploymentEnvironment | string
+  deploymentEnv: DeploymentEnvironment | string,
 ): boolean {
   return isDeploymentEnvironment(deploymentEnv)
     ? deploymentEnv.ENVIRONMENT === "staging"
@@ -20,7 +20,7 @@ export function isStaging(
 }
 
 export function isDeploymentEnvironment(
-  value: any
+  value: any,
 ): value is DeploymentEnvironment {
   return (
     value &&

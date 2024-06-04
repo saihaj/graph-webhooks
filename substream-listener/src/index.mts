@@ -27,6 +27,9 @@ const router = createRouter({
             contractAddress: {
               type: "string",
             },
+            substreamsToken: {
+              type: "string",
+            },
           },
         },
       },
@@ -56,7 +59,8 @@ const router = createRouter({
     },
     async handler(req) {
       // Extracting the appId and startBlock from the request
-      const { appId, startBlock, contractAddress } = await req.json();
+      const { appId, startBlock, contractAddress, substreamsToken } =
+        await req.json();
 
       if (!appId) {
         return Response.json({ message: "appId is required" }, { status: 400 });
@@ -65,26 +69,38 @@ const router = createRouter({
       if (!startBlock) {
         return Response.json(
           { message: "startBlock is required" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       if (!contractAddress) {
         return Response.json(
           { message: "contractAddress is required" },
-          { status: 400 }
+          { status: 400 },
+        );
+      }
+
+      if (!substreamsToken) {
+        return Response.json(
+          { message: "substreamsToken is required" },
+          { status: 400 },
         );
       }
 
       if (!isAddress(contractAddress)) {
         return Response.json(
           { message: "contractAddress is invalid" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       // Sending the webhook
-      sendWebhook({ appId, startBlock, contractAddress });
+      sendWebhook({
+        appId,
+        startBlock,
+        contractAddress,
+        token: substreamsToken,
+      });
 
       // If the status code is not specified, it defaults to 200
       return Response.json({

@@ -14,16 +14,9 @@ const svix = new Svix(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTI3NjcxODYsImV4cCI6MjAyODEyNzE4NiwibmJmIjoxNzEyNzY3MTg2LCJpc3MiOiJzdml4LXNlcnZlciIsInN1YiI6Im9yZ18yM3JiOFlkR3FNVDBxSXpwZ0d3ZFhmSGlyTXUifQ.Gnj4vMl0qls2Q6ks690ZEUAW7h6VsgUHc6iwFWNPa1I",
   {
     serverUrl: "http://localhost:8071",
-  }
+  },
 );
 
-const TOKEN = (() => {
-  if (!process.env.STREAMINGFAST_KEY) {
-    throw new Error("STREAMINGFAST_KEY is require");
-  }
-
-  return process.env.STREAMINGFAST_KEY;
-})();
 const BASE_URL = "https://mainnet.eth.streamingfast.io:443";
 const OUTPUT_MODULE = "map_transfers";
 
@@ -31,17 +24,19 @@ const spkgPath = path.join(
   __dirname,
   "..",
   "erc721-substream",
-  "erc-721-v0.1.0.spkg"
+  "erc-721-v0.1.0.spkg",
 );
 
 export async function sendWebhook({
   startBlock,
   appId,
   contractAddress,
+  token,
 }: {
   startBlock: number;
   appId: string;
   contractAddress: Address;
+  token: string;
 }) {
   const substreamPackage = await readPackage(spkgPath);
 
@@ -51,11 +46,11 @@ export async function sendWebhook({
 
   applyParams(
     [`map_transfers=${contractAddress}`],
-    substreamPackage.modules.modules
+    substreamPackage.modules.modules,
   );
 
   const registry = createRegistry(substreamPackage);
-  const transport = createNodeTransport(BASE_URL, TOKEN, registry);
+  const transport = createNodeTransport(BASE_URL, token, registry);
   const request = createRequest({
     substreamPackage,
     outputModule: OUTPUT_MODULE,

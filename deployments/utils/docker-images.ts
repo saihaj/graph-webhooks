@@ -36,7 +36,7 @@ export function createDockerImageFactory(options: {
             ".dockerconfigjson": base64JsonEncodedCredentials,
           },
         },
-        { provider: options.provider }
+        { provider: options.provider },
       );
     },
   };

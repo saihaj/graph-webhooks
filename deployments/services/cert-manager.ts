@@ -9,7 +9,7 @@ export class CertManager {
       {
         file: "https://github.com/jetstack/cert-manager/releases/download/v1.10.0/cert-manager.yaml",
       },
-      { provider: this.provider }
+      { provider: this.provider },
     );
 
     const issuerName = "the-guild-graphwebhooks";
@@ -44,7 +44,7 @@ export class CertManager {
       {
         dependsOn: [certManager],
         provider: this.provider,
-      }
+      },
     );
 
     return {
