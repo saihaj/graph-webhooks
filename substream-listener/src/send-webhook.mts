@@ -23,6 +23,7 @@ const OUTPUT_MODULE = "map_transfers";
 const spkgPath = path.join(
   __dirname,
   "..",
+  "..",
   "erc721-substream",
   "erc-721-v0.1.0.spkg",
 );
@@ -38,6 +39,12 @@ export async function sendWebhook({
   contractAddress: Address;
   token: string;
 }) {
+  console.log({
+    startBlock,
+    appId,
+    contractAddress,
+    token,
+  });
   const substreamPackage = await readPackage(spkgPath);
 
   if (!substreamPackage.modules) {
@@ -78,6 +85,7 @@ export async function sendWebhook({
         },
       });
     });
+    console.log(a.length);
     try {
       await Promise.all(a);
     } catch (e) {
@@ -104,8 +112,8 @@ export async function sendWebhook({
   console.time("🆗 close");
   emitter.start();
 
-  // Cancel after 3 seconds
-  setTimeout(() => {
-    emitter.cancelFn?.();
-  }, 3000);
+  // // Cancel after 3 seconds
+  // setTimeout(() => {
+  //   emitter.cancelFn?.();
+  // }, 3000);
 }

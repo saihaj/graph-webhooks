@@ -66,7 +66,7 @@ const router = createRouter({
         return Response.json({ message: "appId is required" }, { status: 400 });
       }
 
-      if (!startBlock) {
+      if (startBlock == null) {
         return Response.json(
           { message: "startBlock is required" },
           { status: 400 },

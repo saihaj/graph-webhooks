@@ -123,7 +123,7 @@ builder.relayMutationField(
     }),
   },
   {
-    resolve: async (_parent, { input }, { db, svix, SVIX_TOKEN }) => {
+    resolve: async (_parent, { input }, { db, svix, SVIX_TOKEN, SF_TOKEN }) => {
       const configuration = await ProjectConfigurationSchema.safeParseAsync({
         ...input,
         webhookUrl: input.webhookUrl?.toString(),
@@ -132,10 +132,10 @@ builder.relayMutationField(
       if (!configuration.success) {
         throw new Error("Invalid configuration");
       }
+
       const id = uuidv4();
 
       const projectName = `${id}-${input.chain}`;
-
       const svixApp = await svix["/api/v1/app/"].post({
         headers: {
           Authorization: `Bearer ${SVIX_TOKEN}`,
@@ -191,6 +191,7 @@ builder.relayMutationField(
             appId: id,
             startBlock: input.startBlock,
             contractAddress: input.contractAddress,
+            substreamsToken: SF_TOKEN,
           }),
         },
       );

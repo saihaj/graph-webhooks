@@ -5,6 +5,7 @@ export interface Env {
   DB: D1Database;
   SVIX_TOKEN: string;
   SVIX_HOST: string;
+  SF_TOKEN: string;
 }
 
 export interface Context extends Env {
