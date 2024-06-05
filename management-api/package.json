@@ -4,7 +4,7 @@
   "private": true,
   "main": "index.ts",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "wrangler dev --port 8787",
     "deploy": "wrangler deploy",
     "cf-typegen": "wrangler types",
     "generate:graphql": "tsx ./scripts/generate-schema.ts",
