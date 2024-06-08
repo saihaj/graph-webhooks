@@ -2,10 +2,6 @@
   "name": "graph-webhooks",
   "description": "The Graph Webhooks service",
   "main": "index.ts",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
   "dependencies": {
     "@pulumi/azure": "^5.78.0",
     "@pulumi/azure-native": "2.11.0",
