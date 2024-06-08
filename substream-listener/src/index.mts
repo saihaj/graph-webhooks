@@ -3,7 +3,6 @@ import { App } from "uWebSockets.js";
 import { isAddress } from "viem";
 import { sendWebhook } from "./send-webhook.mjs";
 import { registry } from "./prometheus.mjs";
-import { spawn } from "node:child_process";
 
 // Creating a new router
 const router = createRouter({
