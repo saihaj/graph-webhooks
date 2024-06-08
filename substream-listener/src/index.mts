@@ -71,28 +71,28 @@ const router = createRouter({
       if (startBlock == null) {
         return Response.json(
           { message: "startBlock is required" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       if (!contractAddress) {
         return Response.json(
           { message: "contractAddress is required" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       if (!substreamsToken) {
         return Response.json(
           { message: "substreamsToken is required" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       if (!isAddress(contractAddress)) {
         return Response.json(
           { message: "contractAddress is invalid" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 

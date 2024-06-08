@@ -20,7 +20,7 @@ const svix = new Svix(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTI3NjcxODYsImV4cCI6MjAyODEyNzE4NiwibmJmIjoxNzEyNzY3MTg2LCJpc3MiOiJzdml4LXNlcnZlciIsInN1YiI6Im9yZ18yM3JiOFlkR3FNVDBxSXpwZ0d3ZFhmSGlyTXUifQ.Gnj4vMl0qls2Q6ks690ZEUAW7h6VsgUHc6iwFWNPa1I",
   {
     serverUrl: "http://localhost:8071",
-  }
+  },
 );
 
 const BASE_URL = "https://mainnet.eth.streamingfast.io:443";
@@ -31,7 +31,7 @@ const spkgPath = path.join(
   "..",
   "..",
   "erc721-substream",
-  "erc-721-v0.1.0.spkg"
+  "erc-721-v0.1.0.spkg",
 );
 
 export async function sendWebhook({
@@ -59,12 +59,12 @@ export async function sendWebhook({
 
   applyParams(
     [`map_transfers=${contractAddress}`],
-    substreamPackage.modules.modules
+    substreamPackage.modules.modules,
   );
 
   const moduleHash = await createModuleHashHex(
     substreamPackage.modules,
-    OUTPUT_MODULE
+    OUTPUT_MODULE,
   );
 
   const registry = createRegistry(substreamPackage);

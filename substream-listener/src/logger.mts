@@ -26,14 +26,14 @@ class SinkLogger extends Logger<ILogObj> {
 
   public info(...info: unknown[]) {
     const messages = info.map((i) =>
-      typeof i === "string" ? i : JSON.stringify(i)
+      typeof i === "string" ? i : JSON.stringify(i),
     );
     return super.info(...messages);
   }
 
   public error(...err: unknown[]) {
     const errors = err.map((e) =>
-      typeof e === "string" ? e : JSON.stringify(e)
+      typeof e === "string" ? e : JSON.stringify(e),
     );
     return super.error(...errors);
   }

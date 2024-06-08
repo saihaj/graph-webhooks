@@ -19,7 +19,7 @@ export function registerCounter(
   name: string,
   help = "help",
   labelNames: string[] = [],
-  config?: CounterConfiguration<string>
+  config?: CounterConfiguration<string>,
 ): Counter | undefined {
   try {
     const metric = registry.getSingleMetric(name);
@@ -37,7 +37,7 @@ export function registerGauge(
   name: string,
   help = "help",
   labelNames: string[] = [],
-  config?: GaugeConfiguration<string>
+  config?: GaugeConfiguration<string>,
 ): Gauge | undefined {
   try {
     const metric = registry.getSingleMetric(name);
@@ -57,7 +57,7 @@ export function registerSummary(
   name: string,
   help = "help",
   labelNames: string[] = [],
-  config?: SummaryConfiguration<string>
+  config?: SummaryConfiguration<string>,
 ): Summary | undefined {
   try {
     const metric = registry.getSingleMetric(name);
@@ -75,7 +75,7 @@ export function registerHistogram(
   name: string,
   help = "help",
   labelNames: string[] = [],
-  config?: HistogramConfiguration<string>
+  config?: HistogramConfiguration<string>,
 ): Histogram | undefined {
   try {
     const metric = registry.getSingleMetric(name);
@@ -84,7 +84,7 @@ export function registerHistogram(
     }
 
     registry.registerMetric(
-      new Histogram({ name, help, labelNames, ...config })
+      new Histogram({ name, help, labelNames, ...config }),
     );
     return registry.getSingleMetric(name) as Histogram;
   } catch (e) {
@@ -110,25 +110,25 @@ function calculateHeadBlockTimeDrift(clock: Clock) {
 export const substreams_sink_progress_message = registerCounter(
   "substreams_sink_progress_message",
   "The number of progress message received",
-  ["module", ...DEFAULT_LABEL_NAMES]
+  ["module", ...DEFAULT_LABEL_NAMES],
 );
 
 const substreams_sink_data_message = registerCounter(
   "substreams_sink_data_message",
   "The number of data message received",
-  DEFAULT_LABEL_NAMES
+  DEFAULT_LABEL_NAMES,
 );
 
 const substreams_sink_data_message_size_bytes = registerCounter(
   "substreams_sink_data_message_size_bytes",
   "The total size of in bytes of all data message received",
-  DEFAULT_LABEL_NAMES
+  DEFAULT_LABEL_NAMES,
 );
 
 const substreams_sink_undo_message = registerCounter(
   "substreams_sink_undo_message",
   "The number of block undo message received",
-  DEFAULT_LABEL_NAMES
+  DEFAULT_LABEL_NAMES,
 );
 
 // ------------------------------------------------------------------
@@ -138,25 +138,25 @@ const substreams_sink_undo_message = registerCounter(
 const substreams_sink_backprocessing_completion = registerGauge(
   "substreams_sink_backprocessing_completion",
   "Determines if backprocessing is completed, which is if we receive a first data message",
-  DEFAULT_LABEL_NAMES
+  DEFAULT_LABEL_NAMES,
 );
 
 const head_block_number = registerGauge(
   "head_block_number",
   "Last processed block number",
-  DEFAULT_LABEL_NAMES
+  DEFAULT_LABEL_NAMES,
 );
 
 const head_block_time_drift = registerGauge(
   "head_block_time_drift",
   "Head block time drift in seconds",
-  DEFAULT_LABEL_NAMES
+  DEFAULT_LABEL_NAMES,
 );
 
 const head_block_timestamp = registerGauge(
   "head_block_timestamp",
   "Head block timestamp",
-  DEFAULT_LABEL_NAMES
+  DEFAULT_LABEL_NAMES,
 );
 
 const manifest = registerGauge(
@@ -168,7 +168,7 @@ const manifest = registerGauge(
     "stop_block_num",
     "final_blocks_only",
     ...DEFAULT_LABEL_NAMES,
-  ]
+  ],
 );
 
 // ------------------------------------------------------------------
@@ -179,7 +179,7 @@ export function onPrometheusMetrics(
     substreamsEndpoint: string;
     contractAddress: string;
     moduleHash: string;
-  }
+  },
 ) {
   manifest?.set(
     {
@@ -191,7 +191,7 @@ export function onPrometheusMetrics(
       contract_address: options.contractAddress,
       output_module: emitter.request.outputModule,
     },
-    1
+    1,
   );
 
   emitter.on("session", (session) => {
@@ -213,7 +213,7 @@ export function onPrometheusMetrics(
         contract_address: options.contractAddress,
         output_module: emitter.request.outputModule,
       },
-      1
+      1,
     );
   });
 
@@ -224,7 +224,7 @@ export function onPrometheusMetrics(
         contract_address: options.contractAddress,
         output_module: emitter.request.outputModule,
       })
-      .inc(1)
+      .inc(1),
   );
 
   emitter.on("block", (block) => {
@@ -250,7 +250,7 @@ export function onPrometheusMetrics(
         contract_address: options.contractAddress,
         output_module: emitter.request.outputModule,
       },
-      1
+      1,
     );
 
     if (block.clock) {
@@ -260,7 +260,7 @@ export function onPrometheusMetrics(
           contract_address: options.contractAddress,
           output_module: emitter.request.outputModule,
         },
-        Number(block.clock.number)
+        Number(block.clock.number),
       );
 
       head_block_time_drift?.set(
@@ -269,7 +269,7 @@ export function onPrometheusMetrics(
           contract_address: options.contractAddress,
           output_module: emitter.request.outputModule,
         },
-        calculateHeadBlockTimeDrift(block.clock)
+        calculateHeadBlockTimeDrift(block.clock),
       );
 
       head_block_timestamp?.set(
@@ -278,7 +278,7 @@ export function onPrometheusMetrics(
           contract_address: options.contractAddress,
           output_module: emitter.request.outputModule,
         },
-        Number(block.clock.timestamp?.seconds)
+        Number(block.clock.timestamp?.seconds),
       );
     }
   });
