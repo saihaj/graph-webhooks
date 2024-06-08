@@ -110,18 +110,6 @@ const router = createRouter({
         message: "Webhook registered",
       });
     },
-  })
-  .route({
-    path: "/metrics",
-    method: "GET",
-    async handler() {
-      const metrics = await registry.metrics();
-      return new Response(metrics, {
-        headers: {
-          "Content-Type": registry.contentType,
-        },
-      });
-    },
   });
 
 App()
@@ -130,7 +118,11 @@ App()
     console.info(`Server is listening on http://localhost:4040/v1/docs`);
   });
 
-// sendWebhook({
-//   appId: "72d9f03b-62b0-4b02-9136-039d0aa20d30",
-//   startBlock: 13707413,
-// });
+App()
+  .get("/metrics", async (res) => {
+    res.writeHeader("Content-Type", registry.contentType);
+    res.end(await registry.metrics());
+  })
+  .listen(10_254, () => {
+    console.info(`Metrics exposed on http://localhost:10254/metrics`);
+  });
