@@ -1,4 +1,9 @@
-import { applyParams, createRegistry, createRequest } from "@substreams/core";
+import {
+  applyParams,
+  createModuleHashHex,
+  createRegistry,
+  createRequest,
+} from "@substreams/core";
 import { readPackage } from "@substreams/manifest";
 import { BlockEmitter } from "@substreams/node";
 import { createNodeTransport } from "@substreams/node/createNodeTransport";
@@ -6,6 +11,7 @@ import { Address } from "viem";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { Svix } from "svix";
+import * as prometheus from "./prometheus.mjs";
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename);
@@ -14,7 +20,7 @@ const svix = new Svix(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTI3NjcxODYsImV4cCI6MjAyODEyNzE4NiwibmJmIjoxNzEyNzY3MTg2LCJpc3MiOiJzdml4LXNlcnZlciIsInN1YiI6Im9yZ18yM3JiOFlkR3FNVDBxSXpwZ0d3ZFhmSGlyTXUifQ.Gnj4vMl0qls2Q6ks690ZEUAW7h6VsgUHc6iwFWNPa1I",
   {
     serverUrl: "http://localhost:8071",
-  },
+  }
 );
 
 const BASE_URL = "https://mainnet.eth.streamingfast.io:443";
@@ -25,7 +31,7 @@ const spkgPath = path.join(
   "..",
   "..",
   "erc721-substream",
-  "erc-721-v0.1.0.spkg",
+  "erc-721-v0.1.0.spkg"
 );
 
 export async function sendWebhook({
@@ -53,7 +59,12 @@ export async function sendWebhook({
 
   applyParams(
     [`map_transfers=${contractAddress}`],
-    substreamPackage.modules.modules,
+    substreamPackage.modules.modules
+  );
+
+  const moduleHash = await createModuleHashHex(
+    substreamPackage.modules,
+    OUTPUT_MODULE
   );
 
   const registry = createRegistry(substreamPackage);
@@ -67,9 +78,11 @@ export async function sendWebhook({
   // NodeJS Events
   const emitter = new BlockEmitter(transport, request, registry);
 
-  // Session Trace ID
-  emitter.on("session", (session) => {
-    console.dir(session);
+  // Setup tracing of metrics for Prometheus
+  prometheus.onPrometheusMetrics(emitter, {
+    substreamsEndpoint: BASE_URL,
+    contractAddress,
+    moduleHash,
   });
 
   // Stream Blocks
@@ -85,7 +98,7 @@ export async function sendWebhook({
         },
       });
     });
-    console.log(a.length);
+
     try {
       await Promise.all(a);
     } catch (e) {

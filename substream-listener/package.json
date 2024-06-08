@@ -10,7 +10,9 @@
     "@substreams/manifest": "^0.15.0",
     "@substreams/node": "^0.6.2",
     "fets": "^0.8.0",
+    "prom-client": "^15.1.2",
     "svix": "^1.21.0",
+    "tslog": "^4.9.3",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#semver:^20",
     "viem": "^2.9.31"
   },

@@ -101,19 +101,25 @@ importers:
     dependencies:
       '@substreams/core':
         specifier: ^0.16.0
-        version: 0.16.0(@bufbuild/protobuf@1.9.0)(@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.9.0))
+        version: 0.16.0(@bufbuild/protobuf@1.10.0)(@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.10.0))
       '@substreams/manifest':
         specifier: ^0.15.0
-        version: 0.15.0(@bufbuild/buf@1.30.1)(@bufbuild/protobuf@1.9.0)(@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.9.0))(@effect/schema@0.63.4(effect@2.4.18)(fast-check@3.17.1))(effect@2.4.18)(yaml@2.4.1)
+        version: 0.15.0(@bufbuild/buf@1.30.1)(@bufbuild/protobuf@1.10.0)(@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.10.0))(@effect/schema@0.63.4(effect@2.4.18)(fast-check@3.19.0))(effect@2.4.18)(yaml@2.4.1)
       '@substreams/node':
         specifier: ^0.6.2
         version: 0.6.2
       fets:
         specifier: ^0.8.0
         version: 0.8.0
+      prom-client:
+        specifier: ^15.1.2
+        version: 15.1.2
       svix:
         specifier: ^1.21.0
         version: 1.21.0(encoding@0.1.13)
+      tslog:
+        specifier: ^4.9.3
+        version: 4.9.3
       uWebSockets.js:
         specifier: github:uNetworking/uWebSockets.js#semver:^20
         version: https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/1977b5039938ad863d42fc4958d48c17e5a1fa06
@@ -562,8 +568,8 @@ packages:
     engines: {node: '>=12'}
     hasBin: true
 
-  '@bufbuild/protobuf@1.9.0':
-    resolution: {integrity: sha512-W7gp8Q/v1NlCZLsv8pQ3Y0uCu/SHgXOVFK+eUluUKWXmsb6VHkpNx0apdOWWcDbB9sJoKeP8uPrjmehJz6xETQ==}
+  '@bufbuild/protobuf@1.10.0':
+    resolution: {integrity: sha512-QDdVFLoN93Zjg36NoQPZfsVH9tZew7wKDKyV5qRdj8ntT4wQCOradQjRaTdwMhWUYsgKsvCINKKm87FdEk96Ag==}
 
   '@cloudflare/kv-asset-handler@0.3.2':
     resolution: {integrity: sha512-EeEjMobfuJrwoctj7FA1y1KEbM0+Q1xSjobIEyie9k4haVEBB7vkDvsasw1pM3rO39mL2akxIAzLMUAtrMHZhA==}
@@ -2425,6 +2431,9 @@ packages:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
     engines: {node: '>=8'}
 
+  bintrees@1.0.2:
+    resolution: {integrity: sha512-VOMgTMwjAaUG580SXn3LacVgjurrbMme7ZZNYGSSV7mmtY6QQRh0Eg3pwIcntQ77DErK1L0NxkbetjcoXzVwKw==}
+
   blake3-wasm@2.1.5:
     resolution: {integrity: sha512-F1+K8EbfOZE49dtoPtmxUQrpXaBIl3ICvasLh+nJta0xkz+9kF/7uet9fLnwKqhDrmj6g+6K3Tw9yQPUg2ka5g==}
 
@@ -2956,8 +2965,8 @@ packages:
   ext@1.7.0:
     resolution: {integrity: sha512-6hxeJYaL110a9b5TEJSj0gojyHQAmA2ch5Os+ySCiA1QGdS697XWY1pzsrSjqA9LDEEgdB/KypIlR59RcLuHYw==}
 
-  fast-check@3.17.1:
-    resolution: {integrity: sha512-jIKXJVe6ZO0SpwEgVtEVujTf8TwjI9wMXFJCjsDHUB3RroUbXBgF4kOSz3A7MW0UR26aqsoB8i9O2mjtjERAiA==}
+  fast-check@3.19.0:
+    resolution: {integrity: sha512-CO2JX/8/PT9bDGO1iXa5h5ey1skaKI1dvecERyhH4pp3PGjwd3KIjMAXEg79Ps9nclsdt4oPbfqiAnLU0EwrAQ==}
     engines: {node: '>=8.0.0'}
 
   fast-decode-uri-component@1.0.1:
@@ -3899,6 +3908,10 @@ packages:
     resolution: {integrity: sha512-69agxLtnI8xBs9gUGqEnK26UfiexpHy+KUpBQWabiytQjnn5wFY8rklAi7GRfABIuPNnQ/ik48+LGLkYYJcy4A==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
 
+  prom-client@15.1.2:
+    resolution: {integrity: sha512-on3h1iXb04QFLLThrmVYg1SChBQ9N1c+nKAjebBjokBqipddH3uxmOUcEkTnzmJ8Jh/5TSUnUqS40i2QB2dJHQ==}
+    engines: {node: ^16 || ^18 || >=20}
+
   promise-all-reject-late@1.0.1:
     resolution: {integrity: sha512-vuf0Lf0lOxyQREH7GDIOUMLS7kz+gs8i6B+Yi8dC68a2sychGrHTJYghMBD6k7eUcH0H5P73EckCA48xijWqXw==}
 
@@ -4298,6 +4311,9 @@ packages:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
 
+  tdigest@0.1.2:
+    resolution: {integrity: sha512-+G0LLgjjo9BZX2MfdvPfH+MKLCrxlXSYec5DaPYP1fe6Iyhf0/fSmJ0bFiZ1F8BT6cGXl2LpltQptzjXKWEkKA==}
+
   text-table@0.2.0:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
 
@@ -4374,6 +4390,10 @@ packages:
 
   tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
+
+  tslog@4.9.3:
+    resolution: {integrity: sha512-oDWuGVONxhVEBtschLf2cs/Jy8i7h1T+CpdkTNWQgdAF7DhRo2G8vMCgILKe7ojdEkLhICWgI1LYSSKaJsRgcw==}
+    engines: {node: '>=16'}
 
   tsx@4.7.2:
     resolution: {integrity: sha512-BCNd4kz6fz12fyrgCTEdZHGJ9fWTGeUzXmQysh0RVocDY3h4frk05ZNCXSy4kIenF7y/QnrdiVpTsyNRn6vlAw==}
@@ -5055,7 +5075,7 @@ snapshots:
       '@bufbuild/buf-win32-arm64': 1.30.1
       '@bufbuild/buf-win32-x64': 1.30.1
 
-  '@bufbuild/protobuf@1.9.0': {}
+  '@bufbuild/protobuf@1.10.0': {}
 
   '@cloudflare/kv-asset-handler@0.3.2':
     dependencies:
@@ -5078,29 +5098,29 @@ snapshots:
 
   '@cloudflare/workers-types@4.20240502.0': {}
 
-  '@connectrpc/connect-node@1.4.0(@bufbuild/protobuf@1.9.0)(@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.9.0))':
+  '@connectrpc/connect-node@1.4.0(@bufbuild/protobuf@1.10.0)(@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.10.0))':
     dependencies:
-      '@bufbuild/protobuf': 1.9.0
-      '@connectrpc/connect': 1.4.0(@bufbuild/protobuf@1.9.0)
+      '@bufbuild/protobuf': 1.10.0
+      '@connectrpc/connect': 1.4.0(@bufbuild/protobuf@1.10.0)
       undici: 5.28.4
 
-  '@connectrpc/connect-web@1.4.0(@bufbuild/protobuf@1.9.0)(@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.9.0))':
+  '@connectrpc/connect-web@1.4.0(@bufbuild/protobuf@1.10.0)(@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.10.0))':
     dependencies:
-      '@bufbuild/protobuf': 1.9.0
-      '@connectrpc/connect': 1.4.0(@bufbuild/protobuf@1.9.0)
+      '@bufbuild/protobuf': 1.10.0
+      '@connectrpc/connect': 1.4.0(@bufbuild/protobuf@1.10.0)
 
-  '@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.9.0)':
+  '@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.10.0)':
     dependencies:
-      '@bufbuild/protobuf': 1.9.0
+      '@bufbuild/protobuf': 1.10.0
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
 
-  '@effect/schema@0.63.4(effect@2.4.18)(fast-check@3.17.1)':
+  '@effect/schema@0.63.4(effect@2.4.18)(fast-check@3.19.0)':
     dependencies:
       effect: 2.4.18
-      fast-check: 3.17.1
+      fast-check: 3.19.0
 
   '@envelop/core@5.0.0':
     dependencies:
@@ -6399,17 +6419,17 @@ snapshots:
 
   '@stablelib/base64@1.0.1': {}
 
-  '@substreams/core@0.16.0(@bufbuild/protobuf@1.9.0)(@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.9.0))':
+  '@substreams/core@0.16.0(@bufbuild/protobuf@1.10.0)(@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.10.0))':
     dependencies:
-      '@bufbuild/protobuf': 1.9.0
-      '@connectrpc/connect': 1.4.0(@bufbuild/protobuf@1.9.0)
+      '@bufbuild/protobuf': 1.10.0
+      '@connectrpc/connect': 1.4.0(@bufbuild/protobuf@1.10.0)
 
-  '@substreams/manifest@0.15.0(@bufbuild/buf@1.30.1)(@bufbuild/protobuf@1.9.0)(@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.9.0))(@effect/schema@0.63.4(effect@2.4.18)(fast-check@3.17.1))(effect@2.4.18)(yaml@2.4.1)':
+  '@substreams/manifest@0.15.0(@bufbuild/buf@1.30.1)(@bufbuild/protobuf@1.10.0)(@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.10.0))(@effect/schema@0.63.4(effect@2.4.18)(fast-check@3.19.0))(effect@2.4.18)(yaml@2.4.1)':
     dependencies:
       '@bufbuild/buf': 1.30.1
-      '@bufbuild/protobuf': 1.9.0
-      '@effect/schema': 0.63.4(effect@2.4.18)(fast-check@3.17.1)
-      '@substreams/core': 0.16.0(@bufbuild/protobuf@1.9.0)(@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.9.0))
+      '@bufbuild/protobuf': 1.10.0
+      '@effect/schema': 0.63.4(effect@2.4.18)(fast-check@3.19.0)
+      '@substreams/core': 0.16.0(@bufbuild/protobuf@1.10.0)(@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.10.0))
       effect: 2.4.18
       yaml: 2.4.1
     transitivePeerDependencies:
@@ -6417,11 +6437,11 @@ snapshots:
 
   '@substreams/node@0.6.2':
     dependencies:
-      '@bufbuild/protobuf': 1.9.0
-      '@connectrpc/connect': 1.4.0(@bufbuild/protobuf@1.9.0)
-      '@connectrpc/connect-node': 1.4.0(@bufbuild/protobuf@1.9.0)(@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.9.0))
-      '@connectrpc/connect-web': 1.4.0(@bufbuild/protobuf@1.9.0)(@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.9.0))
-      '@substreams/core': 0.16.0(@bufbuild/protobuf@1.9.0)(@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.9.0))
+      '@bufbuild/protobuf': 1.10.0
+      '@connectrpc/connect': 1.4.0(@bufbuild/protobuf@1.10.0)
+      '@connectrpc/connect-node': 1.4.0(@bufbuild/protobuf@1.10.0)(@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.10.0))
+      '@connectrpc/connect-web': 1.4.0(@bufbuild/protobuf@1.10.0)(@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.10.0))
+      '@substreams/core': 0.16.0(@bufbuild/protobuf@1.10.0)(@connectrpc/connect@1.4.0(@bufbuild/protobuf@1.10.0))
       eventemitter3: 5.0.1
 
   '@szmarczak/http-timer@4.0.6':
@@ -6855,6 +6875,8 @@ snapshots:
       write-file-atomic: 5.0.1
 
   binary-extensions@2.3.0: {}
+
+  bintrees@1.0.2: {}
 
   blake3-wasm@2.1.5: {}
 
@@ -7455,7 +7477,7 @@ snapshots:
     dependencies:
       type: 2.7.2
 
-  fast-check@3.17.1:
+  fast-check@3.19.0:
     dependencies:
       pure-rand: 6.1.0
 
@@ -8392,6 +8414,11 @@ snapshots:
 
   proggy@2.0.0: {}
 
+  prom-client@15.1.2:
+    dependencies:
+      '@opentelemetry/api': 1.8.0
+      tdigest: 0.1.2
+
   promise-all-reject-late@1.0.1: {}
 
   promise-call-limit@3.0.1: {}
@@ -8843,6 +8870,10 @@ snapshots:
       mkdirp: 1.0.4
       yallist: 4.0.0
 
+  tdigest@0.1.2:
+    dependencies:
+      bintrees: 1.0.2
+
   text-table@0.2.0: {}
 
   thenify-all@1.6.0:
@@ -8910,6 +8941,8 @@ snapshots:
   tslib@1.14.1: {}
 
   tslib@2.6.2: {}
+
+  tslog@4.9.3: {}
 
   tsx@4.7.2:
     dependencies:
