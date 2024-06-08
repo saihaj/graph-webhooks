@@ -36,7 +36,7 @@ const servicePrincipalPassword = new azuread.ServicePrincipalPassword(
   "graph-webhooks-sp-password",
   {
     servicePrincipalId: servicePrincipal.id,
-  },
+  }
 );
 
 // Create a new resource group
@@ -56,7 +56,7 @@ const { cluster, provider, kubeConfig, publicIp, subnet } = createAksCluster({
 });
 
 export const { tlsIssueName } = new CertManager(
-  provider,
+  provider
 ).deployCertManagerAndIssuer();
 
 const { server, username, password } = createPostgres({
@@ -99,7 +99,7 @@ const svixServer = new ServiceDeployment(
     ],
   },
   provider,
-  [redisDeployment, redisService],
+  [redisDeployment, redisService]
 );
 
 const deploySvix = svixServer.deploy();
@@ -120,3 +120,4 @@ reverseProxy
 export const kubeconfig = pulumi.secret(kubeConfig);
 export const clusterName = cluster.name;
 export const databaseConnection = pulumi.secret(databaseConnectionString);
+export const loadBalancerIP = publicIp.ipAddress;
