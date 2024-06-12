@@ -1,7 +1,6 @@
 import { createRouter, Response } from "fets";
 import { App } from "uWebSockets.js";
 import { isAddress } from "viem";
-import { sendWebhook } from "./send-webhook.mjs";
 import {
   invalidHttpRequests,
   registry,

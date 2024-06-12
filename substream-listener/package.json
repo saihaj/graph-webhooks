@@ -6,9 +6,10 @@
     "dev": "tsx --watch ./src/index.mts | pino-pretty"
   },
   "dependencies": {
-    "@substreams/core": "^0.16.0",
-    "@substreams/manifest": "^0.15.0",
-    "@substreams/node": "^0.6.2",
+    "@connectrpc/connect-node": "1.4.0",
+    "@substreams/core": "0.16.0",
+    "@substreams/manifest": "0.15.0",
+    "@substreams/node": "0.6.2",
     "bullmq": "^5.8.1",
     "fets": "^0.8.0",
     "ioredis": "^5.4.1",

@@ -12,6 +12,7 @@ const DEFAULT_LABEL_NAMES = [
   "module_hash",
   "contract_address",
   "output_module",
+  "app_id",
 ] as const;
 
 function calculateHeadBlockTimeDrift(clock: Clock) {
@@ -20,7 +21,6 @@ function calculateHeadBlockTimeDrift(clock: Clock) {
 }
 
 // Counters
-
 export const invalidHttpRequests = new promClient.Counter({
   name: "http_invalid_request",
   help: "The number of invalid HTTP requests received",
@@ -121,6 +121,7 @@ export function onPrometheusMetrics(
     substreamsEndpoint: string;
     contractAddress: string;
     moduleHash: string;
+    appId: string;
   },
 ) {
   manifest?.set(
@@ -132,6 +133,7 @@ export function onPrometheusMetrics(
       module_hash: options.moduleHash,
       contract_address: options.contractAddress,
       output_module: emitter.request.outputModule,
+      app_id: options.appId,
     },
     1,
   );
@@ -146,6 +148,7 @@ export function onPrometheusMetrics(
         module_hash: options.moduleHash,
         contract_address: options.contractAddress,
         output_module: emitter.request.outputModule,
+        app_id: options.appId,
       },
       1,
     );
@@ -157,6 +160,7 @@ export function onPrometheusMetrics(
         module_hash: options.moduleHash,
         contract_address: options.contractAddress,
         output_module: emitter.request.outputModule,
+        app_id: options.appId,
       })
       .inc(1),
   );
@@ -167,6 +171,7 @@ export function onPrometheusMetrics(
         module_hash: options.moduleHash,
         contract_address: options.contractAddress,
         output_module: emitter.request.outputModule,
+        app_id: options.appId,
       })
       .inc(1);
 
@@ -175,6 +180,7 @@ export function onPrometheusMetrics(
         module_hash: options.moduleHash,
         contract_address: options.contractAddress,
         output_module: emitter.request.outputModule,
+        app_id: options.appId,
       })
       ?.inc(block.toBinary().byteLength);
 
@@ -183,6 +189,7 @@ export function onPrometheusMetrics(
         module_hash: options.moduleHash,
         contract_address: options.contractAddress,
         output_module: emitter.request.outputModule,
+        app_id: options.appId,
       },
       1,
     );
@@ -193,6 +200,7 @@ export function onPrometheusMetrics(
           module_hash: options.moduleHash,
           contract_address: options.contractAddress,
           output_module: emitter.request.outputModule,
+          app_id: options.appId,
         },
         Number(block.clock.number),
       );
@@ -202,6 +210,7 @@ export function onPrometheusMetrics(
           module_hash: options.moduleHash,
           contract_address: options.contractAddress,
           output_module: emitter.request.outputModule,
+          app_id: options.appId,
         },
         calculateHeadBlockTimeDrift(block.clock),
       );
@@ -211,6 +220,7 @@ export function onPrometheusMetrics(
           module_hash: options.moduleHash,
           contract_address: options.contractAddress,
           output_module: emitter.request.outputModule,
+          app_id: options.appId,
         },
         Number(block.clock.timestamp?.seconds),
       );

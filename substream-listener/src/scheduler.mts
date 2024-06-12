@@ -3,15 +3,16 @@ import { Redis } from "ioredis";
 import pTimeout from "p-timeout";
 import { type Logger } from "pino";
 import * as prometheus from "./prometheus.mjs";
+import { createGrpcWebTransport } from "@connectrpc/connect-node";
 import {
   applyParams,
+  createAuthInterceptor,
   createModuleHashHex,
   createRegistry,
   createRequest,
 } from "@substreams/core";
 import { readPackage } from "@substreams/manifest";
 import { BlockEmitter } from "@substreams/node";
-import { createNodeTransport } from "@substreams/node/createNodeTransport";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { Svix } from "svix";
@@ -93,7 +94,13 @@ export function createScheduler(config: {
     const worker = new Worker<Input>(
       config.queueName,
       async (job) => {
-        logger.info(
+        const jobLogger = logger.child({
+          jobId: job.id,
+          jobName: job.name,
+        });
+        const cursorKey = `cursor:${job.name}:${job.id}`.toLowerCase();
+
+        jobLogger.info(
           {
             payload: job.data,
           },
@@ -114,7 +121,7 @@ export function createScheduler(config: {
           throw new Error("No modules found in substream package");
         }
 
-        logger.debug(
+        jobLogger.debug(
           { contractAddress },
           "Applying params to substream package",
         );
@@ -127,18 +134,26 @@ export function createScheduler(config: {
           substreamPackage.modules,
           outputModule,
         );
-        logger.debug({ moduleHash }, "Module hash");
+        jobLogger.debug({ moduleHash }, "Module hash");
 
         const registry = createRegistry(substreamPackage);
-        const transport = createNodeTransport(
-          substreamsEndpoint,
-          token,
-          registry,
-        );
+        const transport = createGrpcWebTransport({
+          baseUrl: substreamsEndpoint,
+          httpVersion: "2",
+          interceptors: [createAuthInterceptor(token)],
+          jsonOptions: {
+            typeRegistry: registry,
+          },
+        });
+
+        const startCursor =
+          (await redisConnection?.get(cursorKey)) || undefined;
+        logger.debug({ startCursor }, "Starting from cursor");
         const request = createRequest({
           substreamPackage,
           outputModule,
           startBlockNum: startBlock,
+          startCursor,
         });
 
         // NodeJS Events
@@ -150,16 +165,19 @@ export function createScheduler(config: {
           substreamsEndpoint,
           contractAddress,
           moduleHash,
+          appId,
+        });
+
+        emitter.on("cursor", async (cursor) => {
+          if (cursor) {
+            await redisConnection?.set(cursorKey, cursor);
+          }
         });
 
         // Stream Blocks
         emitter.on("anyMessage", async (message, cursor, clock) => {
           const transfers = (message.transfers || []) as any[];
 
-          logger.debug(
-            { transfers: transfers.length },
-            "Sending transfers to Svix",
-          );
           const events = transfers.map((transfer) => {
             return svix.message.create(appId, {
               eventType: "erc721.transfer",
@@ -173,7 +191,7 @@ export function createScheduler(config: {
           try {
             await Promise.all(events);
           } catch (e) {
-            logger.error({ error: e }, "Error sending events to Svix");
+            jobLogger.error({ error: e }, "Error sending events to Svix");
           }
         });
 
@@ -184,7 +202,7 @@ export function createScheduler(config: {
           // End of Stream
           emitter.on("close", (error) => {
             if (error) {
-              logger.error({ error }, "Error closing stream");
+              jobLogger.error({ error }, "Error closing stream");
               reject(error);
             }
             resolve("Stream closed");
@@ -192,7 +210,7 @@ export function createScheduler(config: {
 
           // Fatal Error
           emitter.on("fatalError", (error) => {
-            logger.fatal({ error }, "Fatal error in stream");
+            jobLogger.fatal({ error }, "Fatal error in stream");
             reject(error);
           });
         });
