@@ -18,16 +18,14 @@ import path from "node:path";
 import { Svix } from "svix";
 import { Address } from "viem";
 import { bullMqRedis } from "./prometheus.mjs";
+import { SVIX_HOST_URL, SVIX_TOKEN } from "./utils.mjs";
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename);
 
-const svix = new Svix(
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTI3NjcxODYsImV4cCI6MjAyODEyNzE4NiwibmJmIjoxNzEyNzY3MTg2LCJpc3MiOiJzdml4LXNlcnZlciIsInN1YiI6Im9yZ18yM3JiOFlkR3FNVDBxSXpwZ0d3ZFhmSGlyTXUifQ.Gnj4vMl0qls2Q6ks690ZEUAW7h6VsgUHc6iwFWNPa1I",
-  {
-    serverUrl: "http://localhost:8071",
-  },
-);
+const svix = new Svix(SVIX_TOKEN, {
+  serverUrl: SVIX_HOST_URL,
+});
 
 const spkgPath = path.join(
   __dirname,
@@ -81,6 +79,7 @@ export function createScheduler(config: {
 
   async function initQueueAndWorkers() {
     if (!redisConnection) {
+      logger.error("Redis connection not initialized");
       return;
     }
 
@@ -253,6 +252,7 @@ export function createScheduler(config: {
       host: config.redis.host,
       port: config.redis.port,
       password: config.redis?.password,
+      connectionName: config.queueName,
       retryStrategy(times) {
         return Math.min(times * 500, 2000);
       },

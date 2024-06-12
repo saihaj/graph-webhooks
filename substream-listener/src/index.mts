@@ -8,14 +8,15 @@ import {
 } from "./prometheus.mjs";
 import { logger } from "./logger.mjs";
 import { createScheduler } from "./scheduler.mjs";
+import { REDIS_HOST, REDIS_PASSWORD, REDIS_PORT } from "./utils.mjs";
 
 const { schedule, start, stop, readiness } = createScheduler({
   queueName: "substream-sink-scheduler",
   logger: logger.child({ module: "substream-sink-scheduler" }),
   redis: {
-    host: "localhost",
-    port: 6379,
-    password: undefined,
+    host: REDIS_HOST,
+    port: REDIS_PORT,
+    password: REDIS_PASSWORD,
   },
 });
 
