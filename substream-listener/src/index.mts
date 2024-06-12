@@ -8,6 +8,20 @@ import {
   successfulHttpRequests,
 } from "./prometheus.mjs";
 import { logger } from "./logger.mjs";
+import { createScheduler } from "./scheduler.mjs";
+
+const { schedule, start, stop } = createScheduler({
+  queueName: "substream-sink-scheduler",
+  logger: logger.child({ module: "substream-sink-scheduler" }),
+  redis: {
+    host: "localhost",
+    port: 6379,
+    password: undefined,
+  },
+});
+
+const BASE_URL = "https://mainnet.eth.streamingfast.io:443";
+const OUTPUT_MODULE = "map_transfers";
 
 // Creating a new router
 const router = createRouter({
@@ -122,18 +136,17 @@ const router = createRouter({
         );
       }
 
-      // Sending the webhook
-      await Promise.all([
-        sendWebhook({
-          appId,
-          startBlock,
-          contractAddress: contractAddress.toLowerCase(),
-          token: substreamsToken,
-        }),
-      ]);
+      const job = await schedule({
+        appId,
+        startBlock,
+        contractAddress: contractAddress.toLowerCase(),
+        token: substreamsToken,
+        outputModule: OUTPUT_MODULE,
+        substreamsEndpoint: BASE_URL,
+      });
 
       successfulHttpRequests.inc();
-      logger.info({ payload: json }, "Webhook registered");
+      logger.info({ job }, "Webhook registered");
 
       // If the status code is not specified, it defaults to 200
       return Response.json({
@@ -142,13 +155,14 @@ const router = createRouter({
     },
   });
 
-App()
+const webhookServer = App()
   .any("/*", router)
-  .listen(4040, () => {
+  .listen(4040, async () => {
+    await start();
     logger.info("Server is listening on http://localhost:4040/v1/docs");
   });
 
-App()
+const metricServer = App()
   .get("/metrics", async (res) => {
     res.writeHeader("Content-Type", registry.contentType);
     res.end(await registry.metrics());
@@ -156,3 +170,17 @@ App()
   .listen(10_254, () => {
     logger.info(`Metrics exposed on http://localhost:10254/metrics`);
   });
+
+async function cleanup() {
+  await Promise.all([stop(), webhookServer.close(), metricServer.close()]);
+}
+
+process.on("SIGINT", async () => {
+  logger.info("Received SIGINT - stopping...");
+  await cleanup();
+});
+
+process.on("SIGTERM", async () => {
+  logger.info("Received SIGTERM - stopping...");
+  await cleanup();
+});

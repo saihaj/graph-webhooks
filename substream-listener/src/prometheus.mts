@@ -22,12 +22,12 @@ function calculateHeadBlockTimeDrift(clock: Clock) {
 // Counters
 
 export const invalidHttpRequests = new promClient.Counter({
-  name: "substreams_sink_invalid_http_requests",
+  name: "http_invalid_request",
   help: "The number of invalid HTTP requests received",
 });
 
 export const successfulHttpRequests = new promClient.Counter({
-  name: "substreams_sink_successful_http_requests",
+  name: "http_successful_request",
   help: "The number of successful HTTP requests received",
 });
 
@@ -53,6 +53,12 @@ const substreams_sink_undo_message = new promClient.Counter({
   name: "substreams_sink_undo_message",
   help: "The number of block undo message received",
   labelNames: DEFAULT_LABEL_NAMES,
+});
+
+export const bullMqRedis = new promClient.Counter({
+  name: "bullmq_redis_connection",
+  help: "The number of successful and failed connection to Redis",
+  labelNames: ["status"],
 });
 
 // ------------------------------------------------------------------

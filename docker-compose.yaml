@@ -41,6 +41,8 @@ services:
     command: "--save 60 500 --appendonly yes --appendfsync everysec"
     volumes:
       - "redis-data:/data"
+    ports:
+      - "6379:6379"
 
   prometheus:
     image: prom/prometheus
