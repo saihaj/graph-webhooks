@@ -12,6 +12,7 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { Svix } from "svix";
 import * as prometheus from "./prometheus.mjs";
+import { logger as mainLogger } from "./logger.mjs";
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename);
@@ -34,6 +35,8 @@ const spkgPath = path.join(
   "erc-721-v0.1.0.spkg",
 );
 
+const logger = mainLogger.child({ module: "send-webhook" });
+
 export async function sendWebhook({
   startBlock,
   appId,
@@ -45,18 +48,13 @@ export async function sendWebhook({
   contractAddress: Address;
   token: string;
 }) {
-  console.log({
-    startBlock,
-    appId,
-    contractAddress,
-    token,
-  });
   const substreamPackage = await readPackage(spkgPath);
 
   if (!substreamPackage.modules) {
     throw new Error("No modules found in substream package");
   }
 
+  logger.debug({ contractAddress }, "Applying params to substream package");
   applyParams(
     [`map_transfers=${contractAddress}`],
     substreamPackage.modules.modules,
@@ -66,6 +64,7 @@ export async function sendWebhook({
     substreamPackage.modules,
     OUTPUT_MODULE,
   );
+  logger.debug({ moduleHash }, "Module hash");
 
   const registry = createRegistry(substreamPackage);
   const transport = createNodeTransport(BASE_URL, token, registry);
@@ -79,6 +78,7 @@ export async function sendWebhook({
   const emitter = new BlockEmitter(transport, request, registry);
 
   // Setup tracing of metrics for Prometheus
+  logger.trace({}, "Setting up Prometheus metrics");
   prometheus.onPrometheusMetrics(emitter, {
     substreamsEndpoint: BASE_URL,
     contractAddress,
@@ -109,24 +109,20 @@ export async function sendWebhook({
   // End of Stream
   emitter.on("close", (error) => {
     if (error) {
-      console.error(error);
+      logger.error({ error }, "Error closing stream");
     }
     console.timeEnd("🆗 close");
   });
 
   // Fatal Error
   emitter.on("fatalError", (error) => {
-    console.error(error);
+    logger.fatal({ error }, "Fatal error in stream");
   });
 
-  console.log("✅ start");
-  console.time("🆗 close");
+  logger.info(
+    { contractAddress, appId, startBlock, moduleHash },
+    "Starting stream",
+  );
 
-  console.time("🆗 close");
   emitter.start();
-
-  // // Cancel after 3 seconds
-  // setTimeout(() => {
-  //   emitter.cancelFn?.();
-  // }, 3000);
 }

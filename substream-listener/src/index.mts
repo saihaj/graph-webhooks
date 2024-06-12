@@ -7,6 +7,7 @@ import {
   registry,
   successfulHttpRequests,
 } from "./prometheus.mjs";
+import { logger } from "./logger.mjs";
 
 // Creating a new router
 const router = createRouter({
@@ -63,7 +64,10 @@ const router = createRouter({
       },
     },
     async handler(req) {
-      const json = await req.json().catch(() => null);
+      const json = await req.json().catch((error) => {
+        logger.error(error, "Invalid JSON payload");
+        return null;
+      });
 
       if (!json) {
         invalidHttpRequests.inc();
@@ -78,11 +82,13 @@ const router = createRouter({
 
       if (!appId) {
         invalidHttpRequests.inc();
+        logger.error({ payload: json }, "Missing appId");
         return Response.json({ message: "appId is required" }, { status: 400 });
       }
 
       if (startBlock == null) {
         invalidHttpRequests.inc();
+        logger.error({ payload: json }, "Missing startBlock");
         return Response.json(
           { message: "startBlock is required" },
           { status: 400 },
@@ -91,6 +97,7 @@ const router = createRouter({
 
       if (!contractAddress) {
         invalidHttpRequests.inc();
+        logger.error({ payload: json }, "Missing contractAddress");
         return Response.json(
           { message: "contractAddress is required" },
           { status: 400 },
@@ -99,6 +106,7 @@ const router = createRouter({
 
       if (!substreamsToken) {
         invalidHttpRequests.inc();
+        logger.error({ payload: json }, "Missing substreamsToken");
         return Response.json(
           { message: "substreamsToken is required" },
           { status: 400 },
@@ -107,6 +115,7 @@ const router = createRouter({
 
       if (!isAddress(contractAddress)) {
         invalidHttpRequests.inc();
+        logger.error({ payload: json }, "Missing contractAddress");
         return Response.json(
           { message: "contractAddress is invalid" },
           { status: 400 },
@@ -124,6 +133,7 @@ const router = createRouter({
       ]);
 
       successfulHttpRequests.inc();
+      logger.info({ payload: json }, "Webhook registered");
 
       // If the status code is not specified, it defaults to 200
       return Response.json({
@@ -135,7 +145,7 @@ const router = createRouter({
 App()
   .any("/*", router)
   .listen(4040, () => {
-    console.info(`Server is listening on http://localhost:4040/v1/docs`);
+    logger.info("Server is listening on http://localhost:4040/v1/docs");
   });
 
 App()
@@ -144,5 +154,5 @@ App()
     res.end(await registry.metrics());
   })
   .listen(10_254, () => {
-    console.info(`Metrics exposed on http://localhost:10254/metrics`);
+    logger.info(`Metrics exposed on http://localhost:10254/metrics`);
   });

@@ -3,22 +3,23 @@
   "version": "0.0.1",
   "scripts": {
     "start": "tsx ./src/index.mts",
-    "dev": "tsx --watch ./src/index.mts"
+    "dev": "tsx --watch ./src/index.mts | pino-pretty"
   },
   "dependencies": {
     "@substreams/core": "^0.16.0",
     "@substreams/manifest": "^0.15.0",
     "@substreams/node": "^0.6.2",
     "fets": "^0.8.0",
+    "pino": "^9.2.0",
     "prom-client": "^15.1.2",
     "svix": "^1.21.0",
-    "tslog": "^4.9.3",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#semver:^20",
     "viem": "^2.9.31"
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.4",
     "@types/node": "^20.12.7",
+    "pino-pretty": "^11.2.1",
     "tsx": "^4.7.2",
     "typescript": "^5.2.2"
   }
