@@ -20,6 +20,17 @@ function calculateHeadBlockTimeDrift(clock: Clock) {
 }
 
 // Counters
+
+export const invalidHttpRequests = new promClient.Counter({
+  name: "substreams_sink_invalid_http_requests",
+  help: "The number of invalid HTTP requests received",
+});
+
+export const successfulHttpRequests = new promClient.Counter({
+  name: "substreams_sink_successful_http_requests",
+  help: "The number of successful HTTP requests received",
+});
+
 export const substreams_sink_progress_message = new promClient.Counter({
   name: "substreams_sink_progress_message",
   help: "The number of progress message received",

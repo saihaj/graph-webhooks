@@ -2,7 +2,11 @@ import { createRouter, Response } from "fets";
 import { App } from "uWebSockets.js";
 import { isAddress } from "viem";
 import { sendWebhook } from "./send-webhook.mjs";
-import { registry } from "./prometheus.mjs";
+import {
+  invalidHttpRequests,
+  registry,
+  successfulHttpRequests,
+} from "./prometheus.mjs";
 
 // Creating a new router
 const router = createRouter({
@@ -59,15 +63,26 @@ const router = createRouter({
       },
     },
     async handler(req) {
+      const json = await req.json().catch(() => null);
+
+      if (!json) {
+        invalidHttpRequests.inc();
+        return Response.json(
+          { message: "Invalid JSON payload" },
+          { status: 400 },
+        );
+      }
+
       // Extracting the appId and startBlock from the request
-      const { appId, startBlock, contractAddress, substreamsToken } =
-        await req.json();
+      const { appId, startBlock, contractAddress, substreamsToken } = json;
 
       if (!appId) {
+        invalidHttpRequests.inc();
         return Response.json({ message: "appId is required" }, { status: 400 });
       }
 
       if (startBlock == null) {
+        invalidHttpRequests.inc();
         return Response.json(
           { message: "startBlock is required" },
           { status: 400 },
@@ -75,6 +90,7 @@ const router = createRouter({
       }
 
       if (!contractAddress) {
+        invalidHttpRequests.inc();
         return Response.json(
           { message: "contractAddress is required" },
           { status: 400 },
@@ -82,6 +98,7 @@ const router = createRouter({
       }
 
       if (!substreamsToken) {
+        invalidHttpRequests.inc();
         return Response.json(
           { message: "substreamsToken is required" },
           { status: 400 },
@@ -89,6 +106,7 @@ const router = createRouter({
       }
 
       if (!isAddress(contractAddress)) {
+        invalidHttpRequests.inc();
         return Response.json(
           { message: "contractAddress is invalid" },
           { status: 400 },
@@ -104,6 +122,8 @@ const router = createRouter({
           token: substreamsToken,
         }),
       ]);
+
+      successfulHttpRequests.inc();
 
       // If the status code is not specified, it defaults to 200
       return Response.json({

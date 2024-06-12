@@ -7,8 +7,8 @@ scrape_configs:
     honor_timestamps: true
     scrape_interval: 3s
     scrape_timeout: 1s
-    metrics_path: /v1/metrics
+    metrics_path: /metrics
     scheme: http
     static_configs:
       - targets:
-          - host.docker.internal:4040
+          - host.docker.internal:10254
