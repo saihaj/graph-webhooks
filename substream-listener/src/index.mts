@@ -9,7 +9,7 @@ import {
 import { logger } from "./logger.mjs";
 import { createScheduler } from "./scheduler.mjs";
 
-const { schedule, start, stop } = createScheduler({
+const { schedule, start, stop, readiness } = createScheduler({
   queueName: "substream-sink-scheduler",
   logger: logger.child({ module: "substream-sink-scheduler" }),
   redis: {
@@ -151,6 +151,27 @@ const router = createRouter({
       return Response.json({
         message: "Webhook registered",
       });
+    },
+  })
+  .route({
+    path: "/health",
+    method: "GET",
+    async handler() {
+      return Response.json({ status: "ok" }, { status: 200 });
+    },
+  })
+  .route({
+    path: "/ready",
+    method: "GET",
+    handler() {
+      const isReady = readiness();
+
+      return Response.json(
+        { status: isReady ? "ok" : "not ready" },
+        {
+          status: isReady ? 200 : 503,
+        },
+      );
     },
   });
 
