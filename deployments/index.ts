@@ -2,10 +2,11 @@ import * as pulumi from "@pulumi/pulumi";
 import * as azure from "@pulumi/azure-native";
 import * as azuread from "@pulumi/azuread";
 import { createAksCluster } from "./services/aks-cluster";
-import { PROVISIONER_TAG } from "./utils/helpers";
+import { PROVISIONER_TAG, serviceLocalHost } from "./utils/helpers";
 import { CertManager } from "./services/cert-manager";
 import { createPostgres } from "./services/postgres";
 import { ServiceDeployment } from "./utils/service-deployment";
+import { createDockerImageFactory } from "./utils/docker-images";
 import { Proxy } from "./services/reverse-proxy";
 import { createRedis } from "./services/redis";
 
@@ -73,6 +74,17 @@ const {
   provider,
 });
 
+const dockerConfig = new pulumi.Config("docker");
+const dockerImages = createDockerImageFactory({
+  registryHostname: dockerConfig.require("registryUrl"),
+  imagesPrefix: dockerConfig.require("imagesPrefix"),
+  provider: provider,
+});
+
+const imagePullSecret = dockerImages.createRepositorySecret(
+  dockerConfig.requireSecret("registryAuthBase64"),
+);
+
 const reverseProxy = new Proxy(tlsIssueName, provider, publicIp);
 
 const databaseConnectionString = pulumi.interpolate`postgresql://${username}%40${server.name}:${password}@${server.fqdn}:5432/postgres`;
@@ -87,7 +99,7 @@ const svixServer = new ServiceDeployment(
     replicas: 1,
     port: 8071,
     env: [
-      { name: "SVIX_JWT_SECRET", value: "helphelphelp" },
+      { name: "SVIX_JWT_SECRET", value: config.get("svixSecret") },
       {
         name: "SVIX_DB_DSN",
         value: databaseConnectionString,
@@ -104,12 +116,54 @@ const svixServer = new ServiceDeployment(
 
 const deploySvix = svixServer.deploy();
 
+const svixServiceUrl = pulumi.interpolate`http://${serviceLocalHost(deploySvix.service)}:${deploySvix.service.spec.ports[0].port}`;
+
+const substreamListener = new ServiceDeployment(
+  "substream-listener",
+  {
+    image: dockerImages.getImageId("substream-listener", imagesTag),
+    imagePullSecret,
+    readinessProbe: "/v1/ready",
+    livenessProbe: "/v1/health",
+    replicas: 1,
+    exposesMetrics: true,
+    port: 4040,
+    env: [
+      { name: "NODE_ENV", value: envName },
+      {
+        name: "SVIX_HOST_URL",
+        value: svixServiceUrl,
+      },
+      {
+        name: "SVIX_TOKEN",
+        value: config.get("svixToken"),
+      },
+      {
+        name: "REDIS_HOST",
+        value: redisConfig.host,
+      },
+      {
+        name: "REDIS_PORT",
+        value: redisConfig.port.toString(),
+      },
+    ],
+  },
+  provider,
+);
+
+const deploySubstreamListener = substreamListener.deploy();
+
 reverseProxy
   .registerService({ record: appHostname }, [
     {
       name: "svix-server",
       path: "/",
       service: deploySvix.service,
+    },
+    {
+      name: "substream-listener",
+      path: "/substream-listener",
+      service: deploySubstreamListener.service,
     },
   ])
   .deployProxy({

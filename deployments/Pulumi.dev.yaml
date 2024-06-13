@@ -1,7 +1,15 @@
 config:
   azure-native:location: East US
+  docker:imagesPrefix: saihaj/graph-webhooks
+  docker:registryAuthBase64:
+    secure: AAABAI2DtCuLSkqXd8PDEi6Q/4CaioVn9pStIEqfDwonm2R8WI4jF7Eml2OwMEWoL9GH78ciq9A8JCFNs/BDSje1ish4UdsL5udLV+5sF7Adb5npyGC5N31MUCaQ+b17
   docker:registryUrl: ghcr.io
   graph-webhooks:appDns: dev-cluster
   graph-webhooks:clusterNodeCount: "2"
   graph-webhooks:dnsZone: cachethegraph.com
   graph-webhooks:subscriptionId: 24231f4d-54e0-49bf-8593-6e117ac0d13c
+  graph-webhooks:svixSecret:
+    secure: AAABAF6ftNrR+aHG4CCNnUx1gA+4i+gqUpQ9nOe1LV40WBc4p2PKXq9rOoKp2e6OXNJDBbOfjjrtwGQSSXCzyyOjTX3AyzNAr7U=
+  # You have to exec inside the SVIX server to get the token
+  graph-webhooks:svixToken:
+    secure: AAABAAOK3zDRaTJ9zzf0q8zDCggMayMmFC3lYGEJMDOzXoQGzqt1rvJV2ws6Pk4LR+P7Pt8mJ2uSUXwkL8SO1mnkYRYer4cUKb+AXfPDg9JABDuGajfXCMk01tuhUvdImW6sUXsBUy2/7jGGwUfMw9FWd4Mu0TO5yFEBS6+kA9KfKvWSDyc3fQH+kt9H7Jcj0+UkBgaTg3dIeC3nUrQL/cK0pXie4iv2RuKjj6X9WAGTH+ICUqbGpqJ0uhLozFTYOxdOlA3NoNzp1p83xRZRcqSkqYb+GW5hGc5LVkBVIsQVAgmlLo2he5GziX0CKTIrtMd/OOCtJuZeEZVqlWW8Nz/mPt90ED8=
