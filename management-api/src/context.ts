@@ -6,6 +6,8 @@ export interface Env {
   SVIX_TOKEN: string;
   SVIX_HOST: string;
   SF_TOKEN: string;
+  GUILD_ADMIN_TOKEN: string;
+  SUBSTREAM_LISTENER_HOST: string;
 }
 
 export interface Context extends Env {

@@ -10,7 +10,10 @@ const yoga = createYoga<Env>({
   context: (ctx) => {
     return {
       ...ctx,
-      svix: svixClient(ctx.SVIX_HOST),
+      svix: svixClient({
+        endpoint: ctx.SVIX_HOST,
+        GUILD_ADMIN_TOKEN: ctx.GUILD_ADMIN_TOKEN,
+      }),
       db: drizzle(ctx.DB),
     };
   },

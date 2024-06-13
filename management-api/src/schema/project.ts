@@ -123,7 +123,18 @@ builder.relayMutationField(
     }),
   },
   {
-    resolve: async (_parent, { input }, { db, svix, SVIX_TOKEN, SF_TOKEN }) => {
+    resolve: async (
+      _parent,
+      { input },
+      {
+        db,
+        svix,
+        SVIX_TOKEN,
+        SF_TOKEN,
+        GUILD_ADMIN_TOKEN,
+        SUBSTREAM_LISTENER_HOST,
+      },
+    ) => {
       const configuration = await ProjectConfigurationSchema.safeParseAsync({
         ...input,
         webhookUrl: input.webhookUrl?.toString(),
@@ -183,10 +194,15 @@ builder.relayMutationField(
         })
         .returning();
 
+      // TODO: use fets client
       const registerSubstream = await fetch(
-        "http://localhost:4040/v1/register-webhook",
+        `${SUBSTREAM_LISTENER_HOST}/v1/register-webhook`,
         {
           method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Guild-Admin": GUILD_ADMIN_TOKEN,
+          },
           body: JSON.stringify({
             appId: id,
             startBlock: input.startBlock,
