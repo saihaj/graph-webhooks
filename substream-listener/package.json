@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "scripts": {
     "start": "tsx ./src/index.mts",
-    "dev": "tsx --env-file .env --watch ./src/index.mts | pino-pretty"
+    "dev": "tsx --env-file .env --watch ./src/index.mts | pino-pretty",
+    "check:types": "tsc --noEmit"
   },
   "dependencies": {
     "@connectrpc/connect-node": "1.4.0",

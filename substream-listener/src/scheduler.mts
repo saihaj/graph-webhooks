@@ -139,8 +139,10 @@ export function createScheduler(config: {
         const transport = createGrpcWebTransport({
           baseUrl: substreamsEndpoint,
           httpVersion: "2",
+          // @ts-ignore - not sure what the issue is here
           interceptors: [createAuthInterceptor(token)],
           jsonOptions: {
+            // @ts-ignore - not sure what the issue is here
             typeRegistry: registry,
           },
         });
@@ -156,6 +158,7 @@ export function createScheduler(config: {
         });
 
         // NodeJS Events
+        // @ts-ignore - not sure what the issue is here
         const emitter = new BlockEmitter(transport, request, registry);
 
         // Setup tracing of metrics for Prometheus

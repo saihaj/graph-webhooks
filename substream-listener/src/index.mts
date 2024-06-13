@@ -1,6 +1,6 @@
 import { createRouter, Response } from "fets";
 import { App } from "uWebSockets.js";
-import { isAddress } from "viem";
+import { Address, isAddress } from "viem";
 import {
   invalidHttpRequests,
   registry,
@@ -139,7 +139,7 @@ const router = createRouter({
       const job = await schedule({
         appId,
         startBlock,
-        contractAddress: contractAddress.toLowerCase(),
+        contractAddress: contractAddress.toLowerCase() as Address,
         token: substreamsToken,
         outputModule: OUTPUT_MODULE,
         substreamsEndpoint: BASE_URL,

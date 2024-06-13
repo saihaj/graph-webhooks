@@ -10,7 +10,8 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "relay": "relay-compiler",
-    "relay:clean": "rimraf $(find . -type d -name __generated__)"
+    "relay:clean": "rimraf $(find . -type d -name __generated__)",
+    "check:types": "tsc --noEmit"
   },
   "relay": {
     "src": "./src",

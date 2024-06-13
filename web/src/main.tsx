@@ -1,7 +1,7 @@
 import "./global.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { LogtoProvider, LogtoConfig, Prompt, UserScope } from "@logto/react";
+import { LogtoProvider, LogtoConfig, Prompt } from "@logto/react";
 import { RelayEnvironmentProvider } from "react-relay";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 
