@@ -7,8 +7,11 @@
 .flaskenv*
 !.env.project
 !.env.vault
+substream-listener/.env
 
 web/**
 erc721-substream/**
 management-api/**
 deployments/**
+prometheus/**
+grafana/**
