@@ -102,3 +102,34 @@ jobs:
           websiteDirectory: web
           buildScript: pnpm build
           artifactDir: dist
+
+  deploy-management-api:
+    name: Deploy Management API
+    runs-on: ubuntu-latest
+    needs: [check]
+    # Only run for `main` branch
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --ignore-scripts
+
+      - uses: cloudflare/wrangler-action@v3
+        name: Deploy
+        with:
+          apiToken: ${{ secrets.GUILD_CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.GUILD_CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: management-api
