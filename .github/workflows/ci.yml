@@ -133,3 +133,4 @@ jobs:
           apiToken: ${{ secrets.GUILD_CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.GUILD_CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: management-api
+          packageManager: pnpm
