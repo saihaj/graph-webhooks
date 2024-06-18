@@ -69,6 +69,7 @@ jobs:
   deploy-ui:
     name: Deploy UI
     runs-on: ubuntu-latest
+    needs: [check]
     if:
       github.event.pull_request.head.repo.full_name == github.repository || github.event_name ==
       'push'
