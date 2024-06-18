@@ -242,6 +242,9 @@ importers:
       '@babel/core':
         specifier: ^7.24.5
         version: 7.24.5
+      '@tanstack/router-cli':
+        specifier: ^1.37.0
+        version: 1.37.0
       '@types/node':
         specifier: ^20.12.7
         version: 20.12.7
@@ -2141,8 +2144,17 @@ packages:
       react: '>=16'
       react-dom: '>=16'
 
+  '@tanstack/router-cli@1.37.0':
+    resolution: {integrity: sha512-JlhgNLUr5AffHuoAJXSG6wi12lNFXyuQ+0nG9Vw8WfQfqPoWEDIzg1BwXVTMr1g+G6TksXGoAE5WEoZXKP4BCg==}
+    engines: {node: '>=12'}
+    hasBin: true
+
   '@tanstack/router-generator@1.30.0':
     resolution: {integrity: sha512-EOMm7wQRZURqnjL7pueIkMgCsTw/+4N1jtJUHTwaPRQcUsLHuAyy0GEMP6GMRcYqGrh7mb2HYFsVEcNd/1mn4g==}
+    engines: {node: '>=12'}
+
+  '@tanstack/router-generator@1.37.0':
+    resolution: {integrity: sha512-sI1B1Zd1SjeY1Uc6Tehi4BfBEl+e5mR7c4COWYRkZRIC3P4870Q54t+7aMGDY/lw4Yd9J2vUcxZ7F4qiTgo62w==}
     engines: {node: '>=12'}
 
   '@tanstack/router-vite-plugin@1.30.0':
@@ -6699,7 +6711,18 @@ snapshots:
       react-dom: 18.2.0(react@18.2.0)
       use-sync-external-store: 1.2.0(react@18.2.0)
 
+  '@tanstack/router-cli@1.37.0':
+    dependencies:
+      '@tanstack/router-generator': 1.37.0
+      chokidar: 3.6.0
+      yargs: 17.7.2
+
   '@tanstack/router-generator@1.30.0':
+    dependencies:
+      prettier: 3.2.5
+      zod: 3.23.6
+
+  '@tanstack/router-generator@1.37.0':
     dependencies:
       prettier: 3.2.5
       zod: 3.23.6
