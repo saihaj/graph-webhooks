@@ -6,10 +6,21 @@ import {
   RecordSource,
   Store,
 } from "relay-runtime";
+import { proxy } from "valtio";
 
-if (!import.meta.env.VITE_GRAPHQL_ENDPOINT) {
+export const GRAPHQL_ENDPOINT = import.meta.env.VITE_GRAPHQL_ENDPOINT;
+if (!GRAPHQL_ENDPOINT) {
   throw new Error("VITE_GRAPHQL_ENDPOINT is not defined");
 }
+
+export const GraphQLClientHeader = proxy<{
+  "content-type": string;
+  "x-webhooks-client-platform": string;
+  Authorization?: string;
+}>({
+  "content-type": "application/json; charset=utf-8",
+  "x-webhooks-client-platform": "web",
+});
 
 export const environment = new Environment({
   store: new Store(new RecordSource()),
@@ -26,7 +37,7 @@ export const environment = new Environment({
             method: "POST",
             credentials: "include",
             headers: {
-              "content-type": "application/json; charset=utf-8",
+              ...GraphQLClientHeader,
             },
             body: JSON.stringify({
               operationName: operation.name,

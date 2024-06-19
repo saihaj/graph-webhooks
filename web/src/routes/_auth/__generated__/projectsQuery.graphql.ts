@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<395dcf455e1d905f64f4215fb21f51ce>>
+ * @generated SignedSource<<514f17f1e0e8f5d653e387b823d78754>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,13 +10,13 @@
 
 import { ConcreteRequest, Query } from "relay-runtime";
 import { FragmentRefs } from "relay-runtime";
-export type routesIndexProjectQuery$variables = Record<PropertyKey, never>;
-export type routesIndexProjectQuery$data = {
+export type projectsQuery$variables = Record<PropertyKey, never>;
+export type projectsQuery$data = {
   readonly " $fragmentSpreads": FragmentRefs<"projects_ProjectsGrid">;
 };
-export type routesIndexProjectQuery = {
-  response: routesIndexProjectQuery$data;
-  variables: routesIndexProjectQuery$variables;
+export type projectsQuery = {
+  response: projectsQuery$data;
+  variables: projectsQuery$variables;
 };
 
 const node: ConcreteRequest = (function () {
@@ -32,7 +32,7 @@ const node: ConcreteRequest = (function () {
       argumentDefinitions: [],
       kind: "Fragment",
       metadata: null,
-      name: "routesIndexProjectQuery",
+      name: "projectsQuery",
       selections: [
         {
           args: null,
@@ -47,7 +47,7 @@ const node: ConcreteRequest = (function () {
     operation: {
       argumentDefinitions: [],
       kind: "Operation",
-      name: "routesIndexProjectQuery",
+      name: "projectsQuery",
       selections: [
         {
           alias: null,
@@ -154,16 +154,16 @@ const node: ConcreteRequest = (function () {
       ],
     },
     params: {
-      cacheID: "848993ebfcfab5c162ef1aa7b0ac82c0",
+      cacheID: "fc303fb63230487c4295871733a2b597",
       id: null,
       metadata: {},
-      name: "routesIndexProjectQuery",
+      name: "projectsQuery",
       operationKind: "query",
-      text: "query routesIndexProjectQuery {\n  ...projects_ProjectsGrid\n}\n\nfragment projects_ProjectCard on Project {\n  name\n  chain\n}\n\nfragment projects_ProjectsGrid on Query {\n  projects(first: 9) {\n    edges {\n      node {\n        id\n        ...projects_ProjectCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n",
+      text: "query projectsQuery {\n  ...projects_ProjectsGrid\n}\n\nfragment projects_ProjectCard on Project {\n  name\n  chain\n}\n\nfragment projects_ProjectsGrid on Query {\n  projects(first: 9) {\n    edges {\n      node {\n        id\n        ...projects_ProjectCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n",
     },
   };
 })();
 
-(node as any).hash = "5f3c429ac29cdc048bc4c90402bb209d";
+(node as any).hash = "93773e623e5efe3a5f2c35655a736310";
 
 export default node;
