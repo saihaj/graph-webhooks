@@ -9,8 +9,7 @@ import { v4 } from "uuid";
 import { relations, sql } from "drizzle-orm";
 
 export const user = sqliteTable("user", {
-  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-  name: text("name").notNull(),
+  id: text("id").primaryKey(),
   createdAt: integer("created_at", { mode: "timestamp" }).default(
     sql`(strftime('%s', 'now'))`,
   ),
@@ -45,7 +44,7 @@ export const organizationRelations = relations(organization, ({ many }) => ({
 export const usersToOrgs = sqliteTable(
   "users_to_organizations",
   {
-    userId: integer("user_id")
+    userId: text("user_id")
       .notNull()
       .references(() => user.id),
     orgId: integer("organization_id")
@@ -78,7 +77,7 @@ export const project = sqliteTable(
     name: text("name").notNull(),
     // we store a zod processed objects. Allowing us more flexibility in the future
     configuration: text("configuration", { mode: "json" }).notNull(),
-    creator: integer("creator_id")
+    creator: text("creator_id")
       .references(() => user.id)
       .notNull(),
     organization: integer("organization_id")

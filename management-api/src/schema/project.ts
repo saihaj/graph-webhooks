@@ -1,4 +1,4 @@
-import { project } from "../db-schema";
+import { project, user } from "../db-schema";
 import { builder, notEmpty } from "./utils";
 import { v4 as uuidv4 } from "uuid";
 import { ProjectConfigurationSchema, SUPPORTED_CHAINS } from "utils";
@@ -24,6 +24,7 @@ builder.node(Project, {
         ProjectConfigurationSchema.parse(obj.configuration).chain,
     }),
   }),
+
   loadOne: (id, { db }) =>
     db
       .select()
@@ -42,6 +43,9 @@ builder.queryField("projects", (t) => {
   return t.connection({
     type: Project,
     description: "List of projects",
+    authScopes: {
+      isAuthenticated: true,
+    },
     resolve: async (_parent, { first, after }, { db }) => {
       const limit = first ?? 10;
 
@@ -123,11 +127,15 @@ builder.relayMutationField(
     }),
   },
   {
+    authScopes: {
+      isAuthenticated: true,
+    },
     resolve: async (
       _parent,
       { input },
       {
         db,
+        authUserId,
         svix,
         SVIX_TOKEN,
         SF_TOKEN,
@@ -135,6 +143,10 @@ builder.relayMutationField(
         SUBSTREAM_LISTENER_HOST,
       },
     ) => {
+      if (!authUserId) {
+        throw new Error("User not authenticated");
+      }
+
       const configuration = await ProjectConfigurationSchema.safeParseAsync({
         ...input,
         webhookUrl: input.webhookUrl?.toString(),
@@ -183,14 +195,24 @@ builder.relayMutationField(
         throw new Error("Failed to register webhook");
       }
 
+      // For now we just have one organization that is user's default.
+      // TODO: rework this in future to handle multiple organizations
+      const org = await db.query.usersToOrgs.findFirst({
+        where: eq(user.id, authUserId),
+      });
+
+      if (!org) {
+        throw new Error("User is not part of any organization");
+      }
+
       const createdProj = await db
         .insert(project)
         .values({
           name: input.name,
           configuration: configuration.data,
-          creator: 1, // TODO: get from the context user
+          creator: authUserId,
           id,
-          organization: 1, // TODO: get from the context user
+          organization: org.orgId,
         })
         .returning();
 

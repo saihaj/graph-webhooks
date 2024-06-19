@@ -278,10 +278,10 @@ function Layout() {
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   beforeLoad: async ({ context, location }) => {
     const user = await context.auth.fetchUserInfo();
-    const accessToken = await context.auth.getAccessToken(GRAPHQL_ENDPOINT);
+    const graphqlApiJWT = await context.auth.getAccessToken(GRAPHQL_ENDPOINT);
 
-    if (accessToken) {
-      GraphQLClientHeader["Authorization"] = `Bearer ${accessToken}`;
+    if (graphqlApiJWT) {
+      GraphQLClientHeader["Authorization"] = `Bearer ${graphqlApiJWT}`;
     }
 
     if (!user) {

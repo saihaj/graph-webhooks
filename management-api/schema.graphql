@@ -53,14 +53,6 @@ scalar EthAddress
 
 type Mutation {
   createProject(input: CreateProjectInput!): CreateProjectPayload!
-  createUser(input: MutationCreateUserInput!): User!
-}
-
-input MutationCreateUserInput {
-  """
-  Name of the user
-  """
-  name: String!
 }
 
 interface Node {
@@ -119,7 +111,6 @@ User of the system
 """
 type User {
   id: ID!
-  name: String!
 }
 
 """

@@ -1,5 +1,6 @@
 import { drizzle } from "drizzle-orm/d1";
 import { svixClient } from "./svix-api";
+import type * as dbSchema from "./db-schema";
 
 export interface Env {
   DB: D1Database;
@@ -8,9 +9,12 @@ export interface Env {
   SF_TOKEN: string;
   GUILD_ADMIN_TOKEN: string;
   SUBSTREAM_LISTENER_HOST: string;
+  LOGTO_HOST: string;
+  JWT_AUDIENCE: string;
 }
 
 export interface Context extends Env {
-  db: ReturnType<typeof drizzle>;
+  db: ReturnType<typeof drizzle<typeof dbSchema>>;
   svix: ReturnType<typeof svixClient>;
+  authUserId: string | null;
 }

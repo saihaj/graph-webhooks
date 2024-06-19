@@ -4,6 +4,7 @@ import { ValidationError } from "../errors";
 import { EthAddressScalar } from "./scalar";
 import { URLResolver } from "graphql-scalars";
 import RelayPlugin from "@pothos/plugin-relay";
+import ScopeAuthPlugin from "@pothos/plugin-scope-auth";
 import { Context } from "../context";
 
 export const builder = new SchemaBuilder<{
@@ -18,8 +19,16 @@ export const builder = new SchemaBuilder<{
       Output: string | URL;
     };
   };
+  AuthScopes: {
+    isAuthenticated: boolean;
+  };
 }>({
-  plugins: [WithInputPlugin, RelayPlugin],
+  plugins: [ScopeAuthPlugin, WithInputPlugin, RelayPlugin],
+  authScopes: (context) => {
+    return {
+      isAuthenticated: !!context.authUserId,
+    };
+  },
   relayOptions: {
     clientMutationId: "omit",
     cursorType: "String",
