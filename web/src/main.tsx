@@ -14,7 +14,7 @@ import { useAuth } from "./hooks/useAuth";
 const config: LogtoConfig = {
   endpoint: "https://hokigy.logto.app/",
   appId: "a7785a6c5co2nfj9asvsx",
-  prompt: Prompt.Login,
+  prompt: Prompt.Consent,
   resources: [GRAPHQL_ENDPOINT],
 };
 
