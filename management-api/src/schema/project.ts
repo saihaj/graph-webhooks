@@ -84,8 +84,8 @@ builder.queryField("projects", (t) => {
         pageInfo: {
           hasNextPage: projects.length > mapped.length,
           hasPreviousPage: false, // TODO: adjust
-          startCursor: mapped[0].cursor,
-          endCursor: mapped[mapped.length - 1].cursor,
+          startCursor: mapped[0]?.cursor,
+          endCursor: mapped[mapped.length - 1]?.cursor,
         },
         edges: mapped,
       };
