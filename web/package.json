@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "relay": "relay-compiler",
     "relay:clean": "rimraf $(find . -type d -name __generated__)",
+    "precheck:types": "pnpm run prebuild",
     "check:types": "tsc --noEmit"
   },
   "relay": {
