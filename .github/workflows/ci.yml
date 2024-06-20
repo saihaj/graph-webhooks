@@ -94,6 +94,8 @@ jobs:
 
       - uses: the-guild-org/shared-config/website-cf@main
         name: Deploy
+        env:
+          VITE_GRAPHQL_ENDPOINT: ${{ secrets.WEB_VITE_GRAPHQL_ENDPOINT }}
         with:
           cloudflareApiToken: ${{ secrets.GUILD_CLOUDFLARE_API_TOKEN }}
           cloudflareAccountId: ${{ secrets.GUILD_CLOUDFLARE_ACCOUNT_ID }}
