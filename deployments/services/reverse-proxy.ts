@@ -3,6 +3,12 @@ import * as k8s from "@pulumi/kubernetes";
 import { Output } from "@pulumi/pulumi";
 import { helmChart } from "../utils/helm";
 
+export const CONTOUR_CHART = helmChart(
+  "https://charts.bitnami.com/bitnami",
+  "contour",
+  "12.2.0",
+);
+
 export class Proxy {
   private lbService: Output<k8s.core.v1.Service> | null = null;
 
@@ -141,8 +147,7 @@ export class Proxy {
     const proxyController = new k8s.helm.v3.Chart(
       "contour-proxy",
       {
-        // prettier-ignore
-        ...helmChart('https://charts.bitnami.com/bitnami', 'contour', '12.2.0'),
+        ...CONTOUR_CHART,
         namespace: ns.metadata.name,
         // https://github.com/bitnami/charts/tree/master/bitnami/contour
         values: {

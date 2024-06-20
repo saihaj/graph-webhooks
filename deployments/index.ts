@@ -9,6 +9,7 @@ import { ServiceDeployment } from "./utils/service-deployment";
 import { createDockerImageFactory } from "./utils/docker-images";
 import { Proxy } from "./services/reverse-proxy";
 import { createRedis } from "./services/redis";
+import { deployObservability } from "./services/observability";
 
 // Reduce noise in logs for `pulumi up`
 process.env.PULUMI_K8S_SUPPRESS_HELM_HOOK_WARNINGS = "1";
@@ -89,6 +90,8 @@ const reverseProxy = new Proxy(tlsIssueName, provider, publicIp);
 
 const databaseConnectionString = pulumi.interpolate`postgresql://${username}%40${server.name}:${password}@${server.fqdn}:5432/postgres`;
 const redisConnectionString = pulumi.interpolate`redis://${redisConfig.host}:${redisConfig.port}`;
+
+const observability = deployObservability({ envName });
 
 const svixServer = new ServiceDeployment(
   "svix-server",

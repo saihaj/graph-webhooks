@@ -7,9 +7,11 @@ deploy the infrastructure.
 
 1. Install [Pulumi CLI](https://www.pulumi.com/docs/cli/)
 2. Install [`az` CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
-3. `pulumi login` to your Pulumi account and make sure you are part of
+3. Install [`helm` CLI](https://helm.sh/docs/intro/install/)
+   1. Install schema plugin `helm plugin install https://github.com/losisin/helm-values-schema-json.git`
+4. `pulumi login` to your Pulumi account and make sure you are part of
    [theguild](https://app.pulumi.com/theguild).
-4. To deploy to `dev`: `pulumi up --stack theguild/dev`
+5. To deploy to `dev`: `pulumi up --stack theguild/dev`
 
 **NOTE: If you are an ADMIN DO NOT RUN `pulumi destroy`**
 

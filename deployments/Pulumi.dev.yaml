@@ -13,3 +13,16 @@ config:
   # You have to exec inside the SVIX server to get the token
   graph-webhooks:svixToken:
     secure: AAABAAOK3zDRaTJ9zzf0q8zDCggMayMmFC3lYGEJMDOzXoQGzqt1rvJV2ws6Pk4LR+P7Pt8mJ2uSUXwkL8SO1mnkYRYer4cUKb+AXfPDg9JABDuGajfXCMk01tuhUvdImW6sUXsBUy2/7jGGwUfMw9FWd4Mu0TO5yFEBS6+kA9KfKvWSDyc3fQH+kt9H7Jcj0+UkBgaTg3dIeC3nUrQL/cK0pXie4iv2RuKjj6X9WAGTH+ICUqbGpqJ0uhLozFTYOxdOlA3NoNzp1p83xRZRcqSkqYb+GW5hGc5LVkBVIsQVAgmlLo2he5GziX0CKTIrtMd/OOCtJuZeEZVqlWW8Nz/mPt90ED8=
+  observability:enabled: "true"
+  observability:lokiEndpoint: logs-prod-006.grafana.net
+  observability:lokiPassword:
+    secure: AAABAPUwHoe4SJ3KLJBpIDH15uLgviQEaqosmOEs9KLUoizoaobDwV7ZkLMd/e482oQcQFkzCWH1fTaab6xeQLC5+L0Iv6WpUY55+leLOED3ZfXzmXdzxursqfL8Mwmnbg85EkXLu6Ik7b1a8dHybCDNrSnx+1HG4dJBHszBQxMz3Df+p4ZuPlB9GNtquOn9mBeQZIYScQXpywE44wQkHcEswMhJ5OdsrLsL7fxxgFkiaxdvNa22gyts/AfXA8rCkZyOWZ1fh9Asdmug
+  observability:lokiUsername: "921797"
+  observability:promEndpoint: prometheus-prod-13-prod-us-east-0.grafana.net/api/prom/push
+  observability:promPassword:
+    secure: AAABAHhSuJFWOGqqmCKqr44ln36kht837wndxJ1c1C6uji3lJ6AIbNnWqSGSUvZglMhJH68bpGRVbpdmc7Z873rc9J3Uv3Ct8vJASpiIjMvpMFp3K9lI74/rJtXG2rV4OnwAV80q8LCtIfDEVNrTyIjR3G+HoA4Psg8VWQodlQ9rrkBuOH4QLS6aF1PlWhMzdskUh5cuQbjmKERdd2x1rUcz6QO764P7pwWwjEfGSXiqPu8w+y8QHVfd3PfN1c/2eYJROR4XTIubqRDu
+  observability:promUsername: "1643737"
+  observability:tempoEndpoint: tempo-prod-04-prod-us-east-0.grafana.net:443
+  observability:tempoPassword:
+    secure: AAABAMPT0a1oeTW6EJG44KuSFIbeKXK53q8BhLGaBpcHUHxYhjfT321QFB79bTsD391WWIJHs46UQQzcv8WvldZQ4mhSmu9OaLowFm+YOty2ut5NtSNV2zJqbBBzfCsPMg/1IKleOZdyXvA+BcXm4dY5QHx2mTVIKv2PKPyQ8QjijHoeFQUAi9Ix/IK8dJIONJRLvQbTIeCQwjIJMtrhS2ZuoKqdlCm92T0I/nVF83aN89hCcR+cmOd7M/gtaqrf2flvHw==
+  observability:tempoUsername: "916113"
