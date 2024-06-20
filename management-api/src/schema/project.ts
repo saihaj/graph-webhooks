@@ -1,4 +1,4 @@
-import { project, user } from "../db-schema";
+import { project, usersToOrgs } from "../db-schema";
 import { builder, notEmpty } from "./utils";
 import { v4 as uuidv4 } from "uuid";
 import { ProjectConfigurationSchema, SUPPORTED_CHAINS } from "utils";
@@ -198,7 +198,7 @@ builder.relayMutationField(
       // For now we just have one organization that is user's default.
       // TODO: rework this in future to handle multiple organizations
       const org = await db.query.usersToOrgs.findFirst({
-        where: eq(user.id, authUserId),
+        where: eq(usersToOrgs.userId, authUserId),
       });
 
       if (!org) {
