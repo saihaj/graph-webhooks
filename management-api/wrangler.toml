@@ -8,3 +8,6 @@ send_metrics = true
 binding = "DB" # i.e. available in your Worker on env.DB
 database_name = "graph_webhooks_management_api"
 database_id = "4813de55-7cf0-4d50-a161-6d58384dc827"
+
+[vars]
+LOGTO_HOST = "https://hokigy.logto.app"
