@@ -16,7 +16,7 @@ config:
   observability:enabled: "true"
   observability:lokiEndpoint: logs-prod-006.grafana.net
   observability:lokiPassword:
-    secure: AAABAPUwHoe4SJ3KLJBpIDH15uLgviQEaqosmOEs9KLUoizoaobDwV7ZkLMd/e482oQcQFkzCWH1fTaab6xeQLC5+L0Iv6WpUY55+leLOED3ZfXzmXdzxursqfL8Mwmnbg85EkXLu6Ik7b1a8dHybCDNrSnx+1HG4dJBHszBQxMz3Df+p4ZuPlB9GNtquOn9mBeQZIYScQXpywE44wQkHcEswMhJ5OdsrLsL7fxxgFkiaxdvNa22gyts/AfXA8rCkZyOWZ1fh9Asdmug
+    secure: AAABAGT0PGpKy+Cu+g5QugrDkOW3ku1La42m5bHD0wR2BCL3pEVTfgCfiBHKjDqym9XOKp67m/6Nd38lK1ptpPWme1S0Uq/kAVRxUMo3+2r8aH61sZwg4Zeu+Oe4KsLtTyPEy03xUH0MOt7wS1l2wDA/3DOFf0ycIl7mdu8vw91f+/4JkrJ4yipiAZwc5Cx4ONP36xHLOPWK8ozxFqRxe2LY4I5H0+4CR4iJrUU7c9JiJD0ghDrBaAWuJTf3QMmj0M2Aaw==
   observability:lokiUsername: "921797"
   observability:promEndpoint: prometheus-prod-13-prod-us-east-0.grafana.net/api/prom/push
   observability:promPassword:
