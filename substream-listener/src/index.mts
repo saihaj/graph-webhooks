@@ -11,7 +11,7 @@ import { logger } from "./logger.mjs";
 import { createScheduler } from "./scheduler.mjs";
 import { REDIS_HOST, REDIS_PASSWORD, REDIS_PORT } from "./utils.mjs";
 
-const { schedule, start, stop, readiness } = createScheduler({
+const { schedule, unschedule, start, stop, readiness } = createScheduler({
   queueName: "substream-sink-scheduler",
   logger: logger.child({ module: "substream-sink-scheduler" }),
   redis: {
@@ -28,7 +28,6 @@ const OUTPUT_MODULE = "map_transfers";
 const router = createRouter({
   base: "/v1",
 })
-  // Use `.route` method to create a new /greetings route
   .route({
     path: "/register-webhook",
     method: "POST",
@@ -152,6 +151,81 @@ const router = createRouter({
       // If the status code is not specified, it defaults to 200
       return Response.json({
         message: "Webhook registered",
+      });
+    },
+  })
+  .route({
+    path: "/unregister-webhook",
+    method: "POST",
+    // Defining the response schema
+    schemas: {
+      request: {
+        json: {
+          type: "object",
+          properties: {
+            appId: {
+              type: "string",
+              format: "uuid",
+            },
+          },
+        },
+      },
+      responses: {
+        // The status code
+        200: {
+          type: "object",
+          properties: {
+            message: {
+              type: "string",
+            },
+          },
+          required: ["message"],
+          additionalProperties: false,
+        },
+        400: {
+          type: "object",
+          properties: {
+            message: {
+              type: "string",
+            },
+          },
+          required: ["message"],
+          additionalProperties: false,
+        },
+      },
+    },
+    async handler(req) {
+      const json = await req.json().catch((error) => {
+        logger.error(error, "Invalid JSON payload");
+        return null;
+      });
+
+      if (!json) {
+        invalidHttpRequests.inc();
+        return Response.json(
+          { message: "Invalid JSON payload" },
+          { status: 400 },
+        );
+      }
+
+      const { appId } = json;
+
+      if (!appId) {
+        invalidHttpRequests.inc();
+        logger.error({ payload: json }, "Missing appId");
+        return Response.json({ message: "appId is required" }, { status: 400 });
+      }
+
+      const status = await unschedule({
+        appId,
+      });
+
+      successfulHttpRequests.inc();
+      logger.info({ status }, "Webhook unregistered");
+
+      return Response.json({
+        message: "Webhook unregistered",
+        status,
       });
     },
   })
