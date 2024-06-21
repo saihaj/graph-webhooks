@@ -11,6 +11,7 @@ substream-listener/.env
 
 web/**
 erc721-substream/**
+!erc721-substream/**/*.spkg
 management-api/**
 deployments/**
 prometheus/**
