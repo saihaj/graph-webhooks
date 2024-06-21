@@ -64,6 +64,9 @@ jobs:
       - name: Install Substreams
         run: brew install streamingfast/tap/substreams
 
+      - name: Install Buf
+        run: brew install bufbuild/buf/buf
+
       - name: Install dependencies
         run: pnpm install
 
