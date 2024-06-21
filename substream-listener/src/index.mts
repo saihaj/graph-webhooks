@@ -1,6 +1,7 @@
 import { createRouter, Response } from "fets";
 import { App } from "uWebSockets.js";
 import { Address, isAddress } from "viem";
+import promClient from "prom-client";
 import {
   invalidHttpRequests,
   registry,
@@ -189,6 +190,9 @@ const metricServer = App()
     res.end(await registry.metrics());
   })
   .listen(10_254, () => {
+    promClient.collectDefaultMetrics({
+      labels: { instance: "substream-listener" },
+    });
     logger.info(`Metrics exposed on http://localhost:10254/metrics`);
   });
 
