@@ -36,6 +36,11 @@ jobs:
       pull-requests: write
 
     steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -46,11 +51,29 @@ jobs:
         with:
           version: 9
 
-      - name: Set up Node
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: 1.65.0
+
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Install Substreams
+        run: brew install streamingfast/tap/substreams
+
+      - name: Install Buf
+        run: brew install bufbuild/buf/buf
+
+      - name: Install dependencies
+        run: pnpm install
 
       - name: Configure docker buildx
         uses: docker/setup-buildx-action@v3
