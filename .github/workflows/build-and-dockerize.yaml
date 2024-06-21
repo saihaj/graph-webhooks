@@ -57,6 +57,10 @@ jobs:
         with:
           toolchain: 1.65.0
 
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
       - name: Install Substreams
         run: brew install streamingfast/tap/substreams
 
