@@ -210,7 +210,7 @@ export class Observability {
             config: {
               global: {
                 evaluation_interval: "10s",
-                scrape_interval: "30s",
+                scrape_interval: "60s",
                 scrape_timeout: "10s",
               },
               scrape_configs: [
