@@ -343,15 +343,27 @@ export function createScheduler(config: {
     process.exit(0);
   }
 
+  async function unschedule({ appId }: { appId: string }) {
+    if (!queue) {
+      throw new Error("Queue not initialized");
+    }
+
+    const status = await queue.remove(appId, {
+      removeChildren: true,
+    });
+
+    return Boolean(status);
+  }
+
   async function schedule(webhook: Input) {
     if (!queue) {
       throw new Error("Queue not initialized");
     }
 
-    const name =
-      `${webhook.appId}:${webhook.contractAddress}:${webhook.startBlock}`.toLowerCase();
+    const name = webhook.appId;
 
     return queue.add(name, webhook, {
+      jobId: name,
       // we want to retry the job if it fails
       removeOnFail: false,
       // we always keep listening for new blocks
@@ -368,6 +380,7 @@ export function createScheduler(config: {
     schedule,
     start,
     stop,
+    unschedule,
     readiness() {
       if (stopped) {
         return false;
