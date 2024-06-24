@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<514f17f1e0e8f5d653e387b823d78754>>
+ * @generated SignedSource<<dca7f01af2721f62e7cde56a6db7736c>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -154,12 +154,12 @@ const node: ConcreteRequest = (function () {
       ],
     },
     params: {
-      cacheID: "fc303fb63230487c4295871733a2b597",
+      cacheID: "a3bd56be09cfb68ad862c511fbb559a8",
       id: null,
       metadata: {},
       name: "projectsQuery",
       operationKind: "query",
-      text: "query projectsQuery {\n  ...projects_ProjectsGrid\n}\n\nfragment projects_ProjectCard on Project {\n  name\n  chain\n}\n\nfragment projects_ProjectsGrid on Query {\n  projects(first: 9) {\n    edges {\n      node {\n        id\n        ...projects_ProjectCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n",
+      text: "query projectsQuery {\n  ...projects_ProjectsGrid\n}\n\nfragment projects_ProjectCard on Project {\n  id\n  name\n  chain\n}\n\nfragment projects_ProjectsGrid on Query {\n  projects(first: 9) {\n    edges {\n      node {\n        id\n        ...projects_ProjectCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n",
     },
   };
 })();

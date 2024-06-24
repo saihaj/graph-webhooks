@@ -9,11 +9,13 @@ import {
 import { graphql, useFragment, usePaginationFragment } from "react-relay";
 import { projects_ProjectCard$key } from "./__generated__/projects_ProjectCard.graphql";
 import { projects_ProjectsGrid$key } from "./__generated__/projects_ProjectsGrid.graphql";
+import { Link } from "@tanstack/react-router";
 
 function ProjectCard({ card }: { card: projects_ProjectCard$key }) {
   const data = useFragment(
     graphql`
       fragment projects_ProjectCard on Project {
+        id
         name
         chain
       }
@@ -40,10 +42,24 @@ function ProjectCard({ card }: { card: projects_ProjectCard$key }) {
       <CardContent>
         <div className="flex items-center gap-4 text-sm">
           <Button variant="link" size="sm" className="p-0">
-            View
+            <Link
+              to="/project/$id"
+              params={{
+                id: data.id,
+              }}
+            >
+              View
+            </Link>
           </Button>
           <Button variant="link" size="sm" className="p-0">
-            Edit
+            <Link
+              to="/project/$id"
+              params={{
+                id: data.id,
+              }}
+            >
+              Edit
+            </Link>
           </Button>
         </div>
       </CardContent>
