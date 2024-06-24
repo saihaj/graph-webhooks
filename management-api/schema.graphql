@@ -71,6 +71,7 @@ A project that tracks a contract on a chain
 """
 type Project implements Node {
   chain: Chain!
+  endpoint: URL!
   id: ID!
   name: String!
 }
@@ -79,6 +80,16 @@ type Query {
   hello(name: String): String!
   node(id: ID!): Node
   nodes(ids: [ID!]!): [Node]!
+
+  """
+  Get a project by ID
+  """
+  project(
+    """
+    The ID of the project to fetch
+    """
+    id: String!
+  ): Project!
 
   """
   List of projects

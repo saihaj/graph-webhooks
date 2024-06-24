@@ -3,6 +3,7 @@ import { builder, notEmpty } from "./utils";
 import { v4 as uuidv4 } from "uuid";
 import { ProjectConfigurationSchema, SUPPORTED_CHAINS } from "utils";
 import { and, asc, eq, gt, or, sql } from "drizzle-orm";
+import { decodeGlobalID } from "@pothos/plugin-relay";
 
 const Chain = builder.enumType("Chain", {
   values: SUPPORTED_CHAINS,
@@ -22,6 +23,11 @@ builder.node(Project, {
       type: Chain,
       resolve: (obj) =>
         ProjectConfigurationSchema.parse(obj.configuration).chain,
+    }),
+    endpoint: t.field({
+      type: "URL",
+      resolve: (obj) =>
+        ProjectConfigurationSchema.parse(obj.configuration).webhookUrl,
     }),
   }),
 
@@ -250,3 +256,29 @@ builder.relayMutationField(
     }),
   },
 );
+
+builder.queryField("project", (t) => {
+  return t.field({
+    type: Project,
+    description: "Get a project by ID",
+    authScopes: {
+      isAuthenticated: true,
+    },
+    args: {
+      id: t.arg.string({
+        required: true,
+        description: "The ID of the project to fetch",
+      }),
+    },
+    resolve: async (_parent, { id }, { db }) => {
+      const { id: projectId } = decodeGlobalID(id);
+
+      return db
+        .select()
+        .from(project)
+        .where(eq(project.id, projectId))
+        .limit(1)
+        .then((res) => res[0]);
+    },
+  });
+});
