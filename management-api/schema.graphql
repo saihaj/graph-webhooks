@@ -51,6 +51,11 @@ Ethereum address
 """
 scalar EthAddress
 
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
 type Mutation {
   createProject(input: CreateProjectInput!): CreateProjectPayload!
 }
@@ -73,7 +78,37 @@ type Project implements Node {
   chain: Chain!
   endpoint: URL!
   id: ID!
+
+  """
+  Messages sent to the webhook
+  """
+  messages(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): ProjectMessagesConnection!
   name: String!
+}
+
+type ProjectMessagesConnection {
+  edges: [ProjectMessagesConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ProjectMessagesConnectionEdge {
+  cursor: String!
+  node: ProjectWebhookMessage!
+}
+
+"""
+A message sent to a webhook
+"""
+type ProjectWebhookMessage implements Node {
+  eventType: String!
+  id: ID!
+  payload: JSON!
+  timestamp: Timestamp!
 }
 
 type Query {
@@ -111,6 +146,11 @@ type QueryProjectsConnectionEdge {
   cursor: String!
   node: Project!
 }
+
+"""
+The javascript `Date` as integer. Type represents date and time as number of milliseconds from start of UNIX epoch.
+"""
+scalar Timestamp
 
 """
 A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.

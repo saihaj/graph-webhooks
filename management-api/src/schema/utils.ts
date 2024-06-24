@@ -2,7 +2,7 @@ import SchemaBuilder from "@pothos/core";
 import WithInputPlugin from "@pothos/plugin-with-input";
 import { ValidationError } from "../errors";
 import { EthAddressScalar } from "./scalar";
-import { URLResolver } from "graphql-scalars";
+import { URLResolver, JSONResolver, TimestampResolver } from "graphql-scalars";
 import RelayPlugin from "@pothos/plugin-relay";
 import ScopeAuthPlugin from "@pothos/plugin-scope-auth";
 import { Context } from "../context";
@@ -10,6 +10,14 @@ import { Context } from "../context";
 export const builder = new SchemaBuilder<{
   Context: Context;
   Scalars: {
+    JSON: {
+      Input: object;
+      Output: object;
+    };
+    Timestamp: {
+      Input: Date;
+      Output: Date;
+    };
     EthAddress: {
       Input: string;
       Output: string;
@@ -44,6 +52,8 @@ export const builder = new SchemaBuilder<{
 
 builder.addScalarType("EthAddress", EthAddressScalar, {});
 builder.addScalarType("URL", URLResolver, {});
+builder.addScalarType("JSON", JSONResolver, {});
+builder.addScalarType("Timestamp", TimestampResolver, {});
 
 const ErrorInterface = builder
   .interfaceRef<{ message: string }>("Error")

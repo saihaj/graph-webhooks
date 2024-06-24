@@ -11,6 +11,30 @@ const Chain = builder.enumType("Chain", {
 
 const Project = builder.objectRef<typeof project.$inferSelect>("Project");
 
+const Message = builder.objectRef<{
+  id: string;
+  eventType: string;
+  payload: object;
+  timestamp: Date;
+}>("ProjectWebhookMessage");
+
+builder.node(Message, {
+  id: {
+    resolve: (obj) => obj.id,
+  },
+  name: "ProjectWebhookMessage",
+  description: "A message sent to a webhook",
+  fields: (t) => ({
+    eventType: t.exposeString("eventType"),
+    payload: t.expose("payload", {
+      type: "JSON",
+    }),
+    timestamp: t.expose("timestamp", {
+      type: "Timestamp",
+    }),
+  }),
+});
+
 builder.node(Project, {
   id: {
     resolve: (obj) => obj.id,
@@ -29,8 +53,55 @@ builder.node(Project, {
       resolve: (obj) =>
         ProjectConfigurationSchema.parse(obj.configuration).webhookUrl,
     }),
-  }),
+    messages: t.connection({
+      type: Message,
+      description: "Messages sent to the webhook",
+      resolve: async (obj, { first, after }, { svix, SVIX_TOKEN }) => {
+        const { id: projectId } = obj;
+        const limit = first ?? 10;
+        const iterator = after ? after : undefined;
 
+        const api = await svix["/api/v1/app/{app_id}/msg/"].get({
+          headers: {
+            Authorization: `Bearer ${SVIX_TOKEN}`,
+          },
+          params: {
+            app_id: projectId,
+          },
+          query: {
+            limit,
+            iterator,
+          },
+        });
+
+        if (!api.ok) {
+          throw new Error("Failed to fetch messages");
+        }
+
+        const data = await api.json();
+
+        return {
+          pageInfo: {
+            hasNextPage: data.done === false,
+            hasPreviousPage: false, // TODO: adjust
+            startCursor: data.iterator,
+            endCursor: data.prevIterator,
+          },
+          edges: data.data.map((message) => {
+            return {
+              cursor: message.id,
+              node: {
+                id: message.id,
+                eventType: message.eventType,
+                payload: message.payload,
+                timestamp: new Date(message.timestamp),
+              },
+            };
+          }),
+        };
+      },
+    }),
+  }),
   loadOne: (id, { db }) =>
     db
       .select()
@@ -270,7 +341,7 @@ builder.queryField("project", (t) => {
         description: "The ID of the project to fetch",
       }),
     },
-    resolve: async (_parent, { id }, { db }) => {
+    resolve: async (_parent, { id }, { db, svix, SVIX_TOKEN }) => {
       const { id: projectId } = decodeGlobalID(id);
 
       return db
