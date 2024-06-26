@@ -51,6 +51,12 @@ const router = createRouter({
               type: "string",
             },
           },
+          required: [
+            "appId",
+            "startBlock",
+            "contractAddress",
+            "substreamsToken",
+          ],
         },
       },
       responses: {
@@ -168,6 +174,7 @@ const router = createRouter({
               format: "uuid",
             },
           },
+          required: ["appId"],
         },
       },
       responses: {
