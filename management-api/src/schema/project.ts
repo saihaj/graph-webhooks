@@ -1,5 +1,5 @@
 import { project, usersToOrgs } from "../db-schema";
-import { builder, notEmpty } from "./utils";
+import { builder, isObject, notEmpty } from "./utils";
 import { v4 as uuidv4 } from "uuid";
 import { ProjectConfigurationSchema, SUPPORTED_CHAINS } from "utils";
 import { and, asc, eq, gt, or, sql } from "drizzle-orm";
@@ -19,6 +19,7 @@ const Message = builder.objectRef<{
 }>("ProjectWebhookMessage");
 
 builder.node(Message, {
+  isTypeOf: isObject,
   id: {
     resolve: (obj) => obj.id,
   },
@@ -36,6 +37,7 @@ builder.node(Message, {
 });
 
 builder.node(Project, {
+  isTypeOf: isObject,
   id: {
     resolve: (obj) => obj.id,
   },
@@ -80,12 +82,14 @@ builder.node(Project, {
 
         const data = await api.json();
 
+        const endCursor = data.data[data.data.length - 1]?.id;
+
         return {
           pageInfo: {
             hasNextPage: data.done === false,
             hasPreviousPage: false, // TODO: adjust
             startCursor: data.iterator,
-            endCursor: data.prevIterator,
+            endCursor,
           },
           edges: data.data.map((message) => {
             return {

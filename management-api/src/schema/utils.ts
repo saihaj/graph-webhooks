@@ -7,6 +7,10 @@ import RelayPlugin from "@pothos/plugin-relay";
 import ScopeAuthPlugin from "@pothos/plugin-scope-auth";
 import { Context } from "../context";
 
+export function isObject(value: unknown): value is object {
+  return typeof value === "object" && value != null;
+}
+
 export const builder = new SchemaBuilder<{
   Context: Context;
   Scalars: {
