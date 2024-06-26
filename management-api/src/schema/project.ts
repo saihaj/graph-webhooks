@@ -9,6 +9,10 @@ const Chain = builder.enumType("Chain", {
   values: SUPPORTED_CHAINS,
 });
 
+const ProjectState = builder.enumType("ProjectState", {
+  values: ["ACTIVE", "PAUSED"] as const,
+});
+
 const Project = builder.objectRef<typeof project.$inferSelect>("Project");
 
 const Message = builder.objectRef<{
@@ -44,6 +48,11 @@ builder.node(Project, {
   name: "Project",
   description: "A project that tracks a contract on a chain",
   fields: (t) => ({
+    state: t.field({
+      type: ProjectState,
+      description: "The state of the project",
+      resolve: (obj) => (obj.active ? "ACTIVE" : "PAUSED"),
+    }),
     name: t.exposeString("name"),
     chain: t.field({
       type: Chain,
@@ -332,6 +341,95 @@ builder.relayMutationField(
   },
 );
 
+builder.relayMutationField(
+  "updateProjectState",
+  {
+    description: "Update the status of a project",
+    inputFields: (t) => ({
+      id: t.string({
+        required: true,
+        description: "The ID of the project to update",
+      }),
+      state: t.field({
+        type: ProjectState,
+        required: true,
+        description: "The new state of the project",
+      }),
+    }),
+  },
+  {
+    authScopes: {
+      isAuthenticated: true,
+    },
+    resolve: async (
+      _parent,
+      { input: { id, state } },
+      { db, authUserId, GUILD_ADMIN_TOKEN, SUBSTREAM_LISTENER_HOST },
+    ) => {
+      if (!authUserId) {
+        throw new Error("User not authenticated");
+      }
+
+      const projectId = decodeGlobalID(id).id;
+
+      const dbProject = await db.query.project.findFirst({
+        // TODO: when we allow orgs to have multiple projects, then we should ensure for the org relationship and roles
+        where: and(eq(project.id, projectId), eq(project.creator, authUserId)),
+      });
+
+      if (!dbProject) {
+        throw new Error("Project not found");
+      }
+
+      switch (state) {
+        case "PAUSED":
+          // TODO: use fets client
+          const registerSubstream = await fetch(
+            `${SUBSTREAM_LISTENER_HOST}/v1/unregister-webhook`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Guild-Admin": GUILD_ADMIN_TOKEN,
+              },
+              body: JSON.stringify({
+                appId: projectId,
+              }),
+            },
+          );
+
+          if (!registerSubstream.ok) {
+            throw new Error("Failed to pause project");
+          }
+
+          const updatedProject = await db
+            .update(project)
+            .set({
+              active: false,
+            })
+            .where(eq(project.id, projectId))
+            .returning();
+
+          return updatedProject[0];
+        // TODO: handle other states
+        case "ACTIVE":
+          return dbProject;
+        default:
+          throw new Error("Invalid state");
+      }
+    },
+  },
+  {
+    outputFields: (t) => ({
+      project: t.field({
+        type: Project,
+        description: "The updated project",
+        resolve: (res) => res,
+      }),
+    }),
+  },
+);
+
 builder.queryField("project", (t) => {
   return t.field({
     type: Project,
@@ -345,7 +443,7 @@ builder.queryField("project", (t) => {
         description: "The ID of the project to fetch",
       }),
     },
-    resolve: async (_parent, { id }, { db, svix, SVIX_TOKEN }) => {
+    resolve: async (_parent, { id }, { db }) => {
       const { id: projectId } = decodeGlobalID(id);
 
       return db
