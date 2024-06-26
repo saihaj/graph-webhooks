@@ -1,6 +1,7 @@
 import { drizzle } from "drizzle-orm/d1";
-import { svixClient } from "./svix-api";
+import { type svixClient } from "./svix-api";
 import type * as dbSchema from "./db-schema";
+import { type substreamListenerClient } from "substream-listener";
 
 export interface Env {
   DB: D1Database;
@@ -16,5 +17,6 @@ export interface Env {
 export interface Context extends Env {
   db: ReturnType<typeof drizzle<typeof dbSchema>>;
   svix: ReturnType<typeof svixClient>;
+  substreamListener: ReturnType<typeof substreamListenerClient>;
   authUserId: string | null;
 }

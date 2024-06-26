@@ -1,4 +1,4 @@
-import { Job, Queue, Worker } from "bullmq";
+import { FlowProducer, Job, Queue, Worker } from "bullmq";
 import { Redis } from "ioredis";
 import pTimeout from "p-timeout";
 import { type Logger } from "pino";
@@ -45,6 +45,7 @@ type Input = {
   token: string;
   substreamsEndpoint: string;
   outputModule: string;
+  abort: boolean;
 };
 
 export function createScheduler(config: {
@@ -89,7 +90,6 @@ export function createScheduler(config: {
 
     // Wait for Queues to be ready
     await queue.waitUntilReady();
-
     const worker = new Worker<Input>(
       config.queueName,
       async (job) => {
@@ -97,6 +97,7 @@ export function createScheduler(config: {
           jobId: job.id,
           jobName: job.name,
         });
+
         const cursorKey = `cursor:${job.name}:${job.id}`.toLowerCase();
 
         jobLogger.info(
@@ -348,32 +349,60 @@ export function createScheduler(config: {
       throw new Error("Queue not initialized");
     }
 
-    const status = await queue.remove(appId, {
-      removeChildren: true,
-    });
+    console.log(await queue.getActiveCount());
+    const job = await queue.getJob(appId);
 
-    return Boolean(status);
+    if (!job) {
+      logger.error(
+        {
+          appId,
+        },
+        "Job not found",
+      );
+      return false;
+    }
+
+    const data = job.data;
+
+    try {
+      await job.updateProgress(3);
+    } catch (e) {
+      console.log(e);
+    }
+
+    // job.discard();
+    // await job.remove({
+    //   removeChildren: true,
+    // });
+
+    console.log(await queue.getActiveCount());
+
+    return true;
   }
 
-  async function schedule(webhook: Input) {
+  async function schedule(webhook: Omit<Input, "abort">) {
     if (!queue) {
       throw new Error("Queue not initialized");
     }
 
     const name = webhook.appId;
 
-    return queue.add(name, webhook, {
-      jobId: name,
-      // we want to retry the job if it fails
-      removeOnFail: false,
-      // we always keep listening for new blocks
-      removeOnComplete: false,
-      attempts: 5,
-      backoff: {
-        type: "exponential",
-        delay: 1000,
+    return queue.add(
+      name,
+      { ...webhook, abort: false },
+      {
+        jobId: name,
+        // we want to retry the job if it fails
+        removeOnFail: false,
+        // we always keep listening for new blocks
+        removeOnComplete: false,
+        attempts: 5,
+        backoff: {
+          type: "exponential",
+          delay: 1000,
+        },
       },
-    });
+    );
   }
 
   return {

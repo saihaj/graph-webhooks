@@ -364,7 +364,7 @@ builder.relayMutationField(
     resolve: async (
       _parent,
       { input: { id, state } },
-      { db, authUserId, GUILD_ADMIN_TOKEN, SUBSTREAM_LISTENER_HOST },
+      { db, authUserId, GUILD_ADMIN_TOKEN, SUBSTREAM_LISTENER_HOST, SF_TOKEN },
     ) => {
       if (!authUserId) {
         throw new Error("User not authenticated");
@@ -382,7 +382,7 @@ builder.relayMutationField(
       }
 
       switch (state) {
-        case "PAUSED":
+        case "PAUSED": {
           // TODO: use fets client
           const registerSubstream = await fetch(
             `${SUBSTREAM_LISTENER_HOST}/v1/unregister-webhook`,
@@ -411,9 +411,35 @@ builder.relayMutationField(
             .returning();
 
           return updatedProject[0];
-        // TODO: handle other states
-        case "ACTIVE":
+        }
+        case "ACTIVE": {
+          const config = ProjectConfigurationSchema.parse(
+            dbProject.configuration,
+          );
+
+          const registerSubstream = await fetch(
+            `${SUBSTREAM_LISTENER_HOST}/v1/register-webhook`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Guild-Admin": GUILD_ADMIN_TOKEN,
+              },
+              body: JSON.stringify({
+                appId: projectId,
+                startBlock: config.startBlock,
+                contractAddress: config.contractAddress,
+                substreamsToken: SF_TOKEN,
+              }),
+            },
+          );
+
+          if (!registerSubstream.ok) {
+            throw new Error("Failed to register project");
+          }
+
           return dbProject;
+        }
         default:
           throw new Error("Invalid state");
       }

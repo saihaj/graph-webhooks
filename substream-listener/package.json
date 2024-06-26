@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@connectrpc/connect-node": "1.4.0",
+    "@kubernetes/client-node": "^0.21.0",
     "@substreams/core": "0.16.0",
     "@substreams/manifest": "0.15.0",
     "@substreams/node": "0.6.2",

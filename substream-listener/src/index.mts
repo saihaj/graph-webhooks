@@ -10,6 +10,7 @@ import {
 import { logger } from "./logger.mjs";
 import { createScheduler } from "./scheduler.mjs";
 import { REDIS_HOST, REDIS_PASSWORD, REDIS_PORT } from "./utils.mjs";
+import k8s from "@kubernetes/client-node";
 
 const { schedule, unschedule, start, stop, readiness } = createScheduler({
   queueName: "substream-sink-scheduler",
@@ -20,6 +21,10 @@ const { schedule, unschedule, start, stop, readiness } = createScheduler({
     password: REDIS_PASSWORD,
   },
 });
+
+const kc = new k8s.KubeConfig();
+kc.loadFromDefault();
+const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 
 const BASE_URL = "https://mainnet.eth.streamingfast.io:443";
 const OUTPUT_MODULE = "map_transfers";
@@ -223,12 +228,50 @@ const router = createRouter({
         return Response.json({ message: "appId is required" }, { status: 400 });
       }
 
-      const status = await unschedule({
-        appId,
-      });
+      // const pod = await k8sApi.createNamespacedPod("default", {
+      //   metadata: {
+      //     annotations: {
+      //       "prometheus.io/path": "/metrics",
+      //       "prometheus.io/port": "10254",
+      //       "prometheus.io/scrape": "true",
+      //     },
+      //     labels: {
+      //       app: "test-app",
+      //       "pod-template-hash": appId,
+      //     },
+      //     name: `test-app-${appId}`,
+      //   },
+      //   spec: {
+      //     containers: [
+      //       {
+      //         name: "test-app-nginx",
+      //         imagePullPolicy: "Always",
+      //         image: "nginx",
+
+      //         ports: [
+      //           {
+      //             containerPort: 80,
+      //             protocol: "TCP",
+      //             name: "http",
+      //           },
+      //         ],
+      //       },
+      //     ],
+      //     restartPolicy: "Always",
+      //   },
+      // });
+      const p = await k8sApi.deleteNamespacedPod(
+        `test-app-${appId}`,
+        "default",
+      );
+      console.log(p);
+      // console.log(pod);
+      // const status = await unschedule({
+      //   appId,
+      // });
 
       successfulHttpRequests.inc();
-      logger.info({ status }, "Webhook unregistered");
+      // logger.info({ status }, "Webhook unregistered");
 
       return Response.json({
         message: "Webhook unregistered",

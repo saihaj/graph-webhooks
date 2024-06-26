@@ -1,8 +1,8 @@
 import { createYoga } from "graphql-yoga";
 import { schema } from "./schema";
 import { drizzle } from "drizzle-orm/d1";
-import { Env } from "context";
-import { svixClient } from "svix-api";
+import { Env } from "./context";
+import { svixClient } from "./svix-api";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 import * as dbSchema from "./db-schema";
 import { eq } from "drizzle-orm";
