@@ -176,13 +176,17 @@ export function ProjectMessages({
       <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight mb-4">
         Messages
       </h3>
-      <DataTable
-        columns={columns}
-        hasNextPage={hasNext}
-        loadNextPage={() => loadNext(50)}
-        data={data.messages.edges.map(({ node }) => ({ ...node }))}
-        isLoadingNext={isLoadingNext}
-      />
+      {data?.messages ? (
+        <DataTable
+          columns={columns}
+          hasNextPage={hasNext}
+          loadNextPage={() => loadNext(50)}
+          data={data.messages.edges.map(({ node }) => ({ ...node }))}
+          isLoadingNext={isLoadingNext}
+        />
+      ) : (
+        <div className="text-center text-lg">No data sent</div>
+      )}
     </div>
   );
 }
