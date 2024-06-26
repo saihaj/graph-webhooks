@@ -1,6 +1,7 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
 import { graphql, useLazyLoadQuery } from "react-relay";
 import { IdProjectQuery } from "./__generated__/IdProjectQuery.graphql";
+import { ProjectMessages } from "@/components/project/messages";
 
 function Project() {
   const { id } = Route.useParams();
@@ -11,6 +12,7 @@ function Project() {
           chain
           endpoint
           name
+          ...messages_ProjectMessage
         }
       }
     `,
@@ -36,6 +38,9 @@ function Project() {
         <code className="relative rounded bg-muted font-mono text-lg font-semibold ml-2 mt-1">
           {project.endpoint}
         </code>
+      </div>
+      <div className="mt-4">
+        <ProjectMessages messages={project} />
       </div>
     </div>
   );
