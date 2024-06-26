@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<ac95b269d35c0eb08c7a2450f0eac9df>>
+ * @generated SignedSource<<ae020c1f53e7647cd90bb4d49840f439>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -182,12 +182,12 @@ const node: ConcreteRequest = (function () {
       ],
     },
     params: {
-      cacheID: "ecf3ff253b306ee8366aa9a559875125",
+      cacheID: "7bf827a15b59fe4d7e956bac4baff37a",
       id: null,
       metadata: {},
       name: "ProjectsGridQuery",
       operationKind: "query",
-      text: "query ProjectsGridQuery(\n  $cursor: String\n  $first: Int = 9\n) {\n  ...projects_ProjectsGrid_19XkED\n}\n\nfragment projects_ProjectCard on Project {\n  name\n  chain\n}\n\nfragment projects_ProjectsGrid_19XkED on Query {\n  projects(after: $cursor, first: $first) {\n    edges {\n      node {\n        id\n        ...projects_ProjectCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n",
+      text: "query ProjectsGridQuery(\n  $cursor: String\n  $first: Int = 9\n) {\n  ...projects_ProjectsGrid_19XkED\n}\n\nfragment projects_ProjectCard on Project {\n  id\n  name\n  chain\n}\n\nfragment projects_ProjectsGrid_19XkED on Query {\n  projects(after: $cursor, first: $first) {\n    edges {\n      node {\n        id\n        ...projects_ProjectCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n",
     },
   };
 })();

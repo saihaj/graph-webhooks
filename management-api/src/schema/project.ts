@@ -1,8 +1,9 @@
 import { project, usersToOrgs } from "../db-schema";
-import { builder, notEmpty } from "./utils";
+import { builder, isObject, notEmpty } from "./utils";
 import { v4 as uuidv4 } from "uuid";
 import { ProjectConfigurationSchema, SUPPORTED_CHAINS } from "utils";
 import { and, asc, eq, gt, or, sql } from "drizzle-orm";
+import { decodeGlobalID } from "@pothos/plugin-relay";
 
 const Chain = builder.enumType("Chain", {
   values: SUPPORTED_CHAINS,
@@ -10,7 +11,33 @@ const Chain = builder.enumType("Chain", {
 
 const Project = builder.objectRef<typeof project.$inferSelect>("Project");
 
+const Message = builder.objectRef<{
+  id: string;
+  eventType: string;
+  payload: object;
+  timestamp: Date;
+}>("ProjectWebhookMessage");
+
+builder.node(Message, {
+  isTypeOf: isObject,
+  id: {
+    resolve: (obj) => obj.id,
+  },
+  name: "ProjectWebhookMessage",
+  description: "A message sent to a webhook",
+  fields: (t) => ({
+    eventType: t.exposeString("eventType"),
+    payload: t.expose("payload", {
+      type: "JSON",
+    }),
+    timestamp: t.expose("timestamp", {
+      type: "Timestamp",
+    }),
+  }),
+});
+
 builder.node(Project, {
+  isTypeOf: isObject,
   id: {
     resolve: (obj) => obj.id,
   },
@@ -23,8 +50,62 @@ builder.node(Project, {
       resolve: (obj) =>
         ProjectConfigurationSchema.parse(obj.configuration).chain,
     }),
-  }),
+    endpoint: t.field({
+      type: "URL",
+      resolve: (obj) =>
+        ProjectConfigurationSchema.parse(obj.configuration).webhookUrl,
+    }),
+    messages: t.connection({
+      type: Message,
+      description: "Messages sent to the webhook",
+      resolve: async (obj, { first, after }, { svix, SVIX_TOKEN }) => {
+        const { id: projectId } = obj;
+        const limit = first ?? 10;
+        const iterator = after ? after : undefined;
 
+        const api = await svix["/api/v1/app/{app_id}/msg/"].get({
+          headers: {
+            Authorization: `Bearer ${SVIX_TOKEN}`,
+          },
+          params: {
+            app_id: projectId,
+          },
+          query: {
+            limit,
+            iterator,
+          },
+        });
+
+        if (!api.ok) {
+          throw new Error("Failed to fetch messages");
+        }
+
+        const data = await api.json();
+
+        const endCursor = data.data[data.data.length - 1]?.id;
+
+        return {
+          pageInfo: {
+            hasNextPage: data.done === false,
+            hasPreviousPage: false, // TODO: adjust
+            startCursor: data.iterator,
+            endCursor,
+          },
+          edges: data.data.map((message) => {
+            return {
+              cursor: message.id,
+              node: {
+                id: message.id,
+                eventType: message.eventType,
+                payload: message.payload,
+                timestamp: new Date(message.timestamp),
+              },
+            };
+          }),
+        };
+      },
+    }),
+  }),
   loadOne: (id, { db }) =>
     db
       .select()
@@ -250,3 +331,29 @@ builder.relayMutationField(
     }),
   },
 );
+
+builder.queryField("project", (t) => {
+  return t.field({
+    type: Project,
+    description: "Get a project by ID",
+    authScopes: {
+      isAuthenticated: true,
+    },
+    args: {
+      id: t.arg.string({
+        required: true,
+        description: "The ID of the project to fetch",
+      }),
+    },
+    resolve: async (_parent, { id }, { db, svix, SVIX_TOKEN }) => {
+      const { id: projectId } = decodeGlobalID(id);
+
+      return db
+        .select()
+        .from(project)
+        .where(eq(project.id, projectId))
+        .limit(1)
+        .then((res) => res[0]);
+    },
+  });
+});
