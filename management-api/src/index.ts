@@ -15,9 +15,14 @@ const yoga = createYoga<Env>({
       schema: dbSchema,
     });
 
-    const jwt = ctx.request.headers.get("authorization")?.split(" ")?.[1];
-    let authUserId: string | null = null;
+    const authorization = ctx.request.headers.get("authorization");
+    if (!authorization) {
+      throw new Error("Missing Authorization header");
+    }
 
+    const jwt = authorization.split(" ")[1];
+
+    let authUserId: string | null = null;
     if (jwt) {
       const { payload } = await jwtVerify(
         jwt, // The raw Bearer Token extracted from the request header
