@@ -149,6 +149,10 @@ const substreamListener = new ServiceDeployment(
         name: "REDIS_PORT",
         value: redisConfig.port.toString(),
       },
+      {
+        name: "DOCKER_TAG",
+        value: imagesTag,
+      },
     ],
   },
   provider,

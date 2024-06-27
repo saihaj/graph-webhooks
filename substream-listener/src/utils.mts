@@ -7,10 +7,12 @@ export const {
   REDIS_PORT,
   SVIX_TOKEN,
   SVIX_HOST_URL,
+  DOCKER_TAG,
 } = parseEnv(process.env, {
   REDIS_HOST: z.string().default("localhost"),
   REDIS_PORT: z.number().default(6379),
   REDIS_PASSWORD: z.string().optional(),
   SVIX_TOKEN: z.string(),
   SVIX_HOST_URL: z.string().default("http://localhost:8071"),
+  DOCKER_TAG: z.string().default("latest"),
 });

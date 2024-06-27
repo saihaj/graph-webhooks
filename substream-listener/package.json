@@ -4,7 +4,8 @@
   "scripts": {
     "start": "tsx ./src/index.mts",
     "dev": "tsx --env-file .env --watch ./src/index.mts | pino-pretty",
-    "check:types": "tsc --noEmit"
+    "check:types": "tsc --noEmit",
+    "start:listener": "tsx ./src/listener.mts"
   },
   "dependencies": {
     "@connectrpc/connect-node": "1.4.0",

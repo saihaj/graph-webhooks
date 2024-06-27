@@ -1,6 +1,6 @@
 import { createRouter, Response } from "fets";
 import { App } from "uWebSockets.js";
-import { Address, isAddress } from "viem";
+import { isAddress } from "viem";
 import promClient from "prom-client";
 import {
   invalidHttpRequests,
@@ -9,7 +9,14 @@ import {
 } from "./prometheus.mjs";
 import { logger } from "./logger.mjs";
 import { createScheduler } from "./scheduler.mjs";
-import { REDIS_HOST, REDIS_PASSWORD, REDIS_PORT } from "./utils.mjs";
+import {
+  DOCKER_TAG,
+  REDIS_HOST,
+  REDIS_PASSWORD,
+  REDIS_PORT,
+  SVIX_HOST_URL,
+  SVIX_TOKEN,
+} from "./utils.mjs";
 import k8s from "@kubernetes/client-node";
 
 const { schedule, unschedule, start, stop, readiness } = createScheduler({
@@ -24,7 +31,8 @@ const { schedule, unschedule, start, stop, readiness } = createScheduler({
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
-const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
+
+const k8sBatchApi = kc.makeApiClient(k8s.BatchV1Api);
 
 const BASE_URL = "https://mainnet.eth.streamingfast.io:443";
 const OUTPUT_MODULE = "map_transfers";
@@ -147,17 +155,108 @@ const router = createRouter({
         );
       }
 
-      const job = await schedule({
-        appId,
-        startBlock,
-        contractAddress: contractAddress.toLowerCase() as Address,
-        token: substreamsToken,
-        outputModule: OUTPUT_MODULE,
-        substreamsEndpoint: BASE_URL,
+      const job = await k8sBatchApi.createNamespacedJob("default", {
+        metadata: {
+          annotations: {
+            "prometheus.io/path": "/metrics",
+            "prometheus.io/port": "10254",
+            "prometheus.io/scrape": "true",
+          },
+          labels: {
+            app: "webhook-listener",
+            "pod-template-hash": appId,
+          },
+          name: `webhook-project-${appId}`,
+        },
+        spec: {
+          template: {
+            spec: {
+              imagePullSecrets: [
+                {
+                  // This is configured by Pulumi in the cluster
+                  name: "image-pull-secret",
+                },
+              ],
+              containers: [
+                {
+                  name: "webhook-listener",
+                  imagePullPolicy: "Always",
+                  image: `ghcr.io/saihaj/substream-listener:${DOCKER_TAG}`,
+                  env: [
+                    {
+                      name: "APP_ID",
+                      value: appId,
+                    },
+                    {
+                      name: "START_BLOCK",
+                      value: startBlock.toString(),
+                    },
+                    {
+                      name: "CONTRACT_ADDRESS",
+                      value: contractAddress,
+                    },
+                    {
+                      name: "SUBSTREAMS_ENDPOINT",
+                      value: BASE_URL,
+                    },
+                    {
+                      name: "OUTPUT_MODULE",
+                      value: OUTPUT_MODULE,
+                    },
+                    { name: "TOKEN", value: substreamsToken },
+                    {
+                      name: "REDIS_HOST",
+                      value: REDIS_HOST,
+                    },
+                    {
+                      name: "REDIS_PORT",
+                      value: REDIS_PORT.toString(),
+                    },
+                    {
+                      name: "REDIS_PASSWORD",
+                      value: REDIS_PASSWORD,
+                    },
+                    {
+                      name: "SVIX_HOST_URL",
+                      value: SVIX_HOST_URL,
+                    },
+                    {
+                      name: "SVIX_TOKEN",
+                      value: SVIX_TOKEN,
+                    },
+                  ],
+                  command: ["pnpm run start:listener"],
+                  ports: [
+                    {
+                      containerPort: 10254,
+                      protocol: "TCP",
+                      name: "metrics",
+                    },
+                  ],
+                  readinessProbe: {
+                    httpGet: {
+                      path: "/ready",
+                      port: 10254,
+                      scheme: "HTTP",
+                    },
+                  },
+                  livenessProbe: {
+                    httpGet: {
+                      path: "/health",
+                      port: 10254,
+                      scheme: "HTTP",
+                    },
+                  },
+                },
+              ],
+              restartPolicy: "OnFailure",
+            },
+          },
+        },
       });
 
       successfulHttpRequests.inc();
-      logger.info({ job }, "Webhook registered");
+      logger.info({ job: job.body }, "Webhook registered");
 
       // If the status code is not specified, it defaults to 200
       return Response.json({
@@ -228,6 +327,37 @@ const router = createRouter({
         return Response.json({ message: "appId is required" }, { status: 400 });
       }
 
+      // const status = await k8sBatchApi.readNamespacedJob(
+      //   `test-app-${appId}`,
+      //   "default",
+      // );
+
+      // await k8sBatchApi.deleteNamespacedJob(`test-app-${appId}`, "default");
+
+      // await k8sBatchApi.patchNamespacedJob(
+      //   `test-app-${appId}`,
+      //   "default",
+      //   [
+      //     {
+      //       op: "replace",
+      //       path: "/spec/suspend",
+      //       value: false,
+      //     },
+      //   ],
+      //   undefined,
+      //   undefined,
+      //   undefined,
+      //   undefined,
+      //   undefined,
+      //   {
+      //     headers: {
+      //       "Content-type": k8s.PatchUtils.PATCH_FORMAT_JSON_PATCH,
+      //     },
+      //   },
+      // );
+
+      // console.log(status.body.status);
+
       // const pod = await k8sApi.createNamespacedPod("default", {
       //   metadata: {
       //     annotations: {
@@ -260,11 +390,11 @@ const router = createRouter({
       //     restartPolicy: "Always",
       //   },
       // });
-      const p = await k8sApi.deleteNamespacedPod(
-        `test-app-${appId}`,
-        "default",
-      );
-      console.log(p);
+      // const p = await k8sApi.deleteNamespacedPod(
+      //   `test-app-${appId}`,
+      //   "default",
+      // );
+      // console.log(p);
       // console.log(pod);
       // const status = await unschedule({
       //   appId,
@@ -275,7 +405,7 @@ const router = createRouter({
 
       return Response.json({
         message: "Webhook unregistered",
-        status,
+        status: "1",
       });
     },
   })
