@@ -214,7 +214,6 @@ const router = createRouter({
                       value: SVIX_TOKEN,
                     },
                   ],
-                  command: ["pnpm run start:listener"],
                   ports: [
                     {
                       containerPort: 10254,
