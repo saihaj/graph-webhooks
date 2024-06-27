@@ -21,6 +21,7 @@ import k8s from "@kubernetes/client-node";
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 
+const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 const k8sBatchApi = kc.makeApiClient(k8s.BatchV1Api);
 
 const BASE_URL = "https://mainnet.eth.streamingfast.io:443";
@@ -248,8 +249,31 @@ const router = createRouter({
         },
       });
 
+      logger.info({ job: job.body }, "Created job");
+
+      const service = await k8sApi.createNamespacedService("default", {
+        metadata: {
+          name: `webhook-project-${appId}`,
+        },
+        spec: {
+          selector: {
+            app: "webhook-listener",
+            "pod-template-hash": appId,
+          },
+          ports: [
+            {
+              port: 10254,
+              protocol: "TCP",
+              targetPort: 10254,
+            },
+          ],
+        },
+      });
+
+      logger.info({ service: service.body }, "Created service");
+
       successfulHttpRequests.inc();
-      logger.info({ job: job.body }, "Webhook registered");
+      logger.info({}, "Webhook registered");
 
       // If the status code is not specified, it defaults to 200
       return Response.json({
