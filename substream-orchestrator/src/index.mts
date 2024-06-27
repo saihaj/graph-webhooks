@@ -144,6 +144,53 @@ const router = createRouter({
         );
       }
 
+      const env: k8s.V1EnvVar[] = [
+        {
+          name: "APP_ID",
+          value: appId,
+        },
+        {
+          name: "START_BLOCK",
+          value: startBlock.toString(),
+        },
+        {
+          name: "CONTRACT_ADDRESS",
+          value: contractAddress,
+        },
+        {
+          name: "SUBSTREAMS_ENDPOINT",
+          value: BASE_URL,
+        },
+        {
+          name: "OUTPUT_MODULE",
+          value: OUTPUT_MODULE,
+        },
+        { name: "TOKEN", value: substreamsToken },
+        {
+          name: "REDIS_HOST",
+          value: REDIS_HOST,
+        },
+        {
+          name: "REDIS_PORT",
+          value: REDIS_PORT.toString(),
+        },
+        {
+          name: "SVIX_HOST_URL",
+          value: SVIX_HOST_URL,
+        },
+        {
+          name: "SVIX_TOKEN",
+          value: SVIX_TOKEN,
+        },
+      ];
+
+      if (REDIS_PASSWORD) {
+        env.push({
+          name: "REDIS_PASSWORD",
+          value: REDIS_PASSWORD,
+        });
+      }
+
       const job = await k8sBatchApi.createNamespacedJob("default", {
         metadata: {
           annotations: {
@@ -171,49 +218,7 @@ const router = createRouter({
                   name: "webhook-listener",
                   imagePullPolicy: "Always",
                   image: `ghcr.io/saihaj/graph-webhooks/substream-listener:${DOCKER_TAG}`,
-                  env: [
-                    {
-                      name: "APP_ID",
-                      value: appId,
-                    },
-                    {
-                      name: "START_BLOCK",
-                      value: startBlock.toString(),
-                    },
-                    {
-                      name: "CONTRACT_ADDRESS",
-                      value: contractAddress,
-                    },
-                    {
-                      name: "SUBSTREAMS_ENDPOINT",
-                      value: BASE_URL,
-                    },
-                    {
-                      name: "OUTPUT_MODULE",
-                      value: OUTPUT_MODULE,
-                    },
-                    { name: "TOKEN", value: substreamsToken },
-                    {
-                      name: "REDIS_HOST",
-                      value: REDIS_HOST,
-                    },
-                    {
-                      name: "REDIS_PORT",
-                      value: REDIS_PORT.toString(),
-                    },
-                    {
-                      name: "REDIS_PASSWORD",
-                      value: REDIS_PASSWORD,
-                    },
-                    {
-                      name: "SVIX_HOST_URL",
-                      value: SVIX_HOST_URL,
-                    },
-                    {
-                      name: "SVIX_TOKEN",
-                      value: SVIX_TOKEN,
-                    },
-                  ],
+                  env,
                   ports: [
                     {
                       containerPort: 10254,
