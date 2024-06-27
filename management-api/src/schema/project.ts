@@ -246,9 +246,19 @@ builder.relayMutationField(
         throw new Error("Invalid configuration");
       }
 
-      const id = uuidv4();
+      // For now we just have one organization that is user's default.
+      // TODO: rework this in future to handle multiple organizations
+      const org = await db.query.usersToOrgs.findFirst({
+        where: eq(usersToOrgs.userId, authUserId),
+      });
 
+      if (!org) {
+        throw new Error("User is not part of any organization");
+      }
+
+      const id = uuidv4();
       const projectName = `${id}-${input.chain}`;
+
       const svixApp = await svix["/api/v1/app/"].post({
         headers: {
           Authorization: `Bearer ${SVIX_TOKEN}`,
@@ -285,27 +295,6 @@ builder.relayMutationField(
         throw new Error("Failed to register webhook");
       }
 
-      // For now we just have one organization that is user's default.
-      // TODO: rework this in future to handle multiple organizations
-      const org = await db.query.usersToOrgs.findFirst({
-        where: eq(usersToOrgs.userId, authUserId),
-      });
-
-      if (!org) {
-        throw new Error("User is not part of any organization");
-      }
-
-      const createdProj = await db
-        .insert(project)
-        .values({
-          name: input.name,
-          configuration: configuration.data,
-          creator: authUserId,
-          id,
-          organization: org.orgId,
-        })
-        .returning();
-
       // TODO: use fets client
       const registerSubstream = await fetch(
         `${SUBSTREAM_LISTENER_HOST}/v1/register-webhook`,
@@ -324,8 +313,20 @@ builder.relayMutationField(
         },
       );
 
-      const j = await registerSubstream.json();
-      console.log(j);
+      if (!registerSubstream.ok) {
+        throw new Error("Failed to register project");
+      }
+
+      const createdProj = await db
+        .insert(project)
+        .values({
+          name: input.name,
+          configuration: configuration.data,
+          creator: authUserId,
+          id,
+          organization: org.orgId,
+        })
+        .returning();
 
       return createdProj[0];
     },
