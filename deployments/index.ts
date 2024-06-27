@@ -173,7 +173,12 @@ const role = new k8s.rbac.v1.Role(
       {
         apiGroups: ["batch"],
         resources: ["jobs"],
-        verbs: ["create", "update", "get", "list", "watch"],
+        verbs: ["create", "update", "get", "list", "watch", "delete"],
+      },
+      {
+        apiGroups: [""], // "" indicates the core API group
+        resources: ["services"],
+        verbs: ["create", "update", "get", "list", "watch", "delete"],
       },
     ],
   },
