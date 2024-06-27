@@ -45,6 +45,20 @@ jobs:
         run: pnpm check:${{ matrix.check }}
 
   # Build all packages and applications, and creates Docker images
+  build-pr:
+    name: build
+    needs: [check, test]
+    uses: ./.github/workflows/build-and-dockerize.yaml
+    # Only run for PRs
+    if: github.event_name == 'pull_request'
+    with:
+      imageTag: ${{ github.event.pull_request.head.sha }}
+      publishLatest: false
+      targets: "build"
+      publishPrComment: true
+    secrets: inherit
+
+  # Build all packages and applications, and creates Docker images
   build-latest:
     name: build
     needs: [check]
@@ -56,7 +70,7 @@ jobs:
       imageTag: ${{ github.sha }}
       publishLatest: true
       targets: "build"
-      publishPrComment: false
+      publishPrComment: true
     secrets: inherit
 
   # Deploy to preview environment
