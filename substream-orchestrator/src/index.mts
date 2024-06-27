@@ -194,19 +194,26 @@ const router = createRouter({
 
       const job = await k8sBatchApi.createNamespacedJob("default", {
         metadata: {
-          annotations: {
-            "prometheus.io/path": "/metrics",
-            "prometheus.io/port": "10254",
-            "prometheus.io/scrape": "true",
-          },
+          name: `webhook-project-${appId}`,
           labels: {
             app: "webhook-listener",
             "pod-template-hash": appId,
           },
-          name: `webhook-project-${appId}`,
         },
         spec: {
           template: {
+            metadata: {
+              annotations: {
+                "prometheus.io/path": "/metrics",
+                "prometheus.io/port": "10254",
+                "prometheus.io/scrape": "true",
+              },
+              labels: {
+                app: "webhook-listener",
+                "pod-template-hash": appId,
+              },
+              name: `webhook-project-${appId}`,
+            },
             spec: {
               imagePullSecrets: [
                 {
@@ -251,26 +258,26 @@ const router = createRouter({
 
       logger.info({ job: job.body }, "Created job");
 
-      const service = await k8sApi.createNamespacedService("default", {
-        metadata: {
-          name: `webhook-project-${appId}`,
-        },
-        spec: {
-          selector: {
-            app: "webhook-listener",
-            "pod-template-hash": appId,
-          },
-          ports: [
-            {
-              port: 10254,
-              protocol: "TCP",
-              targetPort: 10254,
-            },
-          ],
-        },
-      });
+      // const service = await k8sApi.createNamespacedService("default", {
+      //   metadata: {
+      //     name: `webhook-project-${appId}`,
+      //   },
+      //   spec: {
+      //     selector: {
+      //       app: "webhook-listener",
+      //       "pod-template-hash": appId,
+      //     },
+      //     ports: [
+      //       {
+      //         port: 10254,
+      //         protocol: "TCP",
+      //         targetPort: 10254,
+      //       },
+      //     ],
+      //   },
+      // });
 
-      logger.info({ service: service.body }, "Created service");
+      // logger.info({ service: service.body }, "Created service");
 
       successfulHttpRequests.inc();
       logger.info({}, "Webhook registered");
