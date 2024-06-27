@@ -210,7 +210,7 @@ reverseProxy
     },
     {
       name: "substream-orchestrator",
-      path: "/substream-listener", // TODO: rename
+      path: "/substream-orchestrator", // TODO: rename
       service: deploySubstreamOrchestrator.service,
     },
   ])
