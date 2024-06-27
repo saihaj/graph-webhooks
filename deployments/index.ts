@@ -1,6 +1,7 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as azure from "@pulumi/azure-native";
 import * as azuread from "@pulumi/azuread";
+import * as k8s from "@pulumi/kubernetes";
 import { createAksCluster } from "./services/aks-cluster";
 import { PROVISIONER_TAG, serviceLocalHost } from "./utils/helpers";
 import { CertManager } from "./services/cert-manager";
@@ -159,6 +160,46 @@ const substreamListener = new ServiceDeployment(
 );
 
 const deploySubstreamListener = substreamListener.deploy();
+
+// This service needs to be able to create jobs in the batch API
+const listenerServiceName = deploySubstreamListener.service.metadata.name;
+const role = new k8s.rbac.v1.Role(
+  "substream-listener-job-creator-role",
+  {
+    metadata: {
+      name: pulumi.interpolate`${listenerServiceName}-job-creator-role`,
+    },
+    rules: [
+      {
+        apiGroups: ["batch"],
+        resources: ["jobs"],
+        verbs: ["create", "update", "get", "list", "watch"],
+      },
+    ],
+  },
+  { provider },
+);
+// Create the RoleBinding
+new k8s.rbac.v1.RoleBinding(
+  "substream-listener-job-creator-rolebinding",
+  {
+    metadata: {
+      name: pulumi.interpolate`${listenerServiceName}-job-creator-rolebinding`,
+    },
+    subjects: [
+      {
+        kind: "ServiceAccount",
+        name: "default",
+      },
+    ],
+    roleRef: {
+      kind: "Role",
+      name: role.metadata.name,
+      apiGroup: "rbac.authorization.k8s.io",
+    },
+  },
+  { provider },
+);
 
 reverseProxy
   .registerService({ record: appHostname }, [
