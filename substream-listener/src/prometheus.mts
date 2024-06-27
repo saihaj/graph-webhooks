@@ -21,16 +21,6 @@ function calculateHeadBlockTimeDrift(clock: Clock) {
 }
 
 // Counters
-export const invalidHttpRequests = new promClient.Counter({
-  name: "http_invalid_request",
-  help: "The number of invalid HTTP requests received",
-});
-
-export const successfulHttpRequests = new promClient.Counter({
-  name: "http_successful_request",
-  help: "The number of successful HTTP requests received",
-});
-
 export const substreams_sink_progress_message = new promClient.Counter({
   name: "substreams_sink_progress_message",
   help: "The number of progress message received",
@@ -55,8 +45,8 @@ const substreams_sink_undo_message = new promClient.Counter({
   labelNames: DEFAULT_LABEL_NAMES,
 });
 
-export const bullMqRedis = new promClient.Counter({
-  name: "bullmq_redis_connection",
+export const redis = new promClient.Counter({
+  name: "substream_listener_redis_connection",
   help: "The number of successful and failed connection to Redis",
   labelNames: ["status"],
 });
@@ -227,3 +217,5 @@ export function onPrometheusMetrics(
     }
   });
 }
+
+export { promClient };

@@ -1,6 +1,7 @@
 packages:
   - web
   - substream-listener
+  - substream-orchestrator
   - management-api
   - utils
   - deployments

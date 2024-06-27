@@ -122,10 +122,10 @@ const deploySvix = svixServer.deploy();
 
 const svixServiceUrl = pulumi.interpolate`http://${serviceLocalHost(deploySvix.service)}:${deploySvix.service.spec.ports[0].port}`;
 
-const substreamListener = new ServiceDeployment(
-  "substream-listener",
+const substreamOrchestrator = new ServiceDeployment(
+  "substream-orchestrator",
   {
-    image: dockerImages.getImageId("substream-listener", imagesTag),
+    image: dockerImages.getImageId("substream-orchestrator", imagesTag),
     imagePullSecret,
     readinessProbe: "/v1/ready",
     livenessProbe: "/v1/health",
@@ -159,12 +159,12 @@ const substreamListener = new ServiceDeployment(
   provider,
 );
 
-const deploySubstreamListener = substreamListener.deploy();
+const deploySubstreamOrchestrator = substreamOrchestrator.deploy();
 
 // This service needs to be able to create jobs in the batch API
-const listenerServiceName = deploySubstreamListener.service.metadata.name;
+const listenerServiceName = deploySubstreamOrchestrator.service.metadata.name;
 const role = new k8s.rbac.v1.Role(
-  "substream-listener-job-creator-role",
+  "substream-orchestrator-job-creator-role",
   {
     metadata: {
       name: pulumi.interpolate`${listenerServiceName}-job-creator-role`,
@@ -181,7 +181,7 @@ const role = new k8s.rbac.v1.Role(
 );
 // Create the RoleBinding
 new k8s.rbac.v1.RoleBinding(
-  "substream-listener-job-creator-rolebinding",
+  "substream-orchestrator-job-creator-rolebinding",
   {
     metadata: {
       name: pulumi.interpolate`${listenerServiceName}-job-creator-rolebinding`,
@@ -209,9 +209,9 @@ reverseProxy
       service: deploySvix.service,
     },
     {
-      name: "substream-listener",
-      path: "/substream-listener",
-      service: deploySubstreamListener.service,
+      name: "substream-orchestrator",
+      path: "/substream-listener", // TODO: rename
+      service: deploySubstreamOrchestrator.service,
     },
   ])
   .deployProxy({

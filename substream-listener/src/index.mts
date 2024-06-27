@@ -1,454 +1,192 @@
-import { createRouter, Response } from "fets";
-import { App } from "uWebSockets.js";
-import { isAddress } from "viem";
-import promClient from "prom-client";
+import { createGrpcWebTransport } from "@connectrpc/connect-node";
 import {
-  invalidHttpRequests,
-  registry,
-  successfulHttpRequests,
-} from "./prometheus.mjs";
+  applyParams,
+  createAuthInterceptor,
+  createModuleHashHex,
+  createRegistry,
+  createRequest,
+} from "@substreams/core";
+import { readPackage } from "@substreams/manifest";
+import { BlockEmitter } from "@substreams/node";
+import { createHash } from "node:crypto";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { Svix } from "svix";
 import { logger } from "./logger.mjs";
-import { createScheduler } from "./scheduler.mjs";
+import * as prometheus from "./prometheus.mjs";
 import {
-  DOCKER_TAG,
-  REDIS_HOST,
-  REDIS_PASSWORD,
-  REDIS_PORT,
   SVIX_HOST_URL,
   SVIX_TOKEN,
+  START_BLOCK,
+  APP_ID,
+  CONTRACT_ADDRESS,
+  TOKEN,
+  SUBSTREAMS_ENDPOINT,
+  OUTPUT_MODULE,
 } from "./utils.mjs";
-import k8s from "@kubernetes/client-node";
+import { createRedis } from "./redis.mjs";
+import { App } from "uWebSockets.js";
 
-const { schedule, unschedule, start, stop, readiness } = createScheduler({
-  queueName: "substream-sink-scheduler",
-  logger: logger.child({ module: "substream-sink-scheduler" }),
-  redis: {
-    host: REDIS_HOST,
-    port: REDIS_PORT,
-    password: REDIS_PASSWORD,
+const jobLogger = logger.child({ module: `substream-listener-${APP_ID}` });
+
+const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
+const __dirname = path.dirname(__filename);
+
+const svix = new Svix(SVIX_TOKEN, {
+  serverUrl: SVIX_HOST_URL,
+});
+
+const hashedEndpoint = createHash("sha256")
+  .update(SUBSTREAMS_ENDPOINT)
+  .digest("hex");
+
+const spkgPath = path.join(
+  __dirname,
+  "..",
+  "..",
+  "erc721-substream",
+  "erc-721-v0.1.0.spkg",
+);
+
+const cursorKey = `cursor:${APP_ID}:${hashedEndpoint}`.toLowerCase();
+
+const redisConnection = await createRedis({
+  appId: APP_ID,
+  logger: jobLogger,
+});
+
+jobLogger.info(
+  {
+    contractAddress: CONTRACT_ADDRESS,
+    startBlock: START_BLOCK,
+    appId: APP_ID,
+    outputModule: OUTPUT_MODULE,
+    substreamsEndpoint: SUBSTREAMS_ENDPOINT,
+    cursorKey,
+  },
+  "Processing job",
+);
+
+const substreamPackage = await readPackage(spkgPath);
+
+if (!substreamPackage.modules) {
+  throw new Error("No modules found in substream package");
+}
+
+jobLogger.debug(
+  { contractAddress: CONTRACT_ADDRESS },
+  "Applying params to substream package",
+);
+applyParams(
+  [`map_transfers=${CONTRACT_ADDRESS}`],
+  substreamPackage.modules.modules,
+);
+
+const moduleHash = await createModuleHashHex(
+  substreamPackage.modules,
+  OUTPUT_MODULE,
+);
+jobLogger.debug({ moduleHash }, "Module hash");
+
+const registry = createRegistry(substreamPackage);
+const transport = createGrpcWebTransport({
+  baseUrl: SUBSTREAMS_ENDPOINT,
+  httpVersion: "2",
+  // @ts-ignore - not sure what the issue is here
+  interceptors: [createAuthInterceptor(TOKEN)],
+  jsonOptions: {
+    // @ts-ignore - not sure what the issue is here
+    typeRegistry: registry,
   },
 });
 
-const kc = new k8s.KubeConfig();
-kc.loadFromDefault();
+const startCursor = (await redisConnection?.get(cursorKey)) || undefined;
+logger.debug({ startCursor }, "Starting from cursor");
+const request = createRequest({
+  substreamPackage,
+  outputModule: OUTPUT_MODULE,
+  startBlockNum: START_BLOCK,
+  startCursor,
+});
 
-const k8sBatchApi = kc.makeApiClient(k8s.BatchV1Api);
+// NodeJS Events
+// @ts-ignore - not sure what the issue is here
+const emitter = new BlockEmitter(transport, request, registry);
 
-const BASE_URL = "https://mainnet.eth.streamingfast.io:443";
-const OUTPUT_MODULE = "map_transfers";
+// Setup tracing of metrics for Prometheus
+logger.trace({}, "Setting up Prometheus metrics");
+prometheus.onPrometheusMetrics(emitter, {
+  substreamsEndpoint: SUBSTREAMS_ENDPOINT,
+  contractAddress: CONTRACT_ADDRESS,
+  moduleHash,
+  appId: APP_ID,
+});
 
-// Creating a new router
-const router = createRouter({
-  base: "/v1",
-})
-  .route({
-    path: "/register-webhook",
-    method: "POST",
-    // Defining the response schema
-    schemas: {
-      request: {
-        json: {
-          type: "object",
-          properties: {
-            appId: {
-              type: "string",
-              format: "uuid",
-            },
-            startBlock: {
-              type: "integer",
-            },
-            contractAddress: {
-              type: "string",
-            },
-            substreamsToken: {
-              type: "string",
-            },
-          },
-          required: [
-            "appId",
-            "startBlock",
-            "contractAddress",
-            "substreamsToken",
-          ],
-        },
+emitter.on("cursor", async (cursor) => {
+  if (cursor) {
+    await redisConnection?.set(cursorKey, cursor);
+  }
+});
+
+// Stream Blocks
+emitter.on("anyMessage", async (message, cursor, clock) => {
+  const transfers = (message.transfers || []) as any[];
+
+  const events = transfers.map((transfer) => {
+    return svix.message.create(APP_ID, {
+      eventType: "erc721.transfer",
+      payload: {
+        type: "erc721.transfer",
+        ...transfer,
       },
-      responses: {
-        // The status code
-        200: {
-          type: "object",
-          properties: {
-            message: {
-              type: "string",
-            },
-          },
-          required: ["message"],
-          additionalProperties: false,
-        },
-        400: {
-          type: "object",
-          properties: {
-            message: {
-              type: "string",
-            },
-          },
-          required: ["message"],
-          additionalProperties: false,
-        },
-      },
-    },
-    async handler(req) {
-      const json = await req.json().catch((error) => {
-        logger.error(error, "Invalid JSON payload");
-        return null;
-      });
-
-      if (!json) {
-        invalidHttpRequests.inc();
-        return Response.json(
-          { message: "Invalid JSON payload" },
-          { status: 400 },
-        );
-      }
-
-      // Extracting the appId and startBlock from the request
-      const { appId, startBlock, contractAddress, substreamsToken } = json;
-
-      if (!appId) {
-        invalidHttpRequests.inc();
-        logger.error({ payload: json }, "Missing appId");
-        return Response.json({ message: "appId is required" }, { status: 400 });
-      }
-
-      if (startBlock == null) {
-        invalidHttpRequests.inc();
-        logger.error({ payload: json }, "Missing startBlock");
-        return Response.json(
-          { message: "startBlock is required" },
-          { status: 400 },
-        );
-      }
-
-      if (!contractAddress) {
-        invalidHttpRequests.inc();
-        logger.error({ payload: json }, "Missing contractAddress");
-        return Response.json(
-          { message: "contractAddress is required" },
-          { status: 400 },
-        );
-      }
-
-      if (!substreamsToken) {
-        invalidHttpRequests.inc();
-        logger.error({ payload: json }, "Missing substreamsToken");
-        return Response.json(
-          { message: "substreamsToken is required" },
-          { status: 400 },
-        );
-      }
-
-      if (!isAddress(contractAddress)) {
-        invalidHttpRequests.inc();
-        logger.error({ payload: json }, "Missing contractAddress");
-        return Response.json(
-          { message: "contractAddress is invalid" },
-          { status: 400 },
-        );
-      }
-
-      const job = await k8sBatchApi.createNamespacedJob("default", {
-        metadata: {
-          annotations: {
-            "prometheus.io/path": "/metrics",
-            "prometheus.io/port": "10254",
-            "prometheus.io/scrape": "true",
-          },
-          labels: {
-            app: "webhook-listener",
-            "pod-template-hash": appId,
-          },
-          name: `webhook-project-${appId}`,
-        },
-        spec: {
-          template: {
-            spec: {
-              imagePullSecrets: [
-                {
-                  // This is configured by Pulumi in the cluster
-                  name: "image-pull-secret",
-                },
-              ],
-              containers: [
-                {
-                  name: "webhook-listener",
-                  imagePullPolicy: "Always",
-                  image: `ghcr.io/saihaj/graph-webhooks/substream-listener:${DOCKER_TAG}`,
-                  env: [
-                    {
-                      name: "APP_ID",
-                      value: appId,
-                    },
-                    {
-                      name: "START_BLOCK",
-                      value: startBlock.toString(),
-                    },
-                    {
-                      name: "CONTRACT_ADDRESS",
-                      value: contractAddress,
-                    },
-                    {
-                      name: "SUBSTREAMS_ENDPOINT",
-                      value: BASE_URL,
-                    },
-                    {
-                      name: "OUTPUT_MODULE",
-                      value: OUTPUT_MODULE,
-                    },
-                    { name: "TOKEN", value: substreamsToken },
-                    {
-                      name: "REDIS_HOST",
-                      value: REDIS_HOST,
-                    },
-                    {
-                      name: "REDIS_PORT",
-                      value: REDIS_PORT.toString(),
-                    },
-                    {
-                      name: "REDIS_PASSWORD",
-                      value: REDIS_PASSWORD,
-                    },
-                    {
-                      name: "SVIX_HOST_URL",
-                      value: SVIX_HOST_URL,
-                    },
-                    {
-                      name: "SVIX_TOKEN",
-                      value: SVIX_TOKEN,
-                    },
-                  ],
-                  command: ["pnpm run start:listener"],
-                  ports: [
-                    {
-                      containerPort: 10254,
-                      protocol: "TCP",
-                      name: "metrics",
-                    },
-                  ],
-                  readinessProbe: {
-                    httpGet: {
-                      path: "/ready",
-                      port: 10254,
-                      scheme: "HTTP",
-                    },
-                  },
-                  livenessProbe: {
-                    httpGet: {
-                      path: "/health",
-                      port: 10254,
-                      scheme: "HTTP",
-                    },
-                  },
-                },
-              ],
-              restartPolicy: "OnFailure",
-            },
-          },
-        },
-      });
-
-      successfulHttpRequests.inc();
-      logger.info({ job: job.body }, "Webhook registered");
-
-      // If the status code is not specified, it defaults to 200
-      return Response.json({
-        message: "Webhook registered",
-      });
-    },
-  })
-  .route({
-    path: "/unregister-webhook",
-    method: "POST",
-    // Defining the response schema
-    schemas: {
-      request: {
-        json: {
-          type: "object",
-          properties: {
-            appId: {
-              type: "string",
-              format: "uuid",
-            },
-          },
-          required: ["appId"],
-        },
-      },
-      responses: {
-        // The status code
-        200: {
-          type: "object",
-          properties: {
-            message: {
-              type: "string",
-            },
-          },
-          required: ["message"],
-          additionalProperties: false,
-        },
-        400: {
-          type: "object",
-          properties: {
-            message: {
-              type: "string",
-            },
-          },
-          required: ["message"],
-          additionalProperties: false,
-        },
-      },
-    },
-    async handler(req) {
-      const json = await req.json().catch((error) => {
-        logger.error(error, "Invalid JSON payload");
-        return null;
-      });
-
-      if (!json) {
-        invalidHttpRequests.inc();
-        return Response.json(
-          { message: "Invalid JSON payload" },
-          { status: 400 },
-        );
-      }
-
-      const { appId } = json;
-
-      if (!appId) {
-        invalidHttpRequests.inc();
-        logger.error({ payload: json }, "Missing appId");
-        return Response.json({ message: "appId is required" }, { status: 400 });
-      }
-
-      // const a = await k8sBatchApi.patchNamespacedJob(
-      //   `webhook-project-${appId}`,
-      //   "default",
-      //   [
-      //     {
-      //       op: "replace",
-      //       path: "/spec/suspend",
-      //       value: true,
-      //     },
-      //   ],
-      //   undefined,
-      //   undefined,
-      //   undefined,
-      //   undefined,
-      //   undefined,
-      //   {
-      //     headers: {
-      //       "Content-type": k8s.PatchUtils.PATCH_FORMAT_JSON_PATCH,
-      //     },
-      //   },
-      // );
-
-      // await k8sBatchApi.deleteNamespacedJob(
-      //   `webhook-project-${appId}`,
-      //   "default",
-      // );
-      // console.log(status.body.status);
-
-      // const pod = await k8sApi.createNamespacedPod("default", {
-      //   metadata: {
-      //     annotations: {
-      //       "prometheus.io/path": "/metrics",
-      //       "prometheus.io/port": "10254",
-      //       "prometheus.io/scrape": "true",
-      //     },
-      //     labels: {
-      //       app: "test-app",
-      //       "pod-template-hash": appId,
-      //     },
-      //     name: `test-app-${appId}`,
-      //   },
-      //   spec: {
-      //     containers: [
-      //       {
-      //         name: "test-app-nginx",
-      //         imagePullPolicy: "Always",
-      //         image: "nginx",
-
-      //         ports: [
-      //           {
-      //             containerPort: 80,
-      //             protocol: "TCP",
-      //             name: "http",
-      //           },
-      //         ],
-      //       },
-      //     ],
-      //     restartPolicy: "Always",
-      //   },
-      // });
-      // const p = await k8sApi.deleteNamespacedPod(
-      //   `test-app-${appId}`,
-      //   "default",
-      // );
-      // console.log(p);
-      // console.log(pod);
-      // const status = await unschedule({
-      //   appId,
-      // });
-
-      successfulHttpRequests.inc();
-      // logger.info({ status }, "Webhook unregistered");
-
-      return Response.json({
-        message: "Webhook unregistered",
-        status: "1",
-      });
-    },
-  })
-  .route({
-    path: "/health",
-    method: "GET",
-    async handler() {
-      return Response.json({ status: "ok" }, { status: 200 });
-    },
-  })
-  .route({
-    path: "/ready",
-    method: "GET",
-    handler() {
-      const isReady = readiness();
-
-      return Response.json(
-        { status: isReady ? "ok" : "not ready" },
-        {
-          status: isReady ? 200 : 503,
-        },
-      );
-    },
+    });
   });
 
-const webhookServer = App()
-  .any("/*", router)
-  .listen(4040, async () => {
-    await start();
-    logger.info("Server is listening on http://localhost:4040/v1/docs");
-  });
+  try {
+    await Promise.all(events);
+  } catch (e) {
+    jobLogger.error({ error: e }, "Error sending events to Svix");
+  }
+});
+
+// End of Stream
+emitter.on("close", (error) => {
+  jobLogger.error({ error }, "Error closing stream");
+  process.exit(1);
+});
+
+// Fatal Error
+emitter.on("fatalError", (error) => {
+  jobLogger.fatal({ error }, "Fatal error in stream");
+  process.exit(1);
+});
+
+// Start the stream
+emitter.start();
 
 const metricServer = App()
   .get("/metrics", async (res) => {
-    res.writeHeader("Content-Type", registry.contentType);
-    res.end(await registry.metrics());
+    res.writeHeader("Content-Type", prometheus.registry.contentType);
+    res.end(await prometheus.registry.metrics());
+  })
+  .get("/ready", (res) => {
+    const isReady = redisConnection?.status === "ready";
+    res.writeStatus(isReady ? "200" : "503");
+    res.end(isReady ? "OK" : "Not ready");
+  })
+  .get("/health", (res) => {
+    res.writeStatus("200");
+    res.end("OK");
   })
   .listen(10_254, () => {
-    promClient.collectDefaultMetrics({
-      labels: { instance: "substream-listener" },
+    prometheus.promClient.collectDefaultMetrics({
+      labels: { instance: `substream-listener-${APP_ID}` },
     });
     logger.info(`Metrics exposed on http://localhost:10254/metrics`);
   });
 
 async function cleanup() {
-  await Promise.all([stop(), webhookServer.close(), metricServer.close()]);
+  await Promise.all([metricServer.close()]);
 }
 
 process.on("SIGINT", async () => {

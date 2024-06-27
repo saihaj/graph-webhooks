@@ -1,5 +1,5 @@
 {
-  "name": "substream-listener",
+  "name": "substream-orchestrator",
   "version": "0.0.1",
   "scripts": {
     "start": "tsx ./src/index.mts",
@@ -7,14 +7,13 @@
     "check:types": "tsc --noEmit"
   },
   "dependencies": {
-    "@connectrpc/connect-node": "1.4.0",
+    "@kubernetes/client-node": "^0.21.0",
     "@substreams/core": "0.16.0",
     "@substreams/manifest": "0.15.0",
     "@substreams/node": "0.6.2",
-    "ioredis": "^5.4.1",
+    "fets": "^0.8.0",
     "pino": "^9.2.0",
     "prom-client": "^15.1.2",
-    "svix": "^1.21.0",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#semver:^20",
     "viem": "^2.9.31",
     "znv": "^0.4.0",
