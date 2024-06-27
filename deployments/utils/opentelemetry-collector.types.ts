@@ -22,10 +22,6 @@ export interface Values {
    */
   fullnameOverride?: string;
   mode: "daemonset" | "deployment" | "statefulset" | "";
-  /**
-   * Name of the namespace to deploy the resources into.
-   */
-  namespaceOverride?: string;
   presets?: {
     logsCollection?: {
       /**
@@ -40,10 +36,6 @@ export interface Values {
        * Specifies whether logs checkpoints should be stored in /var/lib/otelcol/ host directory.
        */
       storeCheckpoints?: boolean;
-      /**
-       * Specifies the max recombine log size.
-       */
-      maxRecombineLogSize?: number;
     };
     hostMetrics?: {
       /**
@@ -62,14 +54,6 @@ export interface Values {
        * Specifies whether the collector should add Kubernetes metdata to resource attributes.
        */
       enabled?: boolean;
-      /**
-       * Specifies whether the k8sattributes processor should extract all pod labels.
-       */
-      extractAllPodLabels?: boolean;
-      /**
-       * Specifies whether the k8sattributes processor should extract all pod annotations.
-       */
-      extractAllPodAnnotations?: boolean;
     };
     kubernetesEvents?: {
       /**
@@ -89,10 +73,6 @@ export interface Values {
      * Specifies whether a configMap should be created (true by default).
      */
     create?: boolean;
-    /**
-     * Specifies an existing configMap to be mounted to the pod
-     */
-    existingName?: string;
   };
   /**
    * Configuration that applies to both standalone and agent collector. Overwritable by standalone and agent specific configs.
@@ -102,7 +82,6 @@ export interface Values {
    * Image use in both standalone and agent configs
    */
   image?: {
-    registry?: string;
     repository?: string;
     tag?: string;
     digest?: string;
@@ -147,7 +126,9 @@ export interface Values {
     [k: string]: unknown;
   }[];
   extraEnvs?: {}[];
-  extraEnvsFrom?: {}[];
+  extraConfigMapMounts?: {}[];
+  extraHostPathMounts?: {}[];
+  secretMounts?: {}[];
   extraVolumes?: {}[];
   extraVolumeMounts?: {}[];
   ports?: {
@@ -165,15 +146,16 @@ export interface Values {
       appProtocol?: string;
     };
   };
+  containerLogs?: {
+    enabled: boolean;
+  };
   resources?: {
     limits?: {
       cpu?: string | number;
-      "ephemeral-storage"?: string;
       memory?: string;
     };
     requests?: {
       cpu?: string | number;
-      "ephemeral-storage"?: string;
       memory?: string;
     };
   };
@@ -185,52 +167,24 @@ export interface Values {
       [k: string]: unknown;
     };
   };
-  livenessProbe?: {
-    initialDelaySeconds?: number;
-    periodSeconds?: number;
-    timeoutSeconds?: number;
-    failureThreshold?: number;
-    terminationGracePeriodSeconds?: number;
-    httpGet?: {
-      port?: number;
-      path?: string;
-    };
-  };
-  readinessProbe?: {
-    initialDelaySeconds?: number;
-    periodSeconds?: number;
-    timeoutSeconds?: number;
-    successThreshold?: number;
-    failureThreshold?: number;
-    httpGet?: {
-      port?: number;
-      path?: string;
-    };
-  };
   podAnnotations?: {};
   podLabels?: {};
-  additionalLabels?: {};
   hostNetwork?: boolean;
-  hostAliases?: {}[];
   dnsPolicy?:
     | "ClusterFirst"
     | "ClusterFirstWithHostNet"
     | "Default"
     | "None"
     | "";
-  dnsConfig?: {};
   replicaCount?: number;
   revisionHistoryLimit?: number;
   annotations?: {};
   service?: {
-    enabled?: boolean;
     type?: "ClusterIP" | "NodePort" | "LoadBalancer" | "ExternalName";
     clusterIP?: string;
     loadBalancerIP?: string;
     loadBalancerSourceRanges?: string[];
     annotations?: {};
-    internalTrafficPolicy?: "Cluster" | "Local" | "";
-    externalTrafficPolicy?: "Cluster" | "Local" | "";
   };
   ingress?: {
     enabled: boolean;
@@ -283,7 +237,6 @@ export interface Values {
     enabled: boolean;
     minReplicas?: number;
     maxReplicas?: number;
-    behavior?: {};
     targetCPUUtilizationPercentage?: number;
   };
   rollout?: {
@@ -321,6 +274,4 @@ export interface Values {
      */
     egressRules?: {}[];
   };
-  useGOMEMLIMIT?: boolean;
-  shareProcessNamespace?: boolean;
 }
