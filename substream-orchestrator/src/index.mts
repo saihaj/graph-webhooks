@@ -155,7 +155,7 @@ const router = createRouter({
         },
         {
           name: "CONTRACT_ADDRESS",
-          value: contractAddress,
+          value: contractAddress.toString(),
         },
         {
           name: "SUBSTREAMS_ENDPOINT",
