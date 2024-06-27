@@ -47,7 +47,7 @@ jobs:
   # Build all packages and applications, and creates Docker images
   build-pr:
     name: build
-    needs: [check, test]
+    needs: [check]
     uses: ./.github/workflows/build-and-dockerize.yaml
     # Only run for PRs
     if: github.event_name == 'pull_request'
