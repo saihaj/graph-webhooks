@@ -181,7 +181,7 @@ const router = createRouter({
                 {
                   name: "webhook-listener",
                   imagePullPolicy: "Always",
-                  image: `ghcr.io/saihaj/substream-listener:${DOCKER_TAG}`,
+                  image: `ghcr.io/saihaj/graph-webhooks/substream-listener:${DOCKER_TAG}`,
                   env: [
                     {
                       name: "APP_ID",
@@ -327,21 +327,14 @@ const router = createRouter({
         return Response.json({ message: "appId is required" }, { status: 400 });
       }
 
-      // const status = await k8sBatchApi.readNamespacedJob(
-      //   `test-app-${appId}`,
-      //   "default",
-      // );
-
-      // await k8sBatchApi.deleteNamespacedJob(`test-app-${appId}`, "default");
-
-      // await k8sBatchApi.patchNamespacedJob(
-      //   `test-app-${appId}`,
+      // const a = await k8sBatchApi.patchNamespacedJob(
+      //   `webhook-project-${appId}`,
       //   "default",
       //   [
       //     {
       //       op: "replace",
       //       path: "/spec/suspend",
-      //       value: false,
+      //       value: true,
       //     },
       //   ],
       //   undefined,
@@ -356,6 +349,10 @@ const router = createRouter({
       //   },
       // );
 
+      // await k8sBatchApi.deleteNamespacedJob(
+      //   `webhook-project-${appId}`,
+      //   "default",
+      // );
       // console.log(status.body.status);
 
       // const pod = await k8sApi.createNamespacedPod("default", {
