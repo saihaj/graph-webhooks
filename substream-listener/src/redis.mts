@@ -39,32 +39,32 @@ export async function createRedis({
 
   redisConnection.on("error", (err) => {
     onError("redis:error")(err);
-    redis.inc({ status: "error" }, 1);
+    redis.inc({ status: "error", app_id: appId }, 1);
   });
 
   redisConnection.on("connect", () => {
     logger.info("Redis connection established");
-    redis.inc({ status: "connect" }, 1);
+    redis.inc({ status: "connect", app_id: appId }, 1);
   });
 
   redisConnection.on("ready", async () => {
     logger.info("Redis connection ready");
-    redis.inc({ status: "ready" }, 1);
+    redis.inc({ status: "ready", app_id: appId }, 1);
   });
 
   redisConnection.on("close", () => {
     logger.info("Redis connection closed");
-    redis.inc({ status: "close" }, 1);
+    redis.inc({ status: "close", app_id: appId }, 1);
   });
 
   redisConnection.on("reconnecting", (timeToReconnect?: number) => {
     logger.info("Redis reconnecting in %s", timeToReconnect);
-    redis.inc({ status: "reconnecting" }, 1);
+    redis.inc({ status: "reconnecting", app_id: appId }, 1);
   });
 
   redisConnection.on("end", async () => {
     logger.info("Redis ended - no more reconnections will be made");
-    redis.inc({ status: "end" }, 1);
+    redis.inc({ status: "end", app_id: appId }, 1);
   });
 
   return redisConnection;

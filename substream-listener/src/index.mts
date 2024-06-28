@@ -8,11 +8,10 @@ import {
 } from "@substreams/core";
 import { readPackage } from "@substreams/manifest";
 import { BlockEmitter } from "@substreams/node";
-import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Svix } from "svix";
-import { logger } from "./logger.mjs";
+import { logger as baseLogger } from "./logger.mjs";
 import * as prometheus from "./prometheus.mjs";
 import {
   SVIX_HOST_URL,
@@ -27,7 +26,9 @@ import {
 import { createRedis } from "./redis.mjs";
 import { App } from "uWebSockets.js";
 
-const jobLogger = logger.child({ module: `substream-listener-${APP_ID}` });
+const logger = baseLogger.child({
+  module: `substream-listener-${APP_ID}`,
+});
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename);
@@ -35,10 +36,6 @@ const __dirname = path.dirname(__filename);
 const svix = new Svix(SVIX_TOKEN, {
   serverUrl: SVIX_HOST_URL,
 });
-
-const hashedEndpoint = createHash("sha256")
-  .update(SUBSTREAMS_ENDPOINT)
-  .digest("hex");
 
 const spkgPath = path.join(
   __dirname,
@@ -48,14 +45,14 @@ const spkgPath = path.join(
   "erc-721-v0.1.0.spkg",
 );
 
-const cursorKey = `cursor:${APP_ID}:${hashedEndpoint}`.toLowerCase();
+const cursorKey = `cursor:${APP_ID}`.toLowerCase();
 
 const redisConnection = await createRedis({
   appId: APP_ID,
-  logger: jobLogger,
+  logger,
 });
 
-jobLogger.info(
+logger.info(
   {
     contractAddress: CONTRACT_ADDRESS,
     startBlock: START_BLOCK,
@@ -73,11 +70,12 @@ if (!substreamPackage.modules) {
   throw new Error("No modules found in substream package");
 }
 
-jobLogger.debug(
+logger.debug(
   { contractAddress: CONTRACT_ADDRESS },
   "Applying params to substream package",
 );
 applyParams(
+  // TODO: handle params better
   [`map_transfers=${CONTRACT_ADDRESS}`],
   substreamPackage.modules.modules,
 );
@@ -86,7 +84,7 @@ const moduleHash = await createModuleHashHex(
   substreamPackage.modules,
   OUTPUT_MODULE,
 );
-jobLogger.debug({ moduleHash }, "Module hash");
+logger.debug({ moduleHash }, "Module hash");
 
 const registry = createRegistry(substreamPackage);
 const transport = createGrpcWebTransport({
@@ -129,7 +127,7 @@ emitter.on("cursor", async (cursor) => {
 });
 
 // Stream Blocks
-emitter.on("anyMessage", async (message, cursor, clock) => {
+emitter.on("anyMessage", async (message) => {
   const transfers = (message.transfers || []) as any[];
 
   const events = transfers.map((transfer) => {
@@ -145,24 +143,29 @@ emitter.on("anyMessage", async (message, cursor, clock) => {
   try {
     await Promise.all(events);
   } catch (e) {
-    jobLogger.error({ error: e }, "Error sending events to Svix");
+    logger.error({ error: e }, "Error sending events to Svix");
   }
 });
 
 // End of Stream
 emitter.on("close", (error) => {
-  jobLogger.error({ error }, "Error closing stream");
+  logger.error({ error }, "Error closing stream");
+  prometheus.substream_emitter.inc({ status: "close", app_id: APP_ID });
+  // we always want K8s to restart the pod if the stream closes
   process.exit(1);
 });
 
 // Fatal Error
 emitter.on("fatalError", (error) => {
-  jobLogger.fatal({ error }, "Fatal error in stream");
+  logger.fatal({ error }, "Fatal error in stream");
+  prometheus.substream_emitter.inc({ status: "error", app_id: APP_ID });
+  // we always want K8s to restart the pod if the stream closes
   process.exit(1);
 });
 
 // Start the stream
 emitter.start();
+prometheus.substream_emitter.inc({ status: "start", app_id: APP_ID });
 
 const metricServer = App()
   .get("/metrics", async (res) => {
@@ -180,7 +183,7 @@ const metricServer = App()
   })
   .listen(10_254, () => {
     prometheus.promClient.collectDefaultMetrics({
-      labels: { instance: `substream-listener-${APP_ID}` },
+      labels: { instance: `substream-listener-${APP_ID}`, app_id: APP_ID },
     });
     logger.info(`Metrics exposed on http://localhost:10254/metrics`);
   });
