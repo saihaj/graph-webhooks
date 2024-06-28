@@ -6,6 +6,7 @@ import {
   registry,
   successfulHttpRequests,
   promClient,
+  unsuccessfulHttpRequests,
 } from "./prometheus.mjs";
 import { logger } from "./logger.mjs";
 import {
@@ -21,11 +22,12 @@ import k8s from "@kubernetes/client-node";
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 
-const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 const k8sBatchApi = kc.makeApiClient(k8s.BatchV1Api);
 
 const BASE_URL = "https://mainnet.eth.streamingfast.io:443";
 const OUTPUT_MODULE = "map_transfers";
+
+const projectName = (appId: string) => `webhook-project-${appId}`;
 
 // Creating a new router
 const router = createRouter({
@@ -192,100 +194,92 @@ const router = createRouter({
         });
       }
 
-      const job = await k8sBatchApi.createNamespacedJob("default", {
-        metadata: {
-          name: `webhook-project-${appId}`,
-          labels: {
-            app: "webhook-listener",
-            "pod-template-hash": appId,
-          },
-        },
-        spec: {
-          template: {
-            metadata: {
-              annotations: {
-                "prometheus.io/path": "/metrics",
-                "prometheus.io/port": "10254",
-                "prometheus.io/scrape": "true",
-              },
-              labels: {
-                app: "webhook-listener",
-                "pod-template-hash": appId,
-              },
-              name: `webhook-project-${appId}`,
-            },
-            spec: {
-              imagePullSecrets: [
-                {
-                  // This is configured by Pulumi in the cluster
-                  name: "image-pull-secret",
-                },
-              ],
-              containers: [
-                {
-                  name: "webhook-listener",
-                  imagePullPolicy: "Always",
-                  image: `ghcr.io/saihaj/graph-webhooks/substream-listener:${DOCKER_TAG}`,
-                  env,
-                  ports: [
-                    {
-                      containerPort: 10254,
-                      protocol: "TCP",
-                      name: "metrics",
-                    },
-                  ],
-                  readinessProbe: {
-                    httpGet: {
-                      path: "/ready",
-                      port: 10254,
-                      scheme: "HTTP",
-                    },
-                  },
-                  livenessProbe: {
-                    httpGet: {
-                      path: "/health",
-                      port: 10254,
-                      scheme: "HTTP",
-                    },
-                  },
-                },
-              ],
-              restartPolicy: "OnFailure",
+      const name = projectName(appId);
+
+      try {
+        const job = await k8sBatchApi.createNamespacedJob("default", {
+          metadata: {
+            name,
+            labels: {
+              app: "webhook-listener",
+              "pod-template-hash": appId,
             },
           },
-        },
-      });
+          spec: {
+            template: {
+              metadata: {
+                annotations: {
+                  "prometheus.io/path": "/metrics",
+                  "prometheus.io/port": "10254",
+                  "prometheus.io/scrape": "true",
+                },
+                labels: {
+                  app: "webhook-listener",
+                  "pod-template-hash": appId,
+                },
+                name,
+              },
+              spec: {
+                imagePullSecrets: [
+                  {
+                    // This is configured by Pulumi in the cluster
+                    name: "image-pull-secret",
+                  },
+                ],
+                containers: [
+                  {
+                    name: "webhook-listener",
+                    imagePullPolicy: "Always",
+                    image: `ghcr.io/saihaj/graph-webhooks/substream-listener:${DOCKER_TAG}`,
+                    env,
+                    ports: [
+                      {
+                        containerPort: 10254,
+                        protocol: "TCP",
+                        name: "metrics",
+                      },
+                    ],
+                    readinessProbe: {
+                      httpGet: {
+                        path: "/ready",
+                        port: 10254,
+                        scheme: "HTTP",
+                      },
+                    },
+                    livenessProbe: {
+                      httpGet: {
+                        path: "/health",
+                        port: 10254,
+                        scheme: "HTTP",
+                      },
+                    },
+                  },
+                ],
+                restartPolicy: "OnFailure",
+              },
+            },
+          },
+        });
 
-      logger.info({ job: job.body }, "Created job");
+        logger.info({ job: job.body }, "Created job");
 
-      // const service = await k8sApi.createNamespacedService("default", {
-      //   metadata: {
-      //     name: `webhook-project-${appId}`,
-      //   },
-      //   spec: {
-      //     selector: {
-      //       app: "webhook-listener",
-      //       "pod-template-hash": appId,
-      //     },
-      //     ports: [
-      //       {
-      //         port: 10254,
-      //         protocol: "TCP",
-      //         targetPort: 10254,
-      //       },
-      //     ],
-      //   },
-      // });
+        successfulHttpRequests.inc();
+        logger.info({}, "Webhook registered");
 
-      // logger.info({ service: service.body }, "Created service");
-
-      successfulHttpRequests.inc();
-      logger.info({}, "Webhook registered");
-
-      // If the status code is not specified, it defaults to 200
-      return Response.json({
-        message: "Webhook registered",
-      });
+        // If the status code is not specified, it defaults to 200
+        return Response.json({
+          message: "Webhook registered",
+        });
+      } catch (error) {
+        logger.error({ error }, "Error registering webhook");
+        unsuccessfulHttpRequests.inc();
+        return Response.json(
+          {
+            message: "Error registering webhook",
+          },
+          { status: 400 },
+        );
+      }
     },
   })
   .route({
@@ -351,83 +345,47 @@ const router = createRouter({
         return Response.json({ message: "appId is required" }, { status: 400 });
       }
 
-      // const a = await k8sBatchApi.patchNamespacedJob(
-      //   `webhook-project-${appId}`,
-      //   "default",
-      //   [
-      //     {
-      //       op: "replace",
-      //       path: "/spec/suspend",
-      //       value: true,
-      //     },
-      //   ],
-      //   undefined,
-      //   undefined,
-      //   undefined,
-      //   undefined,
-      //   undefined,
-      //   {
-      //     headers: {
-      //       "Content-type": k8s.PatchUtils.PATCH_FORMAT_JSON_PATCH,
-      //     },
-      //   },
-      // );
+      const name = projectName(appId);
+      try {
+        const patch = await k8sBatchApi.patchNamespacedJob(
+          name,
+          "default",
+          [
+            {
+              op: "replace",
+              path: "/spec/suspend",
+              value: true,
+            },
+          ],
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          {
+            headers: {
+              "Content-type": k8s.PatchUtils.PATCH_FORMAT_JSON_PATCH,
+            },
+          },
+        );
 
-      // await k8sBatchApi.deleteNamespacedJob(
-      //   `webhook-project-${appId}`,
-      //   "default",
-      // );
-      // console.log(status.body.status);
+        logger.info({ patch: patch.body }, "Unregistered webhook");
+        successfulHttpRequests.inc();
 
-      // const pod = await k8sApi.createNamespacedPod("default", {
-      //   metadata: {
-      //     annotations: {
-      //       "prometheus.io/path": "/metrics",
-      //       "prometheus.io/port": "10254",
-      //       "prometheus.io/scrape": "true",
-      //     },
-      //     labels: {
-      //       app: "test-app",
-      //       "pod-template-hash": appId,
-      //     },
-      //     name: `test-app-${appId}`,
-      //   },
-      //   spec: {
-      //     containers: [
-      //       {
-      //         name: "test-app-nginx",
-      //         imagePullPolicy: "Always",
-      //         image: "nginx",
-
-      //         ports: [
-      //           {
-      //             containerPort: 80,
-      //             protocol: "TCP",
-      //             name: "http",
-      //           },
-      //         ],
-      //       },
-      //     ],
-      //     restartPolicy: "Always",
-      //   },
-      // });
-      // const p = await k8sApi.deleteNamespacedPod(
-      //   `test-app-${appId}`,
-      //   "default",
-      // );
-      // console.log(p);
-      // console.log(pod);
-      // const status = await unschedule({
-      //   appId,
-      // });
-
-      successfulHttpRequests.inc();
-      // logger.info({ status }, "Webhook unregistered");
-
-      return Response.json({
-        message: "Webhook unregistered",
-        status: "1",
-      });
+        return Response.json({
+          message: "Webhook unregistered",
+          body: patch.body,
+        });
+      } catch (error) {
+        logger.error({ error }, "Error unregistering webhook");
+        unsuccessfulHttpRequests.inc();
+        return Response.json(
+          {
+            message: "Error unregistering webhook",
+          },
+          { status: 400 },
+        );
+      }
     },
   })
   .route({

@@ -14,4 +14,9 @@ export const successfulHttpRequests = new promClient.Counter({
   help: "The number of successful HTTP requests received",
 });
 
+export const unsuccessfulHttpRequests = new promClient.Counter({
+  name: "http_unsuccessful_request",
+  help: "The number of successful HTTP requests received",
+});
+
 export { promClient };
