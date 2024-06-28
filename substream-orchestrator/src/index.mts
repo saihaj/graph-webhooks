@@ -389,6 +389,112 @@ const router = createRouter({
     },
   })
   .route({
+    path: "/resume-webhook",
+    method: "POST",
+    // Defining the response schema
+    schemas: {
+      request: {
+        json: {
+          type: "object",
+          properties: {
+            appId: {
+              type: "string",
+              format: "uuid",
+            },
+          },
+          required: ["appId"],
+        },
+      },
+      responses: {
+        // The status code
+        200: {
+          type: "object",
+          properties: {
+            message: {
+              type: "string",
+            },
+          },
+          required: ["message"],
+          additionalProperties: false,
+        },
+        400: {
+          type: "object",
+          properties: {
+            message: {
+              type: "string",
+            },
+          },
+          required: ["message"],
+          additionalProperties: false,
+        },
+      },
+    },
+    async handler(req) {
+      const json = await req.json().catch((error) => {
+        logger.error(error, "Invalid JSON payload");
+        return null;
+      });
+
+      if (!json) {
+        invalidHttpRequests.inc();
+        return Response.json(
+          { message: "Invalid JSON payload" },
+          { status: 400 },
+        );
+      }
+
+      const { appId } = json;
+
+      if (!appId) {
+        invalidHttpRequests.inc();
+        logger.error({ payload: json }, "Missing appId");
+        return Response.json({ message: "appId is required" }, { status: 400 });
+      }
+
+      const name = projectName(appId);
+      try {
+        const patch = await k8sBatchApi.patchNamespacedJob(
+          name,
+          "default",
+          [
+            {
+              op: "replace",
+              path: "/spec/suspend",
+              value: false,
+            },
+          ],
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          {
+            headers: {
+              "Content-type": k8s.PatchUtils.PATCH_FORMAT_JSON_PATCH,
+            },
+          },
+        );
+
+        logger.info({ patch: patch.body }, "Resumed webhook");
+        successfulHttpRequests.inc();
+
+        return Response.json({
+          message: "Webhook resumed",
+          body: patch.body,
+        });
+      } catch (error) {
+        logger.error({ error }, "Error resuming webhook");
+        unsuccessfulHttpRequests.inc();
+        return Response.json(
+          {
+            message: "Error resuming webhook",
+          },
+          { status: 400 },
+        );
+      }
+    },
+  })
+  .route({
     path: "/health",
     method: "GET",
     async handler() {

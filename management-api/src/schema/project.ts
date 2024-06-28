@@ -414,12 +414,8 @@ builder.relayMutationField(
           return updatedProject[0];
         }
         case "ACTIVE": {
-          const config = ProjectConfigurationSchema.parse(
-            dbProject.configuration,
-          );
-
           const registerSubstream = await fetch(
-            `${SUBSTREAM_LISTENER_HOST}/v1/register-webhook`,
+            `${SUBSTREAM_LISTENER_HOST}/v1/resume-webhook`,
             {
               method: "POST",
               headers: {
@@ -428,15 +424,12 @@ builder.relayMutationField(
               },
               body: JSON.stringify({
                 appId: projectId,
-                startBlock: config.startBlock,
-                contractAddress: config.contractAddress,
-                substreamsToken: SF_TOKEN,
               }),
             },
           );
 
           if (!registerSubstream.ok) {
-            throw new Error("Failed to register project");
+            throw new Error("Failed to resume project");
           }
 
           return dbProject;
