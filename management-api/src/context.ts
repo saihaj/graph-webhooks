@@ -1,5 +1,5 @@
 import { drizzle } from "drizzle-orm/d1";
-import { svixClient } from "./svix-api";
+import { type svixClient } from "./svix-api";
 import type * as dbSchema from "./db-schema";
 
 export interface Env {

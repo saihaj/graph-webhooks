@@ -1,8 +1,8 @@
 import { createYoga } from "graphql-yoga";
 import { schema } from "./schema";
 import { drizzle } from "drizzle-orm/d1";
-import { Env } from "context";
-import { svixClient } from "svix-api";
+import { Env } from "./context";
+import { svixClient } from "./svix-api";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 import * as dbSchema from "./db-schema";
 import { eq } from "drizzle-orm";
@@ -15,9 +15,14 @@ const yoga = createYoga<Env>({
       schema: dbSchema,
     });
 
-    const jwt = ctx.request.headers.get("authorization")?.split(" ")?.[1];
-    let authUserId: string | null = null;
+    const authorization = ctx.request.headers.get("authorization");
+    if (!authorization) {
+      throw new Error("Missing Authorization header");
+    }
 
+    const jwt = authorization.split(" ")[1];
+
+    let authUserId: string | null = null;
     if (jwt) {
       const { payload } = await jwtVerify(
         jwt, // The raw Bearer Token extracted from the request header

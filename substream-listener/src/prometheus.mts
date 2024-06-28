@@ -5,60 +5,46 @@ import promClient from "prom-client";
 // Prometheus Exporter
 export const registry = promClient.register;
 
-/**
- * Default label names for all metrics
- */
-const DEFAULT_LABEL_NAMES = [
-  "module_hash",
-  "contract_address",
-  "output_module",
-  "app_id",
-] as const;
-
 function calculateHeadBlockTimeDrift(clock: Clock) {
   const seconds = Number(clock.timestamp?.seconds);
   return Math.round(new Date().valueOf() / 1000 - seconds);
 }
 
 // Counters
-export const invalidHttpRequests = new promClient.Counter({
-  name: "http_invalid_request",
-  help: "The number of invalid HTTP requests received",
-});
-
-export const successfulHttpRequests = new promClient.Counter({
-  name: "http_successful_request",
-  help: "The number of successful HTTP requests received",
-});
-
 export const substreams_sink_progress_message = new promClient.Counter({
   name: "substreams_sink_progress_message",
   help: "The number of progress message received",
-  labelNames: ["module", ...DEFAULT_LABEL_NAMES],
+  labelNames: ["module", "app_id"],
 });
 
 const substreams_sink_data_message = new promClient.Counter({
   name: "substreams_sink_data_message",
   help: "The number of data message received",
-  labelNames: DEFAULT_LABEL_NAMES,
+  labelNames: ["app_id"],
 });
 
 const substreams_sink_data_message_size_bytes = new promClient.Counter({
   name: "substreams_sink_data_message_size_bytes",
   help: "The total size of in bytes of all data message received",
-  labelNames: DEFAULT_LABEL_NAMES,
+  labelNames: ["app_id"],
 });
 
 const substreams_sink_undo_message = new promClient.Counter({
   name: "substreams_sink_undo_message",
   help: "The number of block undo message received",
-  labelNames: DEFAULT_LABEL_NAMES,
+  labelNames: ["app_id"],
 });
 
-export const bullMqRedis = new promClient.Counter({
-  name: "bullmq_redis_connection",
+export const redis = new promClient.Counter({
+  name: "substream_listener_redis_connection",
   help: "The number of successful and failed connection to Redis",
-  labelNames: ["status"],
+  labelNames: ["status", "app_id"],
+});
+
+export const substream_emitter = new promClient.Counter({
+  name: "substream_listener_emitter",
+  help: "The number of progress message received",
+  labelNames: ["status", "app_id"],
 });
 
 // ------------------------------------------------------------------
@@ -68,25 +54,25 @@ export const bullMqRedis = new promClient.Counter({
 const substreams_sink_backprocessing_completion = new promClient.Gauge({
   name: "substreams_sink_backprocessing_completion",
   help: "Determines if backprocessing is completed, which is if we receive a first data message",
-  labelNames: DEFAULT_LABEL_NAMES,
+  labelNames: ["app_id"],
 });
 
 const head_block_number = new promClient.Gauge({
   name: "head_block_number",
   help: "Last processed block number",
-  labelNames: DEFAULT_LABEL_NAMES,
+  labelNames: ["app_id"],
 });
 
 const head_block_time_drift = new promClient.Gauge({
   name: "head_block_time_drift",
   help: "Head block time drift in seconds",
-  labelNames: DEFAULT_LABEL_NAMES,
+  labelNames: ["app_id"],
 });
 
 const head_block_timestamp = new promClient.Gauge({
   name: "head_block_timestamp",
   help: "Head block timestamp",
-  labelNames: DEFAULT_LABEL_NAMES,
+  labelNames: ["app_id"],
 });
 
 const manifest = new promClient.Gauge({
@@ -97,7 +83,7 @@ const manifest = new promClient.Gauge({
     "start_block_num",
     "stop_block_num",
     "final_blocks_only",
-    ...DEFAULT_LABEL_NAMES,
+    "app_id",
   ],
 });
 
@@ -109,7 +95,7 @@ const sessionGauge = new promClient.Gauge({
     "resolved_start_block",
     "linear_handoff_block",
     "max_parallel_workers",
-    ...DEFAULT_LABEL_NAMES,
+    "app_id",
   ],
 });
 
@@ -130,9 +116,6 @@ export function onPrometheusMetrics(
       start_block_num: String(emitter.request.startBlockNum),
       stop_block_num: String(emitter.request.stopBlockNum),
       final_blocks_only: String(emitter.request.finalBlocksOnly),
-      module_hash: options.moduleHash,
-      contract_address: options.contractAddress,
-      output_module: emitter.request.outputModule,
       app_id: options.appId,
     },
     1,
@@ -145,9 +128,6 @@ export function onPrometheusMetrics(
         resolved_start_block: String(session.resolvedStartBlock),
         linear_handoff_block: String(session.linearHandoffBlock),
         max_parallel_workers: String(session.maxParallelWorkers),
-        module_hash: options.moduleHash,
-        contract_address: options.contractAddress,
-        output_module: emitter.request.outputModule,
         app_id: options.appId,
       },
       1,
@@ -157,9 +137,6 @@ export function onPrometheusMetrics(
   emitter.on("undo", () =>
     substreams_sink_undo_message
       ?.labels({
-        module_hash: options.moduleHash,
-        contract_address: options.contractAddress,
-        output_module: emitter.request.outputModule,
         app_id: options.appId,
       })
       .inc(1),
@@ -168,27 +145,18 @@ export function onPrometheusMetrics(
   emitter.on("block", (block) => {
     substreams_sink_data_message
       ?.labels({
-        module_hash: options.moduleHash,
-        contract_address: options.contractAddress,
-        output_module: emitter.request.outputModule,
         app_id: options.appId,
       })
       .inc(1);
 
     substreams_sink_data_message_size_bytes
       ?.labels({
-        module_hash: options.moduleHash,
-        contract_address: options.contractAddress,
-        output_module: emitter.request.outputModule,
         app_id: options.appId,
       })
       ?.inc(block.toBinary().byteLength);
 
     substreams_sink_backprocessing_completion?.set(
       {
-        module_hash: options.moduleHash,
-        contract_address: options.contractAddress,
-        output_module: emitter.request.outputModule,
         app_id: options.appId,
       },
       1,
@@ -197,9 +165,6 @@ export function onPrometheusMetrics(
     if (block.clock) {
       head_block_number?.set(
         {
-          module_hash: options.moduleHash,
-          contract_address: options.contractAddress,
-          output_module: emitter.request.outputModule,
           app_id: options.appId,
         },
         Number(block.clock.number),
@@ -207,9 +172,6 @@ export function onPrometheusMetrics(
 
       head_block_time_drift?.set(
         {
-          module_hash: options.moduleHash,
-          contract_address: options.contractAddress,
-          output_module: emitter.request.outputModule,
           app_id: options.appId,
         },
         calculateHeadBlockTimeDrift(block.clock),
@@ -217,9 +179,6 @@ export function onPrometheusMetrics(
 
       head_block_timestamp?.set(
         {
-          module_hash: options.moduleHash,
-          contract_address: options.contractAddress,
-          output_module: emitter.request.outputModule,
           app_id: options.appId,
         },
         Number(block.clock.timestamp?.seconds),
@@ -227,3 +186,5 @@ export function onPrometheusMetrics(
     }
   });
 }
+
+export { promClient };

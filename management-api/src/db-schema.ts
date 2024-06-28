@@ -89,6 +89,11 @@ export const project = sqliteTable(
     updatedAt: integer("updated_at", { mode: "timestamp" }).default(
       sql`(strftime('%s', 'now'))`,
     ),
+    active: integer("active", {
+      mode: "boolean",
+    })
+      .default(true)
+      .notNull(),
   },
   (table) => {
     return {

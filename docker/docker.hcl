@@ -53,7 +53,7 @@ function "image_tag" {
 target "service-base" {
   dockerfile = "${PWD}/docker/services.dockerfile"
   args = {
-    RELEASE = "${RELEASE}"
+    RELEASE    = "${RELEASE}"
     BASE_IMAGE = "${BASE_IMAGE}"
   }
 }
@@ -62,24 +62,24 @@ target "target-dev" {}
 
 target "target-ci" {
   cache-from = ["type=gha"]
-  cache-to = ["type=gha,mode=max"]
+  cache-to   = ["type=gha,mode=max"]
 }
 
 target "target-publish" {
-  platforms = ["linux/amd64", "linux/arm64"]
+  platforms  = ["linux/amd64", "linux/arm64"]
   cache-from = ["type=gha"]
-  cache-to = ["type=gha,mode=max"]
+  cache-to   = ["type=gha,mode=max"]
 }
 
 target "substream-listener" {
   inherits = ["service-base", get_target()]
-  context = "${PWD}/substream-listener"
+  context  = "${PWD}/substream-listener"
   args = {
-    IMAGE_TITLE = "graph-webhooks/substream-listener"
+    IMAGE_TITLE       = "graph-webhooks/substream-listener"
     IMAGE_DESCRIPTION = "Substream listener for the Graph Webhook service"
-    PORT = "4040"
-    HEALTHCHECK_CMD = "curl -f http://127.0.0.1:$${PORT}/health || exit 1"
-    SERVICE_NAME = "substream-listener"
+    PORT              = "10254"
+    HEALTHCHECK_CMD   = "curl -f http://127.0.0.1:$${PORT}/health || exit 1"
+    SERVICE_NAME      = "substream-listener"
   }
   tags = [
     local_image_tag("substream-listener"),
@@ -89,8 +89,27 @@ target "substream-listener" {
   ]
 }
 
+target "substream-orchestrator" {
+  inherits = ["service-base", get_target()]
+  context  = "${PWD}/substream-orchestrator"
+  args = {
+    IMAGE_TITLE       = "graph-webhooks/substream-orchestrator"
+    IMAGE_DESCRIPTION = "Substream orchestrator for the Graph Webhook service"
+    PORT              = "4040"
+    HEALTHCHECK_CMD   = "curl -f http://127.0.0.1:$${PORT}/health || exit 1"
+    SERVICE_NAME      = "substream-orchestrator"
+  }
+  tags = [
+    local_image_tag("substream-orchestrator"),
+    stable_image_tag("substream-orchestrator"),
+    image_tag("substream-orchestrator", COMMIT_SHA),
+    image_tag("substream-orchestrator", BRANCH_NAME)
+  ]
+}
+
 group "build" {
   targets = [
-    "substream-listener"
+    "substream-listener",
+    "substream-orchestrator"
   ]
 }

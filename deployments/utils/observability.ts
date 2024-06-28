@@ -23,7 +23,7 @@ export type ObservabilityConfig = {
 };
 
 // prettier-ignore
-export const OTLP_COLLECTOR_CHART = helmChart('https://open-telemetry.github.io/opentelemetry-helm-charts', 'opentelemetry-collector', '0.54.1');
+export const OTLP_COLLECTOR_CHART = helmChart('https://open-telemetry.github.io/opentelemetry-helm-charts', 'opentelemetry-collector', '0.55.0');
 // prettier-ignore
 export const VECTOR_HELM_CHART = helmChart('https://helm.vector.dev', 'vector', '0.31.1');
 
@@ -51,8 +51,8 @@ export class Observability {
           memory: "512Mi",
         },
       },
-      podAnnotations: {
-        "pulumi.com/update-timestamp": Date.now().toString(),
+      presets: {
+        kubernetesEvents: { enabled: true },
       },
       clusterRole: {
         create: true,

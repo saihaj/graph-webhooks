@@ -58,6 +58,9 @@ scalar JSON
 
 type Mutation {
   createProject(input: CreateProjectInput!): CreateProjectPayload!
+  updateProjectState(
+    input: UpdateProjectStateInput!
+  ): UpdateProjectStatePayload!
 }
 
 interface Node {
@@ -89,6 +92,11 @@ type Project implements Node {
     last: Int
   ): ProjectMessagesConnection!
   name: String!
+
+  """
+  The state of the project
+  """
+  state: ProjectState!
 }
 
 type ProjectMessagesConnection {
@@ -99,6 +107,11 @@ type ProjectMessagesConnection {
 type ProjectMessagesConnectionEdge {
   cursor: String!
   node: ProjectWebhookMessage!
+}
+
+enum ProjectState {
+  ACTIVE
+  PAUSED
 }
 
 """
@@ -156,6 +169,28 @@ scalar Timestamp
 A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
 """
 scalar URL
+
+"""
+Update the status of a project
+"""
+input UpdateProjectStateInput {
+  """
+  The ID of the project to update
+  """
+  id: String!
+
+  """
+  The new state of the project
+  """
+  state: ProjectState!
+}
+
+type UpdateProjectStatePayload {
+  """
+  The updated project
+  """
+  project: Project!
+}
 
 """
 User of the system

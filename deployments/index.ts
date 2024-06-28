@@ -1,6 +1,7 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as azure from "@pulumi/azure-native";
 import * as azuread from "@pulumi/azuread";
+import * as k8s from "@pulumi/kubernetes";
 import { createAksCluster } from "./services/aks-cluster";
 import { PROVISIONER_TAG, serviceLocalHost } from "./utils/helpers";
 import { CertManager } from "./services/cert-manager";
@@ -121,10 +122,10 @@ const deploySvix = svixServer.deploy();
 
 const svixServiceUrl = pulumi.interpolate`http://${serviceLocalHost(deploySvix.service)}:${deploySvix.service.spec.ports[0].port}`;
 
-const substreamListener = new ServiceDeployment(
-  "substream-listener",
+const substreamOrchestrator = new ServiceDeployment(
+  "substream-orchestrator",
   {
-    image: dockerImages.getImageId("substream-listener", imagesTag),
+    image: dockerImages.getImageId("substream-orchestrator", imagesTag),
     imagePullSecret,
     readinessProbe: "/v1/ready",
     livenessProbe: "/v1/health",
@@ -149,12 +150,62 @@ const substreamListener = new ServiceDeployment(
         name: "REDIS_PORT",
         value: redisConfig.port.toString(),
       },
+      {
+        name: "DOCKER_TAG",
+        value: imagesTag,
+      },
     ],
   },
   provider,
 );
 
-const deploySubstreamListener = substreamListener.deploy();
+const deploySubstreamOrchestrator = substreamOrchestrator.deploy();
+
+// This service needs to be able to create jobs in the batch API
+const listenerServiceName = deploySubstreamOrchestrator.service.metadata.name;
+const role = new k8s.rbac.v1.Role(
+  "substream-orchestrator-job-creator-role",
+  {
+    metadata: {
+      name: pulumi.interpolate`${listenerServiceName}-job-creator-role`,
+    },
+    rules: [
+      {
+        apiGroups: ["batch"],
+        resources: ["jobs"],
+        verbs: ["create", "update", "get", "list", "watch", "delete"],
+      },
+      // Uncomment this if you need to manage Pods/Services/Deployments
+      // {
+      //   apiGroups: [""], // "" indicates the core API group
+      //   resources: ["services"],
+      //   verbs: ["create", "update", "get", "list", "watch", "delete"],
+      // },
+    ],
+  },
+  { provider },
+);
+// Create the RoleBinding
+new k8s.rbac.v1.RoleBinding(
+  "substream-orchestrator-job-creator-rolebinding",
+  {
+    metadata: {
+      name: pulumi.interpolate`${listenerServiceName}-job-creator-rolebinding`,
+    },
+    subjects: [
+      {
+        kind: "ServiceAccount",
+        name: "default",
+      },
+    ],
+    roleRef: {
+      kind: "Role",
+      name: role.metadata.name,
+      apiGroup: "rbac.authorization.k8s.io",
+    },
+  },
+  { provider },
+);
 
 reverseProxy
   .registerService({ record: appHostname }, [
@@ -164,9 +215,9 @@ reverseProxy
       service: deploySvix.service,
     },
     {
-      name: "substream-listener",
-      path: "/substream-listener",
-      service: deploySubstreamListener.service,
+      name: "substream-orchestrator",
+      path: "/substream-orchestrator",
+      service: deploySubstreamOrchestrator.service,
     },
   ])
   .deployProxy({

@@ -1,5 +1,5 @@
 import { createClient, NormalizeOAS } from "fets";
-import openapi from "./svix-openapi";
+import type openapi from "./svix-openapi";
 
 export const svixClient = ({
   endpoint,

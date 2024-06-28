@@ -8,6 +8,7 @@
 !.env.project
 !.env.vault
 substream-listener/.env
+substream-orchestrator/.env
 
 web/**
 erc721-substream/**
