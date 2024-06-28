@@ -51,6 +51,9 @@ export class Observability {
           memory: "512Mi",
         },
       },
+      presets: {
+        kubernetesEvents: { enabled: true },
+      },
       clusterRole: {
         create: true,
         rules: [
