@@ -51,9 +51,6 @@ export class Observability {
           memory: "512Mi",
         },
       },
-      podAnnotations: {
-        "pulumi.com/update-timestamp": Date.now().toString(),
-      },
       clusterRole: {
         create: true,
         rules: [
