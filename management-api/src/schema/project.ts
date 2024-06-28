@@ -432,7 +432,15 @@ builder.relayMutationField(
             throw new Error("Failed to resume project");
           }
 
-          return dbProject;
+          const updatedProject = await db
+            .update(project)
+            .set({
+              active: true,
+            })
+            .where(eq(project.id, projectId))
+            .returning();
+
+          return updatedProject[0];
         }
         default:
           throw new Error("Invalid state");
