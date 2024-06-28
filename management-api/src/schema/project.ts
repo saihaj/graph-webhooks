@@ -365,7 +365,7 @@ builder.relayMutationField(
     resolve: async (
       _parent,
       { input: { id, state } },
-      { db, authUserId, GUILD_ADMIN_TOKEN, SUBSTREAM_LISTENER_HOST, SF_TOKEN },
+      { db, authUserId, GUILD_ADMIN_TOKEN, SUBSTREAM_LISTENER_HOST },
     ) => {
       if (!authUserId) {
         throw new Error("User not authenticated");
