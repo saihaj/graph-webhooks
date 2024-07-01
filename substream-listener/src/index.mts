@@ -129,6 +129,7 @@ emitter.on("cursor", async (cursor) => {
 // Stream Blocks
 emitter.on("anyMessage", async (message) => {
   const transfers = (message.transfers || []) as any[];
+  const messageCount = transfers.length;
 
   const events = transfers.map((transfer) => {
     return svix.message.create(APP_ID, {
@@ -142,7 +143,15 @@ emitter.on("anyMessage", async (message) => {
 
   try {
     await Promise.all(events);
+    prometheus.substream_listener_processed_messages.inc(
+      { app_id: APP_ID, status: "success" },
+      messageCount,
+    );
   } catch (e) {
+    prometheus.substream_listener_processed_messages.inc(
+      { app_id: APP_ID, status: "error" },
+      messageCount,
+    );
     logger.error({ error: e }, "Error sending events to Svix");
   }
 });

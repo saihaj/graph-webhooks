@@ -99,6 +99,12 @@ const sessionGauge = new promClient.Gauge({
   ],
 });
 
+export const substream_listener_processed_messages = new promClient.Gauge({
+  name: "substream_listener_processed_messages",
+  help: "The number of messages processed by the emitter",
+  labelNames: ["app_id", "status"],
+});
+
 // ------------------------------------------------------------------
 
 export function onPrometheusMetrics(
