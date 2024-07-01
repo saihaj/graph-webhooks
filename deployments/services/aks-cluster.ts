@@ -43,7 +43,7 @@ export function createAksCluster({
       agentPoolProfiles: [
         {
           count: nodeCount,
-          vmSize: "Standard_DS2_v2",
+          vmSize: "Standard_D8ds_v5",
           name: "agentpool",
           mode: "System",
           osType: azure.containerservice.OSType.Linux,
