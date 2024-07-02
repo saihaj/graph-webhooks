@@ -4,6 +4,13 @@ import { v4 as uuidv4 } from "uuid";
 import { ProjectConfigurationSchema, SUPPORTED_CHAINS } from "utils";
 import { and, asc, eq, gt, or, sql } from "drizzle-orm";
 import { decodeGlobalID } from "@pothos/plugin-relay";
+import {
+  InputShapeFromFields,
+  InputFieldMap,
+  MaybePromise,
+} from "@pothos/core";
+import { Context } from "context";
+import { GraphQLResolveInfo } from "graphql";
 
 const Chain = builder.enumType("Chain", {
   values: SUPPORTED_CHAINS,
@@ -129,12 +136,28 @@ builder.node(Project, {
       .where(sql`${project.id} IN (${ids})`),
 });
 
-builder.queryField("projects", (t) => {
-  return t.connection({
+const ProjectsEdge = builder.edgeObject({
+  name: "QueryProjectsConnectionEdge",
+  type: Project,
+});
+
+const ProjectsConnection = builder.connectionObject(
+  {
+    name: "QueryProjectsConnection",
     type: Project,
+  },
+  ProjectsEdge,
+);
+
+builder.queryField("projects", (t) => {
+  return t.field({
+    type: ProjectsConnection,
     description: "List of projects",
     authScopes: {
       isAuthenticated: true,
+    },
+    args: {
+      ...t.arg.connectionArgs(),
     },
     resolve: async (_parent, { first, after }, { db }) => {
       const limit = first ?? 10;
@@ -337,6 +360,15 @@ builder.relayMutationField(
         type: Project,
         description: "The created project",
         resolve: (res) => res,
+      }),
+      projectEdge: t.field({
+        type: ProjectsEdge,
+        resolve: (res) => {
+          return {
+            cursor: `${res.createdAt}__${res.id}`,
+            node: res,
+          };
+        },
       }),
     }),
   },

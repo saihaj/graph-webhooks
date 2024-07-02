@@ -23,6 +23,7 @@ const yoga = createYoga<Env>({
     const jwt = authorization.split(" ")[1];
 
     let authUserId: string | null = null;
+
     if (jwt) {
       const { payload } = await jwtVerify(
         jwt, // The raw Bearer Token extracted from the request header

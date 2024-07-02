@@ -27,7 +27,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { graphql, useMutation } from "react-relay";
+import { ConnectionHandler, graphql, useMutation } from "react-relay";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { createProjectMutation } from "./__generated__/createProjectMutation.graphql";
@@ -75,6 +75,12 @@ export function CreateProject() {
   const [commit, isInFlight] = useMutation<createProjectMutation>(graphql`
     mutation createProjectMutation($input: CreateProjectInput!) {
       createProject(input: $input) {
+        projectEdge {
+          node {
+            id
+            ...projects_ProjectCard
+          }
+        }
         project {
           id
         }
@@ -104,6 +110,21 @@ export function CreateProject() {
       onError(error) {
         // TODO: handle errors
         console.log("error", error);
+      },
+      updater(store) {
+        const root = store.getRoot();
+
+        const payload = store.getRootField("createProject");
+        const serverEdge = payload?.getLinkedRecord("projectEdge");
+        if (!serverEdge) return;
+
+        const connection = ConnectionHandler.getConnection(
+          root,
+          "ProjectsGrid_projects",
+        );
+        if (!connection) return;
+
+        ConnectionHandler.insertEdgeAfter(connection, serverEdge);
       },
       onCompleted() {
         setIsOpened(false);

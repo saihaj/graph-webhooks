@@ -34,6 +34,7 @@ type CreateProjectPayload {
   The created project
   """
   project: Project!
+  projectEdge: QueryProjectsConnectionEdge!
 }
 
 """
