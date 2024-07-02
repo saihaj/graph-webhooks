@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<5c8d48b1ca216f8d5343d6695e8c24c2>>
+ * @generated SignedSource<<16dc60cb984074a03c7012dc3e3ef206>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,6 +11,7 @@
 import { ConcreteRequest, Query } from "relay-runtime";
 import { FragmentRefs } from "relay-runtime";
 export type Chain = "ETH_MAINNET" | "%future added value";
+export type ProjectState = "ACTIVE" | "PAUSED" | "%future added value";
 export type IdProjectQuery$variables = {
   id: string;
 };
@@ -19,6 +20,7 @@ export type IdProjectQuery$data = {
     readonly chain: Chain;
     readonly endpoint: any;
     readonly name: string;
+    readonly state: ProjectState;
     readonly " $fragmentSpreads": FragmentRefs<"messages_ProjectMessage">;
   };
 };
@@ -63,14 +65,21 @@ const node: ConcreteRequest = (function () {
       name: "name",
       storageKey: null,
     },
-    v5 = [
+    v5 = {
+      alias: null,
+      args: null,
+      kind: "ScalarField",
+      name: "state",
+      storageKey: null,
+    },
+    v6 = [
       {
         kind: "Literal",
         name: "first",
         value: 10,
       },
     ],
-    v6 = {
+    v7 = {
       alias: null,
       args: null,
       kind: "ScalarField",
@@ -95,6 +104,7 @@ const node: ConcreteRequest = (function () {
             v2 /*: any*/,
             v3 /*: any*/,
             v4 /*: any*/,
+            v5 /*: any*/,
             {
               args: null,
               kind: "FragmentSpread",
@@ -124,9 +134,10 @@ const node: ConcreteRequest = (function () {
             v2 /*: any*/,
             v3 /*: any*/,
             v4 /*: any*/,
+            v5 /*: any*/,
             {
               alias: null,
-              args: v5 /*: any*/,
+              args: v6 /*: any*/,
               concreteType: "ProjectMessagesConnection",
               kind: "LinkedField",
               name: "messages",
@@ -148,7 +159,7 @@ const node: ConcreteRequest = (function () {
                       name: "node",
                       plural: false,
                       selections: [
-                        v6 /*: any*/,
+                        v7 /*: any*/,
                         {
                           alias: null,
                           args: null,
@@ -213,30 +224,30 @@ const node: ConcreteRequest = (function () {
             },
             {
               alias: null,
-              args: v5 /*: any*/,
+              args: v6 /*: any*/,
               filters: null,
               handle: "connection",
               key: "ProjectMessage_messages",
               kind: "LinkedHandle",
               name: "messages",
             },
-            v6 /*: any*/,
+            v7 /*: any*/,
           ],
           storageKey: null,
         },
       ],
     },
     params: {
-      cacheID: "37298a809c7dbec81eb1b83ad54e7ef8",
+      cacheID: "7869550276849604333eee1ed927719d",
       id: null,
       metadata: {},
       name: "IdProjectQuery",
       operationKind: "query",
-      text: "query IdProjectQuery(\n  $id: String!\n) {\n  project(id: $id) {\n    chain\n    endpoint\n    name\n    ...messages_ProjectMessage\n    id\n  }\n}\n\nfragment messages_ProjectMessage on Project {\n  messages(first: 10) {\n    edges {\n      node {\n        id\n        eventType\n        timestamp\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n",
+      text: "query IdProjectQuery(\n  $id: String!\n) {\n  project(id: $id) {\n    chain\n    endpoint\n    name\n    state\n    ...messages_ProjectMessage\n    id\n  }\n}\n\nfragment messages_ProjectMessage on Project {\n  messages(first: 10) {\n    edges {\n      node {\n        id\n        eventType\n        timestamp\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n",
     },
   };
 })();
 
-(node as any).hash = "e85d2c518503b5f7f117049ee3b0a544";
+(node as any).hash = "1ea5cb8c33e8865e07180a002af044fa";
 
 export default node;

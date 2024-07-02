@@ -10,6 +10,13 @@ import { graphql, useFragment, usePaginationFragment } from "react-relay";
 import { projects_ProjectCard$key } from "./__generated__/projects_ProjectCard.graphql";
 import { projects_ProjectsGrid$key } from "./__generated__/projects_ProjectsGrid.graphql";
 import { Link } from "@tanstack/react-router";
+import { Circle } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
 
 function ProjectCard({ card }: { card: projects_ProjectCard$key }) {
   const data = useFragment(
@@ -18,6 +25,7 @@ function ProjectCard({ card }: { card: projects_ProjectCard$key }) {
         id
         name
         chain
+        state
       }
     `,
     card,
@@ -28,7 +36,7 @@ function ProjectCard({ card }: { card: projects_ProjectCard$key }) {
       <CardHeader className="flex flex-row items-center gap-2">
         <div className="grid gap-1">
           <CardTitle>{data.name}</CardTitle>
-          <CardDescription>
+          <CardDescription className="flex items-center">
             <Button
               variant="link"
               size="sm"
@@ -36,6 +44,31 @@ function ProjectCard({ card }: { card: projects_ProjectCard$key }) {
             >
               {data.chain}
             </Button>
+            <div className="ml-1 mt-1">
+              {data.state === "ACTIVE" ? (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Circle className="w-4 h-4 fill-green-500 text-green-500"></Circle>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Project is sending events</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ) : (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Circle className="w-4 h-4 fill-red-500 text-red-500"></Circle>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Project is not sending any events</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
           </CardDescription>
         </div>
       </CardHeader>

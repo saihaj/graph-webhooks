@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<dca7f01af2721f62e7cde56a6db7736c>>
+ * @generated SignedSource<<31ec601f82ccc29e0f3b75c759d9bea0>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -98,6 +98,13 @@ const node: ConcreteRequest = (function () {
                       alias: null,
                       args: null,
                       kind: "ScalarField",
+                      name: "state",
+                      storageKey: null,
+                    },
+                    {
+                      alias: null,
+                      args: null,
+                      kind: "ScalarField",
                       name: "__typename",
                       storageKey: null,
                     },
@@ -154,12 +161,12 @@ const node: ConcreteRequest = (function () {
       ],
     },
     params: {
-      cacheID: "a3bd56be09cfb68ad862c511fbb559a8",
+      cacheID: "f1405adfcb1c0359f0cab950bc8ba13c",
       id: null,
       metadata: {},
       name: "projectsQuery",
       operationKind: "query",
-      text: "query projectsQuery {\n  ...projects_ProjectsGrid\n}\n\nfragment projects_ProjectCard on Project {\n  id\n  name\n  chain\n}\n\nfragment projects_ProjectsGrid on Query {\n  projects(first: 9) {\n    edges {\n      node {\n        id\n        ...projects_ProjectCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n",
+      text: "query projectsQuery {\n  ...projects_ProjectsGrid\n}\n\nfragment projects_ProjectCard on Project {\n  id\n  name\n  chain\n  state\n}\n\nfragment projects_ProjectsGrid on Query {\n  projects(first: 9) {\n    edges {\n      node {\n        id\n        ...projects_ProjectCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n",
     },
   };
 })();

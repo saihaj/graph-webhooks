@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<3127b9574cee8981afa6b28696067e90>>
+ * @generated SignedSource<<e115292a8c9841d542c51443dc111b9d>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,11 +10,13 @@
 
 import { Fragment, ReaderFragment } from "relay-runtime";
 export type Chain = "ETH_MAINNET" | "%future added value";
+export type ProjectState = "ACTIVE" | "PAUSED" | "%future added value";
 import { FragmentRefs } from "relay-runtime";
 export type projects_ProjectCard$data = {
   readonly chain: Chain;
   readonly id: string;
   readonly name: string;
+  readonly state: ProjectState;
   readonly " $fragmentType": "projects_ProjectCard";
 };
 export type projects_ProjectCard$key = {
@@ -49,11 +51,18 @@ const node: ReaderFragment = {
       name: "chain",
       storageKey: null,
     },
+    {
+      alias: null,
+      args: null,
+      kind: "ScalarField",
+      name: "state",
+      storageKey: null,
+    },
   ],
   type: "Project",
   abstractKey: null,
 };
 
-(node as any).hash = "733a256d531cf5c1716c7b62d419f483";
+(node as any).hash = "0be00976ebf85d2b5dc34e4f486b7219";
 
 export default node;
