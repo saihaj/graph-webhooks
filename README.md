@@ -18,6 +18,9 @@ Here is a high-level overview of what different directories in this repository d
 - [**`prometheus`**](./prometheus/): Local development Prometheus setup to monitor the services.
 - [**`grafana`**](./grafana/): Local development Grafana setup to visualize the metrics from Prometheus.
 
+[![CleanShot 2024-07-03 at 13 38 02](https://github.com/saihaj/graph-webhooks/assets/44710980/f4ea64cc-f230-4a34-beb6-9df497d35cc7)](https://excalidraw.com/#json=opdfEctodVvmGIDtnGTkA,Q19BOyI3_9f0p5y89ae6nQ)
+
+
 ## Running the project
 
 1. Install following
